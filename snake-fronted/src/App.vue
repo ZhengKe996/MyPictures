@@ -1,7 +1,16 @@
 <script setup lang="ts">
-import BaseLayout from "@/layout/BaseLayout.vue";
+import BasicLayout from "@/layouts/BasicLayout.vue";
+import { LayoutMenu } from "@/config";
+import { useRoute } from "vue-router";
+const route = useRoute();
 </script>
 
-<template><BaseLayout /></template>
-
+<template>
+  <template v-if="route.meta?.layout === LayoutMenu.BasicLayout">
+    <BasicLayout />
+  </template>
+  <template v-else>
+    <RouterView />
+  </template>
+</template>
 <style scoped></style>
