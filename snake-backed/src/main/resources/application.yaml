@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: SpringBootTemplate
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/SnakePC
+    username: root
+    password: 123456
+  data:
+    redis:
+      { database: 1, host: localhost, port: 6379, timeout: 5000 }
+  session:
+    store-type: redis
+server:
+  address: 0.0.0.0
+  port: 8080
+  servlet:
+    context-path: /api
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+# 接口文档配置
+knife4j:
+  enable: true
+  openapi:
+    version: 1.0
+    group:
+      default:
+        api-rule: package
+        api-rule-resources:
+          - fun.timu.init.controller
