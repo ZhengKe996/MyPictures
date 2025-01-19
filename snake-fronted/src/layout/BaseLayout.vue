@@ -11,6 +11,6 @@
 </template>
 
 <script setup lang="ts">
-import GlobalFooter from "@/compents/GlobalFooter";
-import GlobalHeader from "@/compents/GlobalHeader";
+import GlobalFooter from "@/components/GlobalFooter";
+import GlobalHeader from "@/components/GlobalHeader";
 </script>
