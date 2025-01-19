@@ -1,7 +1,16 @@
 <template>
-  <div><router-view></router-view></div>
+  <a-layout class="min-h-[100vh]">
+    <a-layout-header class="flex justify-center">
+      <GlobalHeader></GlobalHeader>
+    </a-layout-header>
+    <a-layout-content><router-view></router-view></a-layout-content>
+    <a-layout-footer class="flex justify-center">
+      <GlobalFooter></GlobalFooter>
+    </a-layout-footer>
+  </a-layout>
 </template>
 
-<script setup lang="ts"></script>
-
-<style scoped></style>
+<script setup lang="ts">
+import GlobalFooter from "@/compents/GlobalFooter";
+import GlobalHeader from "@/compents/GlobalHeader";
+</script>

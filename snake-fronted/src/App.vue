@@ -1,7 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import BaseLayout from "@/layout/BaseLayout.vue";
+</script>
 
-<template>
-  <RouterView />
-</template>
+<template><BaseLayout /></template>
 
 <style scoped></style>
