@@ -1,0 +1,35 @@
+{
+  "name": "snake-fronted",
+  "description": "整合了UnoCSS、Pinia、VueRouter的项目基础模板",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "generate-api": "openapi --input http://127.0.0.1:8080/api/v2/api-docs --output ./src/generated --client axios"
+  },
+  "dependencies": {
+    "@vueuse/core": "^12.4.0",
+    "ant-design-vue": "4.x",
+    "axios": "^1.7.9",
+    "pinia": "^2.3.0",
+    "vue": "^3.5.13",
+    "vue-router": "4"
+  },
+  "devDependencies": {
+    "@iconify-json/tabler": "^1.2.14",
+    "@types/node": "^22.10.2",
+    "@unocss/preset-icons": "^65.4.2",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/tsconfig": "^0.7.0",
+    "animated-unocss": "^0.0.6",
+    "normalize.css": "^8.0.1",
+    "openapi-typescript-codegen": "^0.29.0",
+    "typescript": "~5.6.2",
+    "unocss": "^0.65.3",
+    "vite": "^6.0.5",
+    "vue-tsc": "^2.2.0"
+  }
+}
