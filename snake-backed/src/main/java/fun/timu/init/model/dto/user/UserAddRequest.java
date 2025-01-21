@@ -3,6 +3,7 @@ package fun.timu.init.model.dto.user;
 import lombok.Data;
 
 import java.io.Serializable;
+
 /**
  * 用户创建请求
  *
@@ -11,6 +12,7 @@ import java.io.Serializable;
  */
 @Data
 public class UserAddRequest implements Serializable {
+    private static final long serialVersionUID = 6179308909127732737L;
     /**
      * 用户昵称
      */
@@ -31,5 +33,8 @@ public class UserAddRequest implements Serializable {
      */
     private String userRole;
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * 用户简介
+     */
+    private String userProfile;
 }

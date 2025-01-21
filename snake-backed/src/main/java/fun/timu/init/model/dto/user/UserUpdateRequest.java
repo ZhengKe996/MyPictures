@@ -12,6 +12,7 @@ import java.io.Serializable;
  */
 @Data
 public class UserUpdateRequest implements Serializable {
+    private static final long serialVersionUID = 2388113322838367910L;
     /**
      * id
      */
@@ -36,7 +37,4 @@ public class UserUpdateRequest implements Serializable {
      * 用户角色：user/admin/ban
      */
     private String userRole;
-
-    private static final long serialVersionUID = 1L;
-
 }

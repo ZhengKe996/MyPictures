@@ -10,7 +10,11 @@ import fun.timu.init.model.vo.UserVO;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-
+/**
+ * @author zhengke
+ * @description 针对表【user(用户)】的数据库操作Service
+ * @createDate 2025-01-21 10:42:08
+ */
 public interface UserService extends IService<User> {
     /**
      * 用户注册

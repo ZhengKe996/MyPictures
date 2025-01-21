@@ -1,6 +1,7 @@
 package fun.timu.init.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.UUID;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import fun.timu.init.common.ErrorCode;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -29,15 +31,30 @@ import java.util.stream.Collectors;
 
 import static fun.timu.init.constant.UserConstant.USER_LOGIN_STATE;
 
-@Service
+/**
+ * @author zhengke
+ * @description 针对表【user(用户)】的数据库操作Service实现
+ * @createDate 2025-01-21 10:42:08
+ */
+
 @Slf4j
+@Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     public static final String SALT = "Init";// TODO 盐值，混淆密码
     private Lock lock = new ReentrantLock(); // 锁
 
+    /**
+     * 用户注册函数
+     *
+     * @param userAccount   用户账号，要求长度至少为4
+     * @param userPassword  用户密码，要求长度至少为8
+     * @param checkPassword 用于确认的密码，必须与userPassword相同
+     * @return 注册成功后用户的ID
+     * @throws BusinessException 当参数不合法或注册过程中出现错误时抛出
+     */
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
-        // 1. 校验
+        // 1. 校验参数是否为空或长度是否符合要求
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
@@ -47,31 +64,38 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userPassword.length() < 8 || checkPassword.length() < 8) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短");
         }
-        // 密码和校验密码相同
+        // 检查两次输入的密码是否一致
         if (!userPassword.equals(checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
         }
-        // 上锁保证原子性
+        // 使用锁确保用户注册的原子性，避免并发问题
         lock.lock();
         try {
+            // 检查数据库中是否已存在相同账号的用户
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("userAccount", userAccount);
             long count = this.baseMapper.selectCount(queryWrapper);
-            if (count > 0) throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
+            if (count > 0) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
+            }
 
-            // 2. 加密
-            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+            // 2. 对用户密码进行加密处理
+            String encryptPassword = getEncryptPassword(userPassword);
 
-            // 3. 插入数据
+            // 3. 创建User对象并插入到数据库
             User user = new User();
             user.setUserAccount(userAccount);
             user.setUserPassword(encryptPassword);
+            user.setUserName("普通用户" + UUID.randomUUID());
+            user.setUserRole(UserRoleEnum.USER.getValue());
             boolean saveResult = this.save(user);
             if (!saveResult) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
             }
+            // 返回新注册用户ID
             return user.getId();
         } finally {
+            // 释放锁，确保后续其他线程可以执行注册操作
             lock.unlock();
         }
     }
@@ -89,64 +113,98 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
         }
 
-        // 2. 加密
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+        try {
+            // 2. 加密
+            String encryptPassword = getEncryptPassword(userPassword);
 
-        // 查询用户是否存在
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("userAccount", userAccount);
-        queryWrapper.eq("userPassword", encryptPassword);
-        User user = this.baseMapper.selectOne(queryWrapper);
+            // 查询用户是否存在
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("userAccount", userAccount);
+            queryWrapper.eq("userPassword", encryptPassword);
+            User user = this.baseMapper.selectOne(queryWrapper);
 
-        // 用户不存在
-        if (user == null) {
-            log.info("user login failed, userAccount cannot match userPassword");
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
+            // 用户不存在
+            if (user == null) {
+                log.warn("user login failed, userAccount: {}", userAccount);
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
+            }
+
+            // 3. 记录用户的登录态（Redis）
+            request.getSession().setAttribute(USER_LOGIN_STATE, user);
+            return this.getLoginUserVO(user);
+        } catch (Exception e) {
+            log.error("Error during user login process", e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "系统内部错误");
         }
-
-        // 3. 记录用户的登录态（Redis）
-        request.getSession().setAttribute(USER_LOGIN_STATE, user);
-        return this.getLoginUserVO(user);
     }
+
 
     @Override
     public User getLoginUser(HttpServletRequest request) {
         // 1. 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "Session is null");
+        }
+
+        Object userObj = session.getAttribute(USER_LOGIN_STATE);
+        if (userObj == null || !(userObj instanceof User)) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "User object is null or not an instance of User");
+        }
+
         User currentUser = (User) userObj;
-        if (currentUser == null || currentUser.getId() == null) throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        if (currentUser.getId() == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "User ID is null");
+        }
 
-
-        // 2. 从数据库查询（通过走session的方式 优化性能）
-//        long userId = currentUser.getId();
-//        currentUser = this.getById(userId);
-//        if (currentUser == null) throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        // 2. 查询数据库获取的User对象
+        long userId = currentUser.getId();
+        currentUser = this.getById(userId);
+        if (currentUser == null) throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         return currentUser;
     }
+
 
     @Override
     public User getLoginUserPermitNull(HttpServletRequest request) {
         // 1. 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        HttpSession session = request.getSession(false); // 获取会话，允许返回 null
+        if (session == null) return null;
+
+        Object userObj = session.getAttribute(USER_LOGIN_STATE);
+        if (!(userObj instanceof User)) return null;
+
         User currentUser = (User) userObj;
-        if (currentUser == null || currentUser.getId() == null) return null;
 
-
+        // 2. 检查用户 ID 是否为空
         if (currentUser.getId() == null) {
-            // 如果ID为空，同样抛出未登录异常（尽管这种情况不太可能发生）
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户信息不完整");
         }
 
-        // 从数据库查询（追求性能的话，直接走缓存，不查数据库）
-//        long userId = currentUser.getId();
-//        return this.getById(userId);
+        // 3. 从数据库查询（追求性能的话，直接走缓存，不查数据库）
+        long userId = currentUser.getId();
+        currentUser = this.getById(userId);
         return currentUser;
     }
+
 
     @Override
     public boolean isAdmin(HttpServletRequest request) {
         // 仅管理员可查询
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        HttpSession session = request.getSession(false); // 避免不必要的会话创建
+        if (session == null) {
+            return false; // 如果没有会话，直接返回false
+        }
+
+        Object userObj = session.getAttribute(USER_LOGIN_STATE);
+        if (userObj == null) {
+            return false; // 如果用户对象为空，直接返回false
+        }
+
+        if (!(userObj instanceof User)) {
+            return false; // 如果用户对象不是User类型，直接返回false
+        }
+
         User user = (User) userObj;
         return isAdmin(user);
     }
@@ -158,11 +216,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public boolean userLogout(HttpServletRequest request) {
-        if (request.getSession().getAttribute(USER_LOGIN_STATE) == null)
+        HttpSession session = request.getSession(false); // 获取会话时不创建新会话
+        if (session == null || session.getAttribute(USER_LOGIN_STATE) == null) {
+            log.warn("User not logged in: {}", request.getRemoteAddr());
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
-
+        }
         // 移除登录状态
-        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        session.removeAttribute(USER_LOGIN_STATE);
+        log.info("User logged out successfully: {}", request.getRemoteAddr());
         return true;
     }
 
@@ -194,8 +255,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userQueryRequest == null) throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
 
         Long id = userQueryRequest.getId();
-        String unionId = userQueryRequest.getUnionId();
-        String mpOpenId = userQueryRequest.getMpOpenId();
         String userName = userQueryRequest.getUserName();
         String userProfile = userQueryRequest.getUserProfile();
         String userRole = userQueryRequest.getUserRole();
@@ -203,12 +262,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String sortOrder = userQueryRequest.getSortOrder();
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(id != null, "id", id);
-        queryWrapper.eq(StringUtils.isNotBlank(unionId), "unionId", unionId);
-        queryWrapper.eq(StringUtils.isNotBlank(mpOpenId), "mpOpenId", mpOpenId);
         queryWrapper.eq(StringUtils.isNotBlank(userRole), "userRole", userRole);
         queryWrapper.like(StringUtils.isNotBlank(userProfile), "userProfile", userProfile);
         queryWrapper.like(StringUtils.isNotBlank(userName), "userName", userName);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
         return queryWrapper;
     }
+
+    /**
+     * 对用户密码进行加密处理
+     * <p>
+     * 本方法使用MD5算法对用户密码进行不可逆加密处理加密过程包括：
+     * 1. 将用户密码与预定义的盐值（SALT）拼接，以增加密码的安全性
+     * 2. 使用DigestUtils工具类中的md5DigestAsHex方法对拼接后的字符串进行MD5加密
+     * 该方法将字符串转换为字节数组，然后执行MD5加密，并返回加密后的十六进制字符串表示
+     *
+     * @param userPassword 明文用户密码，即用户输入的原始、未加密的密码
+     * @return 返回加密后的密码字符串，作为用户密码的安全存储形式
+     */
+    public String getEncryptPassword(String userPassword) {
+        return DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+    }
 }
+
+
+
+

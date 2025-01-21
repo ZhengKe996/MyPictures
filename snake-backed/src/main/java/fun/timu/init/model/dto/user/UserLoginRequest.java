@@ -12,9 +12,15 @@ import java.io.Serializable;
  */
 @Data
 public class UserLoginRequest implements Serializable {
-    private static final long serialVersionUID = 3191241716373120793L;
 
+    private static final long serialVersionUID = -2040722671668169693L;
+    /**
+     * 账号
+     */
     private String userAccount;
 
+    /**
+     * 密码
+     */
     private String userPassword;
 }
