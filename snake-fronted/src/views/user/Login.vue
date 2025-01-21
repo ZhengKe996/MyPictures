@@ -88,7 +88,7 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
 import { RouterLink } from "vue-router";
-import { UserLogin } from "@/services/user";
+import { UserLogin } from "@/services";
 import { message as Message } from "ant-design-vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
