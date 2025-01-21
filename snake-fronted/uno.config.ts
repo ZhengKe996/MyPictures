@@ -12,4 +12,10 @@ export default defineConfig({
     }),
     animatedUno(),
   ],
+  theme: {
+    colors: {
+      "custom-gradient-start": "#d53369",
+      "custom-gradient-end": "#daae51",
+    },
+  },
 });
