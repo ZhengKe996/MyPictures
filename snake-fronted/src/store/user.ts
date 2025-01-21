@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ACCESSENUM, NOLOGIN } from "@/access";
-// import { GetLoginInfoUser } from "@/services/user";
+import { GetLoginInfoUser } from "@/services";
 import { DefaultUserAvatar } from "@/config";
 
 interface UserInfo {
@@ -38,21 +38,20 @@ export const useUserStore = defineStore("user", {
   },
   actions: {
     async setLoginInfo() {
-      // TODO Login
-      //   const { code, data } = await GetLoginInfoUser();
-      //   if (code === 0 && data) {
-      //     this.loginInfo.userName = data.userName as string;
-      //     this.loginInfo.userRole = data.userRole as ACCESSENUM;
-      //     this.loginInfo.userAvatar = data.userAvatar
-      //       ? data.userAvatar
-      //       : DefaultUserAvatar;
-      //     this.loginInfo.userProfile = data.userProfile as string;
-      //   } else {
-      //     this.loginInfo.userName = NOLOGIN;
-      //     this.loginInfo.userRole = ACCESSENUM.NOLOGIN;
-      //     this.loginInfo.userAvatar = DefaultUserAvatar;
-      //     this.loginInfo.userProfile = "";
-      //   }
+      const { code, data } = await GetLoginInfoUser();
+      if (code === 0 && data) {
+        this.loginInfo.userName = data.userName as string;
+        this.loginInfo.userRole = data.userRole as ACCESSENUM;
+        this.loginInfo.userAvatar = data.userAvatar
+          ? data.userAvatar
+          : DefaultUserAvatar;
+        this.loginInfo.userProfile = data.userProfile as string;
+      } else {
+        this.loginInfo.userName = NOLOGIN;
+        this.loginInfo.userRole = ACCESSENUM.NOLOGIN;
+        this.loginInfo.userAvatar = DefaultUserAvatar;
+        this.loginInfo.userProfile = "";
+      }
     },
   },
   persist: {

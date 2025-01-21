@@ -71,7 +71,7 @@
           </div>
         </div>
         <p class="mt-10 text-center text-sm/6 text-gray-500">
-          Not a Doj account?
+          Not a Pictures account?
           {{ " " }}
           <RouterLink
             to="/user/register"

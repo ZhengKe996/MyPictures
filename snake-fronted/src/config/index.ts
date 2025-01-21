@@ -1,4 +1,4 @@
-export const DefaultUserAvatar = "@/assets/defaultAvatar";
+export const DefaultUserAvatar = "/src/assets/defaultAvatar.png";
 export enum LayoutMenu {
   BasicLayout = "BasicLayout",
   UserLayout = "UserLayout",
