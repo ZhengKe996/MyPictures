@@ -2,7 +2,7 @@
   "name": "snake-fronted",
   "description": "整合了UnoCSS、Pinia、VueRouter的项目基础模板",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

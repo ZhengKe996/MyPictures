@@ -17,7 +17,10 @@
           </div>
         </router-link>
       </div>
-      <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+      <div
+        class="hidden lg:flex lg:flex-1 lg:justify-end relative"
+        @click="isHovered = !isHovered"
+      >
         <router-link
           v-if="LoginUserInfo.userRole == ACCESSENUM.NOLOGIN"
           class="text-base/6 font-semibold text-gray-900"
@@ -30,6 +33,30 @@
           :userRole="userStore.getUserRole"
           :userAvatar="userStore.getUserAvatar"
         ></Avatar>
+        <div
+          class="absolute top-12 right-8 animated animated-duration-500 overflow-hidden rounded-lg bg-white shadow"
+          :class="
+            LoginUserInfo.userRole != ACCESSENUM.NOLOGIN && isHovered
+              ? 'animated-back-in-right'
+              : 'animated-back-out-right'
+          "
+        >
+          <div
+            v-show="LoginUserInfo.userRole != ACCESSENUM.NOLOGIN && isHovered"
+            class="px-2 py-3 sm:p-6"
+            @click="handleLogout"
+          >
+            <span
+              class="text-base/6 font-semibold text-gray-900 flex items-center justify-center bg-white rounded-md focus:outline-none focus:shadow-outline transform transition hover:scale-102 duration-800 ease-in-out"
+            >
+              Log out <i class="i-tabler:logout size-4 mx-2"></i
+            ></span>
+          </div>
+        </div>
+      </div>
+      <div class="" v-if="LoginUserInfo.userRole != ACCESSENUM.NOLOGIN">
+        <i v-if="isHovered" class="i-tabler:chevron-up size-8"></i>
+        <i v-else class="i-tabler:chevron-down size-8"></i>
       </div>
     </nav>
   </header>
@@ -42,7 +69,16 @@ import { LayoutMenu } from "@/config";
 import { routes } from "@/router/routes";
 import { useUserStore } from "@/store/user";
 import { ACCESSENUM, CheckACCESS } from "@/access";
+import { UserLogout } from "@/services";
 import Avatar from "../Avatar";
+
+const isHovered = ref(false);
+
+const handleLogout = async () => {
+  await UserLogout();
+  userStore.setLoginInfo();
+  router.push("/login");
+};
 
 // 状态管理 Pinia
 const userStore = useUserStore();

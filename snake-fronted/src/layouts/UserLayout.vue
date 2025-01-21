@@ -1,8 +1,4 @@
 <template>
-  <!-- <div>
-    <router-view></router-view>
-  </div> -->
-
   <div class="bg-fcfcfc text-12161e h-full">
     <div class="bg-fcfcfc text-12161e h-screen overflow-y-auto relative">
       <div
