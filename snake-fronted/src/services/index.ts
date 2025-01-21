@@ -1,3 +1,2 @@
-// // index.ts
-// export * from './moduleA';
+export * from "./user";
 // export * from './moduleB';
