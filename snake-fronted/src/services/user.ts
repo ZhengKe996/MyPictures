@@ -85,9 +85,13 @@ export const UserLogout = async () => {
 export const AdminGetUserList = async (form: {
   current: number;
   pageSize: number;
+  id?: number;
+  sortField?: string;
+  sortOrder?: string;
+  userAccount?: string;
+  userName?: string;
+  userProfile?: string;
+  userRole?: string;
 }) => {
-  return await UserControllerService.listUserVoByPageUsingPost({
-    current: form.current,
-    pageSize: form.pageSize,
-  });
+  return await UserControllerService.listUserVoByPageUsingPost(form);
 };
