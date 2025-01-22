@@ -5,7 +5,6 @@
 import type { BaseResponse_boolean_ } from '../models/BaseResponse_boolean_';
 import type { BaseResponse_LoginUserVO_ } from '../models/BaseResponse_LoginUserVO_';
 import type { BaseResponse_long_ } from '../models/BaseResponse_long_';
-import type { BaseResponse_Page_User_ } from '../models/BaseResponse_Page_User_';
 import type { BaseResponse_Page_UserVO_ } from '../models/BaseResponse_Page_UserVO_';
 import type { BaseResponse_User_ } from '../models/BaseResponse_User_';
 import type { BaseResponse_UserVO_ } from '../models/BaseResponse_UserVO_';
@@ -115,27 +114,6 @@ export class UserControllerService {
             query: {
                 'id': id,
             },
-            errors: {
-                401: `Unauthorized`,
-                403: `Forbidden`,
-                404: `Not Found`,
-            },
-        });
-    }
-    /**
-     * listUserByPage
-     * @param userQueryRequest userQueryRequest
-     * @returns BaseResponse_Page_User_ OK
-     * @returns any Created
-     * @throws ApiError
-     */
-    public static listUserByPageUsingPost(
-        userQueryRequest: UserQueryRequest,
-    ): CancelablePromise<BaseResponse_Page_User_ | any> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/user/list/page',
-            body: userQueryRequest,
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,

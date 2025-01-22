@@ -13,7 +13,6 @@ export type { BaseResponse_LoginUserVO_ } from './models/BaseResponse_LoginUserV
 export type { BaseResponse_long_ } from './models/BaseResponse_long_';
 export type { BaseResponse_Page_Post_ } from './models/BaseResponse_Page_Post_';
 export type { BaseResponse_Page_PostVO_ } from './models/BaseResponse_Page_PostVO_';
-export type { BaseResponse_Page_User_ } from './models/BaseResponse_Page_User_';
 export type { BaseResponse_Page_UserVO_ } from './models/BaseResponse_Page_UserVO_';
 export type { BaseResponse_PostVO_ } from './models/BaseResponse_PostVO_';
 export type { BaseResponse_User_ } from './models/BaseResponse_User_';
@@ -22,7 +21,6 @@ export type { DeleteRequest } from './models/DeleteRequest';
 export type { LoginUserVO } from './models/LoginUserVO';
 export type { Page_Post_ } from './models/Page_Post_';
 export type { Page_PostVO_ } from './models/Page_PostVO_';
-export type { Page_User_ } from './models/Page_User_';
 export type { Page_UserVO_ } from './models/Page_UserVO_';
 export type { Post } from './models/Post';
 export type { PostAddRequest } from './models/PostAddRequest';
