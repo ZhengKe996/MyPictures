@@ -39,6 +39,16 @@ export const routes: RouteRecordRaw[] = [
     meta: { layout: LayoutMenu.BasicLayout, isHeader: true },
   },
   {
+    path: "/manager/users",
+    name: "Manager Users",
+    component: () => import("@/views/user/ManagerUsers.vue"),
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.ADMIN,
+      isHeader: true,
+    },
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "mian",
     component: () => import("@/views/Error.vue"),
