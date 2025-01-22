@@ -5,7 +5,12 @@ const locale = zhCN;
 import BasicLayout from "@/layouts/BasicLayout.vue";
 import { LayoutMenu } from "@/config";
 import { useRoute } from "vue-router";
+import { onMounted } from "vue";
 const route = useRoute();
+import { useUserStore } from "@/store/user";
+
+const userStore = useUserStore();
+onMounted(() => userStore.setLoginInfo());
 </script>
 
 <template>
