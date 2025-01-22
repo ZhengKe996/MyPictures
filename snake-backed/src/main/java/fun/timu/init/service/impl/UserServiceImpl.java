@@ -2,6 +2,8 @@ package fun.timu.init.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import fun.timu.init.common.ErrorCode;
@@ -103,9 +105,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 用户登录方法
      *
-     * @param userAccount 用户账号，用于识别用户身份
+     * @param userAccount  用户账号，用于识别用户身份
      * @param userPassword 用户密码，用于验证用户身份
-     * @param request HTTP请求对象，用于获取和设置请求信息
+     * @param request      HTTP请求对象，用于获取和设置请求信息
      * @return 登录成功的用户信息视图对象
      * @throws BusinessException 当参数验证失败、用户不存在或系统发生内部错误时抛出
      */
@@ -150,7 +152,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 获取当前登录的用户信息
-     *
+     * <p>
      * 此方法通过HTTP请求获取当前登录用户的信息它首先检查会话是否已创建，
      * 然后从会话中提取用户信息如果用户未登录或会话信息不正确，则抛出异常
      *
@@ -351,30 +353,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
-        // 检查用户查询请求是否为空，如果为空则抛出业务异常
-        if (userQueryRequest == null) throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
-
-        // 提取用户查询请求中的各个属性
+        if (userQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
+        }
         Long id = userQueryRequest.getId();
         String userName = userQueryRequest.getUserName();
+        String userAccount = userQueryRequest.getUserAccount();
         String userProfile = userQueryRequest.getUserProfile();
         String userRole = userQueryRequest.getUserRole();
         String sortField = userQueryRequest.getSortField();
         String sortOrder = userQueryRequest.getSortOrder();
-
-        // 创建一个用户查询的QueryWrapper对象
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        // 如果ID不为空，则添加ID的等值查询条件
-        queryWrapper.eq(id != null, "id", id);
-        // 如果用户角色不为空且不为单个空格，则添加用户角色的等值查询条件
-        queryWrapper.eq(StringUtils.isNotBlank(userRole), "userRole", userRole);
-        // 如果用户资料不为空且不为单个空格，则添加用户资料的模糊查询条件
-        queryWrapper.like(StringUtils.isNotBlank(userProfile), "userProfile", userProfile);
-        // 如果用户名不为空且不为单个空格，则添加用户名的模糊查询条件
-        queryWrapper.like(StringUtils.isNotBlank(userName), "userName", userName);
-        // 如果排序字段有效且排序顺序为升序，则按排序字段进行升序排序
-        queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
-        // 返回构建好的QueryWrapper对象
+        queryWrapper.eq(ObjUtil.isNotNull(id), "id", id);
+        queryWrapper.eq(StrUtil.isNotBlank(userRole), "userRole", userRole);
+        queryWrapper.like(StrUtil.isNotBlank(userAccount), "userAccount", userAccount);
+        queryWrapper.like(StrUtil.isNotBlank(userName), "userName", userName);
+        queryWrapper.like(StrUtil.isNotBlank(userProfile), "userProfile", userProfile);
+        queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
         return queryWrapper;
     }
 
