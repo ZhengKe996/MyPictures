@@ -11,6 +11,8 @@ spring:
       { database: 1, host: localhost, port: 6379, timeout: 5000 }
   session:
     store-type: redis
+  profiles:
+    active: local
 server:
   address: 0.0.0.0
   port: 8080
@@ -30,3 +32,4 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - fun.timu.init.controller
+# COS 配置 -> 从腾讯云获取

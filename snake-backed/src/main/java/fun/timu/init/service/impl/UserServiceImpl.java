@@ -165,7 +165,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 1. 先判断是否已登录
         HttpSession session = request.getSession(false);
         if (session == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "Session is null");
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "未登录");
         }
 
         Object userObj = session.getAttribute(USER_LOGIN_STATE);
