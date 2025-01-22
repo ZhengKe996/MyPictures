@@ -23,6 +23,7 @@ import java.io.IOException;
 @Slf4j
 @RestController
 @RequestMapping("/file")
+@Deprecated
 public class FileController {
     @Resource
     private CosManager cosManager;
