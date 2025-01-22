@@ -70,3 +70,24 @@ export const UserRegister = async (form: {
 export const UserLogout = async () => {
   return await UserControllerService.userLogoutUsingPost();
 };
+
+/**
+ * 管理员获取用户列表函数
+ *
+ * 该函数用于管理员分页获取用户列表信息它通过POST请求调用UserControllerService中的分页列表接口
+ * 主要作用是根据当前页码和页面大小来获取相应的用户列表信息，以便管理员进行用户管理
+ *
+ * @param form 包含分页信息的对象
+ * @param form.current 当前页码，用于指定从哪一页开始获取用户信息
+ * @param form.pageSize 页面大小，用于指定每页包含的用户数量
+ * @returns 返回一个Promise对象，解析后包含用户列表信息
+ */
+export const AdminGetUserList = async (form: {
+  current: number;
+  pageSize: number;
+}) => {
+  return await UserControllerService.listUserByPageUsingPost({
+    current: form.current,
+    pageSize: form.pageSize,
+  });
+};

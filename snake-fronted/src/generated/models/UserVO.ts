@@ -8,6 +8,7 @@ export type UserVO = {
     id?: number;
     inviteUser?: number;
     shareCode?: string;
+    userAccount?: string;
     userAvatar?: string;
     userName?: string;
     userProfile?: string;
