@@ -16,6 +16,7 @@ import fun.timu.init.model.dto.picture.PictureUpdateRequest;
 import fun.timu.init.model.dto.picture.PictureUploadRequest;
 import fun.timu.init.model.entity.Picture;
 import fun.timu.init.model.entity.User;
+import fun.timu.init.model.vo.PictureTagCategory;
 import fun.timu.init.model.vo.PictureVO;
 import fun.timu.init.service.PictureService;
 import fun.timu.init.service.UserService;
@@ -26,7 +27,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -135,7 +138,6 @@ public class PictureController {
      * @param id      图片的唯一标识符，必须大于0
      * @param request HTTP请求对象，用于获取请求信息
      * @return 返回一个封装了图片信息的BaseResponse对象
-     * @throws 将抛出异常，如果提供的ID无效或图片不存在
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -265,5 +267,33 @@ public class PictureController {
         // 返回成功响应
         return ResultUtils.success(true);
     }
+
+    /**
+     * 获取图片标签类别信息
+     * <p>
+     * 通过GET请求访问/tag_category端点，返回包含图片标签和类别列表的响应对象
+     * 此方法主要用于提供页面或API消费者获取预定义的图片标签和类别信息
+     *
+     * @return BaseResponse<PictureTagCategory> 包含图片标签和类别的响应对象
+     */
+    @GetMapping("/tag_category")
+    public BaseResponse<PictureTagCategory> listPictureTagCategory() {
+        // 创建一个PictureTagCategory对象，用于存储标签和类别信息
+        PictureTagCategory pictureTagCategory = new PictureTagCategory();
+
+        // 定义一组常见的图片标签
+        List<String> tagList = Arrays.asList("热门", "搞笑", "生活", "高清", "艺术", "校园", "背景", "简历", "创意");
+        // 定义一组常见的图片类别
+        List<String> categoryList = Arrays.asList("模板", "电商", "表情包", "素材", "海报");
+
+        // 将标签列表设置到PictureTagCategory对象中
+        pictureTagCategory.setTagList(tagList);
+        // 将类别列表设置到PictureTagCategory对象中
+        pictureTagCategory.setCategoryList(categoryList);
+
+        // 使用ResultUtils工具类，构建并返回一个表示成功操作的响应对象
+        return ResultUtils.success(pictureTagCategory);
+    }
+
 
 }
