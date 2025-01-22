@@ -116,10 +116,8 @@ const LoadList = async () => {
           userProfile: item.userProfile ?? "",
         }))
       : [];
-    console.log(UserListInfo.value);
   } else Message.error(`获取题目失败, 原因: ${message}`);
 };
 
 watchEffect(() => LoadList());
-onMounted(() => LoadList());
 </script>

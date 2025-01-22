@@ -86,7 +86,7 @@ export const AdminGetUserList = async (form: {
   current: number;
   pageSize: number;
 }) => {
-  return await UserControllerService.listUserByPageUsingPost({
+  return await UserControllerService.listUserVoByPageUsingPost({
     current: form.current,
     pageSize: form.pageSize,
   });
