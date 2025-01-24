@@ -25,12 +25,16 @@ import java.io.IOException;
 @RequestMapping("/file")
 @Deprecated
 public class FileController {
-    @Resource
-    private CosManager cosManager;
+
+    private final CosManager cosManager;
+
+    public FileController(CosManager cosManager) {
+        this.cosManager = cosManager;
+    }
 
     /**
      * 测试文件上传
-     *
+     * <p>
      * 此方法使用了@AuthCheck注解来检查用户是否具有管理员角色，确保只有管理员可以执行文件上传操作
      * 使用@PostMapping注解指定HTTP POST方法，路径为"/test/upload"
      *
