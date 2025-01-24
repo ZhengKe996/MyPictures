@@ -34,7 +34,7 @@
           <span class="font-semibold">Click to upload</span> or drag and drop
         </p>
         <p class="text-xs text-gray-500 dark:text-gray-400">
-          SVG, PNG, JPG or GIF (MAX. 800x400px)
+          SVG, PNG, JPG or GIF (MAX. 10MB)
         </p>
       </div>
       <input
@@ -70,11 +70,13 @@ const isDragging = ref(false);
 const uploadedFile = ref<File | null>(null);
 const imageUrl = ref<string>("");
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
     const file = target.files[0];
-    if (isImageFile(file)) {
+    if (isImageFile(file) && file.size <= MAX_FILE_SIZE) {
       uploadedFile.value = file;
       imageUrl.value = URL.createObjectURL(file);
       emits("Upload", file);
@@ -87,7 +89,7 @@ const onDrop = (event: DragEvent) => {
   isDragging.value = false;
   if (event.dataTransfer && event.dataTransfer.files.length > 0) {
     const file = event.dataTransfer.files[0];
-    if (isImageFile(file)) {
+    if (isImageFile(file) && file.size <= MAX_FILE_SIZE) {
       uploadedFile.value = file;
       imageUrl.value = URL.createObjectURL(file);
       emits("Upload", file);
