@@ -170,6 +170,12 @@ public class PictureController {
     }
 
 
+    /**
+     * 更新图片信息
+     *
+     * @param pictureUpdateRequest
+     * @return
+     */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest) {
@@ -293,7 +299,6 @@ public class PictureController {
     }
 
 
-    @PostMapping("/edit")
     /**
      * 编辑图片信息的接口
      * 此方法接收一个 PictureEditRequest 对象和 HttpServletRequest 请求作为参数
@@ -302,10 +307,12 @@ public class PictureController {
      * 最后，调用 service 层的方法来更新数据库中的图片信息
      *
      * @param pictureEditRequest 包含要编辑的图片信息的请求对象
-     * @param request HTTP 请求对象，用于获取当前登录用户的信息
+     * @param request            HTTP 请求对象，用于获取当前登录用户的信息
      * @return 返回一个 BaseResponse 对象，包含一个布尔值来表示编辑操作是否成功
      * @throws BusinessException 如果参数无效或当前用户没有权限进行编辑操作，抛出此异常
-     */ public BaseResponse<Boolean> editPicture(@RequestBody PictureEditRequest pictureEditRequest, HttpServletRequest request) {
+     */
+    @PostMapping("/edit")
+    public BaseResponse<Boolean> editPicture(@RequestBody PictureEditRequest pictureEditRequest, HttpServletRequest request) {
         try {
             // 检查请求参数是否有效
             if (pictureEditRequest == null || pictureEditRequest.getId() <= 0) {
