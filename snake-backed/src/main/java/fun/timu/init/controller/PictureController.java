@@ -21,6 +21,8 @@ import fun.timu.init.model.vo.PictureVO;
 import fun.timu.init.service.PictureService;
 import fun.timu.init.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,15 +33,22 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-@Slf4j
+
 @RestController
 @RequestMapping("/picture")
 public class PictureController {
-    @Resource
-    private UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(PictureController.class);
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    private static final String[] ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif"};
 
-    @Resource
-    private PictureService pictureService;
+
+    private final UserService userService;
+    private final PictureService pictureService;
+
+    public PictureController(UserService userService, PictureService pictureService) {
+        this.userService = userService;
+        this.pictureService = pictureService;
+    }
 
     /**
      * 上传图片（可重新上传）
@@ -55,12 +64,71 @@ public class PictureController {
     @PostMapping("/upload")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<PictureVO> uploadPicture(@RequestPart("file") MultipartFile multipartFile, PictureUploadRequest pictureUploadRequest, HttpServletRequest request) {
-        // 获取当前登录的用户信息
-        User loginUser = userService.getLoginUser(request);
-        // 调用服务层方法，执行图片上传逻辑
-        PictureVO pictureVO = pictureService.uploadPicture(multipartFile, pictureUploadRequest, loginUser);
-        // 返回上传成功后的图片信息
-        return ResultUtils.success(pictureVO);
+        try {
+            // 获取当前登录的用户信息
+            User loginUser = userService.getLoginUser(request);
+
+            // 验证文件大小和类型
+            validateFile(multipartFile);
+
+            // 调用服务层方法，执行图片上传逻辑
+            PictureVO pictureVO = pictureService.uploadPicture(multipartFile, pictureUploadRequest, loginUser);
+
+            // 记录日志
+            logger.info("User {} uploaded picture: {}", loginUser.getUserName(), pictureVO.getName());
+
+            // 返回上传成功后的图片信息
+            return ResultUtils.success(pictureVO);
+        } catch (Exception e) {
+            // 记录异常日志
+            logger.error("Failed to upload picture", e);
+            // 返回错误信息给前端
+            return ResultUtils.error(ErrorCode.OPERATION_ERROR, e.getMessage());
+        }
+    }
+
+
+    /**
+     * 验证上传的文件是否符合规范
+     * 此方法主要进行以下三项检查：
+     * 1. 文件是否为空或未选择
+     * 2. 文件大小是否超过允许的最大值（5MB）
+     * 3. 文件类型是否为允许的图片类型
+     *
+     * @param file 要验证的MultipartFile对象
+     * @throws Exception 如果文件验证失败，则抛出IllegalArgumentException
+     */
+    private void validateFile(MultipartFile file) throws Exception {
+        // 检查文件是否为空或未选择
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("文件不能为空");
+        }
+        // 检查文件大小是否超过最大允许值
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException("文件大小超出限制，最大允许5MB");
+        }
+        // 检查文件是否为有效的图片类型
+        if (!isValidImageType(file)) {
+            throw new IllegalArgumentException("仅允许上传JPEG、PNG、GIF格式的图片");
+        }
+    }
+
+    /**
+     * 检查上传的文件是否为允许的图像类型
+     *
+     * @param file 待检查的文件，包含文件的类型信息
+     * @return 如果文件类型属于允许的图像类型，则返回true；否则返回false
+     */
+    private boolean isValidImageType(MultipartFile file) {
+        // 遍历允许的图像类型列表
+        for (String type : ALLOWED_IMAGE_TYPES) {
+            // 如果文件的类型与当前遍历的图像类型相匹配，则返回true
+            if (type.equals(file.getContentType())) {
+                return true;
+            }
+        }
+        // 如果遍历完所有类型都没有匹配，则返回false
+        return false;
     }
 
 
@@ -118,6 +186,7 @@ public class PictureController {
         picture.setTags(JSONUtil.toJsonStr(pictureUpdateRequest.getTags()));
         // 数据校验
         pictureService.validPicture(picture);
+
         // 判断是否存在
         long id = pictureUpdateRequest.getId();
         Picture oldPicture = pictureService.getById(id);
@@ -125,6 +194,7 @@ public class PictureController {
         // 操作数据库
         boolean result = pictureService.updateById(picture);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+
         // 返回成功结果
         return ResultUtils.success(true);
     }
@@ -238,34 +308,49 @@ public class PictureController {
      * @return 返回一个 BaseResponse 对象，包含一个布尔值来表示编辑操作是否成功
      * @throws BusinessException 如果参数无效或当前用户没有权限进行编辑操作，抛出此异常
      */ public BaseResponse<Boolean> editPicture(@RequestBody PictureEditRequest pictureEditRequest, HttpServletRequest request) {
-        // 检查请求参数是否有效
-        if (pictureEditRequest == null || pictureEditRequest.getId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        try {
+            // 检查请求参数是否有效
+            if (pictureEditRequest == null || pictureEditRequest.getId() <= 0) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR);
+            }
+
+            // 日志记录请求开始
+            logger.info("Start editing picture with id: {}", pictureEditRequest.getId());
+
+            // 在此处将实体类和 DTO 进行转换
+            Picture picture = new Picture();
+            BeanUtils.copyProperties(pictureEditRequest, picture);
+            // 注意将 list 转为 string
+            List<String> tags = pictureEditRequest.getTags();
+            if (tags != null && !tags.isEmpty()) {
+                picture.setTags(JSONUtil.toJsonStr(tags));
+            } else {
+                picture.setTags("[]");
+            }
+
+            // 设置编辑时间
+            picture.setEditTime(new Date());
+            // 数据校验
+            pictureService.validPicture(picture);
+            // 获取当前登录用户
+            User loginUser = userService.getLoginUser(request);
+            // 判断图片是否存在
+            long id = pictureEditRequest.getId();
+            Picture oldPicture = pictureService.getById(id);
+            ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+            // 仅本人或管理员可编辑
+            if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+            }
+            // 操作数据库
+            boolean result = pictureService.updateById(picture);
+            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+            // 返回成功响应
+            return ResultUtils.success(true);
+        } catch (Exception e) {
+            logger.error("Error occurred while editing picture: {}", e.getMessage(), e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, e.getMessage());
         }
-        // 在此处将实体类和 DTO 进行转换
-        Picture picture = new Picture();
-        BeanUtils.copyProperties(pictureEditRequest, picture);
-        // 注意将 list 转为 string
-        picture.setTags(JSONUtil.toJsonStr(pictureEditRequest.getTags()));
-        // 设置编辑时间
-        picture.setEditTime(new Date());
-        // 数据校验
-        pictureService.validPicture(picture);
-        // 获取当前登录用户
-        User loginUser = userService.getLoginUser(request);
-        // 判断图片是否存在
-        long id = pictureEditRequest.getId();
-        Picture oldPicture = pictureService.getById(id);
-        ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
-        // 仅本人或管理员可编辑
-        if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-        }
-        // 操作数据库
-        boolean result = pictureService.updateById(picture);
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        // 返回成功响应
-        return ResultUtils.success(true);
     }
 
     /**
