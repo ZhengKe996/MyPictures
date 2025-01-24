@@ -47,7 +47,7 @@
     </label>
     <div v-else class="relative">
       <img
-        :src="imageUrl"
+        :src="file.url || DefaultImage"
         alt="Uploaded Image"
         class="w-full h-64 object-cover rounded-lg shadow-lg transition-transform duration-500 hover:scale-105"
       />
@@ -64,11 +64,13 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-
+import { type PictureType } from "@/config";
 const emits = defineEmits(["Upload"]);
 const isDragging = ref(false);
 const uploadedFile = ref<File | null>(null);
-const imageUrl = ref<string>("");
+import { DefaultImage } from "@/config";
+
+const { file } = defineProps<{ file: PictureType }>();
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 
@@ -78,7 +80,6 @@ const handleFileSelect = (event: Event) => {
     const file = target.files[0];
     if (isImageFile(file) && file.size <= MAX_FILE_SIZE) {
       uploadedFile.value = file;
-      imageUrl.value = URL.createObjectURL(file);
       emits("Upload", file);
     }
   }
@@ -91,7 +92,7 @@ const onDrop = (event: DragEvent) => {
     const file = event.dataTransfer.files[0];
     if (isImageFile(file) && file.size <= MAX_FILE_SIZE) {
       uploadedFile.value = file;
-      imageUrl.value = URL.createObjectURL(file);
+      // imageUrl.value = URL.createObjectURL(file);
       emits("Upload", file);
     }
   }
@@ -112,7 +113,6 @@ const isImageFile = (file: File): boolean => {
 
 const removeImage = () => {
   uploadedFile.value = null;
-  imageUrl.value = "";
   emits("Upload", null);
 };
 </script>
