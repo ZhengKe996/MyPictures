@@ -36,7 +36,7 @@
 
         <div
           v-if="LoginUserInfo.userRole != ACCESSENUM.NOLOGIN"
-          class="absolute top-12 right-8 animated animated-duration-800 overflow-hidden rounded-lg bg-white shadow"
+          class="absolute top-12 right-0 animated animated-duration-800 overflow-hidden rounded-lg bg-white shadow"
           :class="
             isHovered ? 'animated-back-in-right ' : 'animated-back-out-right'
           "

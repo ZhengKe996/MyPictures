@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, watchEffect } from "vue";
+import { ref, watch } from "vue";
 import { useVModel, useIntersectionObserver } from "@vueuse/core";
 
 interface Props {
