@@ -1,3 +1,4 @@
+// UploadPicture
 export const DefaultPictureInfo = {
   category: "",
   createTime: "",

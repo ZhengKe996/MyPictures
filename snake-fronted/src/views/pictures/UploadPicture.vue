@@ -62,35 +62,13 @@ import {
 import { message as Message } from "ant-design-vue";
 import { type PictureType, type PictureEditType } from "@/config";
 import { DefaultPictureInfo, DefaultPictureEditInfo } from "./config";
+import { convertTagsToStringArray } from "@/utils";
 const loadding = ref<boolean>(false);
 const delayTime = 500;
 
 const picture = ref<PictureType>(DefaultPictureInfo);
 const pictureForm = ref<PictureEditType>(DefaultPictureEditInfo);
 
-const convertTagsToStringArray = (
-  tags: string | string[] | undefined
-): string[] => {
-  if (typeof tags === "string") {
-    try {
-      // 尝试解析 JSON 字符串
-      const parsedTags = JSON.parse(tags);
-      // 检查解析后的结果是否为数组
-      if (Array.isArray(parsedTags)) {
-        return parsedTags.map((tag) => String(tag)); // 确保每个元素都是字符串
-      } else {
-        throw new Error("Parsed tags is not an array");
-      }
-    } catch (error) {
-      console.error("Failed to parse tags JSON string:", error);
-      return [];
-    }
-  } else if (Array.isArray(tags)) {
-    return tags.map((tag) => String(tag)); // 确保每个元素都是字符串
-  } else {
-    return [];
-  }
-};
 /**
  * 异步处理上传文件的函数
  * @param {File} file - 需要上传的文件对象
