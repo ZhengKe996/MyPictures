@@ -7,18 +7,18 @@
     >
       <i
         v-if="type === 'success'"
-        class="i-tabler:circle-check h-1.5 w-1.5 mr-1.5"
-        :class="styles[type].fillClass"
+        class="i-tabler:circle-check h-5 w-5 mr-1.5"
+        :class="[styles[type].fillClass, styles[type].textClass]"
       ></i>
       <i
         v-else-if="type === 'warn'"
-        class="i-tabler:alert-octagon h-1.5 w-1.5 mr-1.5"
-        :class="styles[type].fillClass"
+        class="i-tabler:alert-octagon h-5 w-5 mr-1.5"
+        :class="[styles[type].fillClass, styles[type].textClass]"
       ></i>
       <i
         v-else
-        class="i-tabler:playstation-x h-1.5 w-1.5 mr-1.5"
-        :class="styles[type].fillClass"
+        class="i-tabler:playstation-x h-5 w-5 mr-1.5"
+        :class="[styles[type].fillClass, styles[type].textClass]"
       ></i>
 
       <span class="text-sm" :class="styles[type].textClass">
@@ -43,7 +43,6 @@ const { duration = 2000, type } = defineProps<Props>();
 const styles = {
   // 警告
   warn: {
-    icon: "warn",
     fillClass: "fill-warn-300",
     textClass: "text-warn-300",
     containerClass:
@@ -51,7 +50,6 @@ const styles = {
   },
   // 错误
   error: {
-    icon: "error",
     fillClass: "fill-error-300",
     textClass: "text-error-300",
     containerClass:
@@ -59,7 +57,6 @@ const styles = {
   },
   // 成功
   success: {
-    icon: "success",
     fillClass: "fill-success-300",
     textClass: "text-success-300",
     containerClass:
@@ -83,7 +80,7 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .down-enter-active,
 .down-leave-active {
   transition: all 0.5s;

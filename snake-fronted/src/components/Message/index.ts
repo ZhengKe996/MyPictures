@@ -1,7 +1,7 @@
 import { h, render } from "vue";
 import messageComponent from "./Message.vue";
 
-export const message = (
+export const Message = (
   type: "success" | "warn" | "error",
   content: string,
   duration = 2000
