@@ -6,11 +6,11 @@
     @dragleave="onDragLeave"
     :class="{
       'bg-gray-200': isDragging,
-      'border-2 border-dashed border-gray-300 rounded-lg': !uploadedFile,
+      'border-2 border-dashed border-gray-300 rounded-lg': !file,
     }"
   >
     <label
-      v-if="!uploadedFile"
+      v-if="!file"
       for="dropzone-file"
       class="flex flex-col items-center justify-center w-full h-64 cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
     >
@@ -64,15 +64,13 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { type PictureType } from "@/config";
+import { type PictureType, DefaultImage } from "@/config";
 const emits = defineEmits(["Upload"]);
 const isDragging = ref(false);
 const uploadedFile = ref<File | null>(null);
-import { DefaultImage } from "@/config";
+import { MAX_FILE_SIZE } from "./config";
 
 const { file } = defineProps<{ file: PictureType }>();
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -92,7 +90,6 @@ const onDrop = (event: DragEvent) => {
     const file = event.dataTransfer.files[0];
     if (isImageFile(file) && file.size <= MAX_FILE_SIZE) {
       uploadedFile.value = file;
-      // imageUrl.value = URL.createObjectURL(file);
       emits("Upload", file);
     }
   }
