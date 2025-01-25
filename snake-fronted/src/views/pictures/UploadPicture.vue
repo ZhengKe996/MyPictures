@@ -22,7 +22,6 @@
           v-model:value="pictureForm.category"
           :options="categoryOptions"
           placeholder="请输入分类"
-          allowClear
         />
       </a-form-item>
       <a-form-item label="标签" name="tags">
@@ -49,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 const route = useRoute();
 const router = useRouter();
@@ -122,23 +121,17 @@ const getTagCategoryOptions = async () => {
   const { data, code, message } = await GetTagCategory();
   if (code === 0 && data) {
     tagOptions.value = (data.tagList ?? []).map((data: string) => {
-      return {
-        value: data,
-        label: data,
-      };
+      return { value: data, label: data };
     });
     categoryOptions.value = (data.categoryList ?? []).map((data: string) => {
-      return {
-        value: data,
-        label: data,
-      };
+      return { value: data, label: data };
     });
   } else {
     Message.error(`获取标签和分类选项失败${message}`);
   }
 };
 
-onMounted(() => getTagCategoryOptions());
+onMounted(() => nextTick(() => getTagCategoryOptions()));
 
 const isUpdateMode = computed(() => route.path.includes("update"));
 
@@ -161,19 +154,21 @@ const getOldPicture = async (id: string) => {
 };
 
 onMounted(() => {
-  if (isUpdateMode && route.query.id) {
-    const id = Array.isArray(route.query.id)
-      ? route.query.id[0]
-      : route.query.id;
-    if (typeof id === "string") {
-      getOldPicture(id);
+  nextTick(() => {
+    if (isUpdateMode && route.query.id) {
+      const id = Array.isArray(route.query.id)
+        ? route.query.id[0]
+        : route.query.id;
+      if (typeof id === "string") {
+        getOldPicture(id);
+      } else {
+        Message.error("无效的图片ID");
+      }
     } else {
-      Message.error("无效的图片ID");
+      picture.value = DefaultPictureInfo;
+      pictureForm.value = DefaultPictureEditInfo;
     }
-  } else {
-    picture.value = DefaultPictureInfo;
-    pictureForm.value = DefaultPictureEditInfo;
-  }
+  });
 });
 
 const handleSubmit = async () => {
