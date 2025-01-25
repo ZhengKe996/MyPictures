@@ -1,7 +1,4 @@
-type CustomColumn = {
-  key: string;
-  label: string;
-};
+import type { CustomColumn } from "./index";
 
 export const UserManagerColumns: CustomColumn[] = [
   { key: "id", label: "ID" },

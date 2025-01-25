@@ -1,6 +1,7 @@
 import type { RouteRecordRaw } from "vue-router";
 import { ACCESSENUM } from "@/access";
 import { LayoutMenu } from "@/config";
+
 export const routes: RouteRecordRaw[] = [
   {
     path: "/",
@@ -54,7 +55,37 @@ export const routes: RouteRecordRaw[] = [
     component: () => import("@/views/pictures/UploadPicture.vue"),
     meta: {
       layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.USER,
       isHeader: true,
+    },
+  },
+  {
+    path: "/mamager/pictures",
+    name: "Manager Pictures",
+    component: () => import("@/views/pictures/ManagerPictures.vue"),
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.ADMIN,
+      isHeader: true,
+    },
+  },
+  {
+    path: "/list/pictures",
+    name: "List Pictures",
+    component: () => import("@/views/pictures/ListPicture.vue"),
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.USER,
+      isHeader: true,
+    },
+  },
+  {
+    path: "/detail/picture",
+    name: "Detail Picture",
+    component: () => import("@/views/pictures/ManagerPictures.vue"),
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      isHeader: false,
     },
   },
   {

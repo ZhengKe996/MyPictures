@@ -51,3 +51,15 @@ export const EditPictureInfo = async (pictureEditRequest: PictureEditType) => {
     pictureEditRequest
   );
 };
+
+export const AdminGetPictureList = async (form: {
+  current: number;
+  pageSize: number;
+  category?: string;
+  id?: number;
+  name?: string;
+  userId?: number;
+  picFormat?: string;
+}) => {
+  return await PictureControllerService.listPictureVoByPageUsingPost(form);
+};
