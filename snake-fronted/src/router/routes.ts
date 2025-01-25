@@ -49,6 +49,24 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/add/picture",
+    name: "ADD Picture",
+    component: () => import("@/views/pictures/UploadPicture.vue"),
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      isHeader: true,
+    },
+  },
+  {
+    path: "/update/picture",
+    name: "UPDATE Picture",
+    component: () => import("@/views/pictures/UploadPicture.vue"),
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      isHeader: false,
+    },
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "mian",
     component: () => import("@/views/Error.vue"),
