@@ -71,7 +71,6 @@ const uploadedFile = ref<File | null>(null);
 import { MAX_FILE_SIZE } from "./config";
 
 const { file } = defineProps<{ file: PictureType }>();
-console.log("file", file);
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
