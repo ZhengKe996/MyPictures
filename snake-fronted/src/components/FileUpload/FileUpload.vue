@@ -10,7 +10,7 @@
     }"
   >
     <label
-      v-if="!file"
+      v-if="!file.url"
       for="dropzone-file"
       class="flex flex-col items-center justify-center w-full h-64 cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
     >
@@ -71,7 +71,7 @@ const uploadedFile = ref<File | null>(null);
 import { MAX_FILE_SIZE } from "./config";
 
 const { file } = defineProps<{ file: PictureType }>();
-
+console.log("file", file);
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
@@ -100,9 +100,7 @@ const onDragOver = (event: DragEvent) => {
   isDragging.value = true;
 };
 
-const onDragLeave = () => {
-  isDragging.value = false;
-};
+const onDragLeave = () => (isDragging.value = false);
 
 const isImageFile = (file: File): boolean => {
   return file.type.startsWith("image/");
