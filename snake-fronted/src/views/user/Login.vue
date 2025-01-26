@@ -89,7 +89,7 @@
 import { reactive, ref } from "vue";
 import { RouterLink } from "vue-router";
 import { UserLogin } from "@/services";
-import { message as Message } from "ant-design-vue";
+import { Message } from "@/components/Message";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
 
@@ -102,10 +102,10 @@ const form = reactive<{ userAccount: string; userPassword: string }>({
 const handleSubmit = async () => {
   const { code, data, message } = await UserLogin(form);
   if (code === 0 && data) {
-    Message.success("登录成功, 3秒后跳转到首页");
+    Message("success", "登录成功, 3秒后跳转到首页");
     setTimeout(() => router.push("/"), 3000);
   } else {
-    Message.error(`登录失败, ${message}`);
+    Message("error", `登录失败, ${message}`);
   }
 
   // 获取当前登录的用户信息
