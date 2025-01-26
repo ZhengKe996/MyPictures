@@ -3,12 +3,11 @@
     <slot />
     <div ref="loadingTarget" class="h-6 py-4">
       <!-- 加载更多 -->
-      <m-svg-icon
+
+      <i
         v-show="loading"
-        class="w-4 h-4 mx-auto animate-spin"
-        name="infinite-load"
-      >
-      </m-svg-icon>
+        class="i-tabler:loader w-8 h-8 mx-auto animate-spin"
+      ></i>
       <!-- 没有更多数据 -->
       <p v-if="isFinished" class="text-center text-base text-zinc-400">
         已经没有更多数据了!
