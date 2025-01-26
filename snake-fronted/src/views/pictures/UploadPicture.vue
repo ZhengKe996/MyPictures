@@ -59,7 +59,7 @@ import {
   GetPictureById,
   EditPictureInfo,
 } from "@/services";
-import { message as Message } from "ant-design-vue";
+import { Message } from "@/components/Message";
 import { type PictureType, type PictureEditType } from "@/config";
 import { DefaultPictureInfo, DefaultPictureEditInfo } from "./config";
 import { convertTagsToStringArray } from "@/utils";
@@ -79,12 +79,12 @@ const uploadFileHandle = async (file: File) => {
     const { data, code, message } = await UploadImageFile(file);
     if (code === 0 && data) {
       picture.value = pictureForm.value = data;
-      Message.success("上传成功");
+      Message("success", "上传成功");
     } else {
-      Message.error(`上传失败, ${message}`);
+      Message("error", `上传失败, ${message}`);
     }
   } catch (error) {
-    Message.error(`上传失败, ${error}`);
+    Message("error", `上传失败, ${error}`);
   } finally {
     loadding.value = false;
   }
@@ -105,7 +105,7 @@ const getTagCategoryOptions = async () => {
       return { value: data, label: data };
     });
   } else {
-    Message.error(`获取标签和分类选项失败${message}`);
+    Message("error", `获取标签和分类选项失败${message}`);
   }
 };
 
@@ -127,7 +127,7 @@ const getOldPicture = async (id: string) => {
     pictureForm.value.category = data.category;
     pictureForm.value.tags = convertTagsToStringArray(data.tags);
   } else {
-    Message.error(`获取图片信息失败${message}`);
+    Message("error", `获取图片信息失败${message}`);
   }
 };
 
@@ -140,7 +140,7 @@ onMounted(() => {
       if (typeof id === "string") {
         getOldPicture(id);
       } else {
-        Message.error("无效的图片ID");
+        Message("error", "无效的图片ID");
       }
     } else {
       picture.value = DefaultPictureInfo;
@@ -155,8 +155,8 @@ const handleSubmit = async () => {
   if (!pictureId) return;
   const { data, code, message } = await EditPictureInfo(pictureForm.value);
   if (code === 0 && data) {
-    Message.success("成功");
+    Message("success", "成功");
     router.push(`/detail/picture?id=${pictureId}`);
-  } else Message.error(`失败, ${message}`);
+  } else Message("error", `失败, ${message}`);
 };
 </script>

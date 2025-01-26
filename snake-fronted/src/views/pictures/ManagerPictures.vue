@@ -1,66 +1,5 @@
 <template>
   <div class="w-full animated animated-duration-500 animated-fade-in">
-    <!-- <div>
-      <div class="flex flex-1 justify-start px-2">
-        <div
-          class="grid w-full max-w-lg lg:max-w-xs flex justify-start items-center"
-        >
-          <div class="flex justify-start items-center">
-            <label
-              for="search"
-              class="block text-sm/6 font-medium text-gray-900"
-              >Account:
-            </label>
-            <div class="mx-2">
-              <div
-                class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600"
-              >
-                <input
-                  type="text"
-                  name="search"
-                  v-model="PageInfo.userAccount"
-                  class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
-                  @keypress="handleKeyPress"
-                />
-                <div class="flex py-1.5 pr-1.5">
-                  <kbd
-                    class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400"
-                    >↵</kbd
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex justify-start items-center mx-4">
-            <label
-              for="search"
-              class="block text-sm/6 font-medium text-gray-900"
-              >UserName:
-            </label>
-            <div class="mx-2">
-              <div
-                class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600"
-              >
-                <input
-                  type="text"
-                  name="search"
-                  v-model="PageInfo.userName"
-                  class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
-                  @keypress="handleKeyPress"
-                />
-                <div class="flex py-1.5 pr-1.5">
-                  <kbd
-                    class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400"
-                    >↵</kbd
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div> -->
     <TableList :columns="PictureManagerColumns">
       <template #tr>
         <tr
@@ -135,7 +74,7 @@ import { PictureManagerColumns, type PictureType } from "@/config";
 import { ref, watchEffect } from "vue";
 import { useThrottleFn } from "@vueuse/core";
 import { AdminGetPictureList } from "@/services";
-import { message as Message } from "ant-design-vue";
+import { Message } from "@/components/Message";
 import dayjs from "dayjs";
 const total = ref<number>(0); // 题目总数
 
@@ -185,7 +124,7 @@ const LoadList = useThrottleFn(async () => {
       : [];
 
     console.log(PictureListInfo.value);
-  } else Message.error(`获取失败, 原因: ${message}`);
+  } else Message("error", `获取失败, 原因: ${message}`);
 }, 1000);
 watchEffect(() => LoadList());
 </script>
