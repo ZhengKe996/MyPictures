@@ -84,9 +84,3 @@ const navigation = [
   { name: "Reports", href: "#", icon: "", current: false },
 ];
 </script>
-
-<style scoped>
-main {
-  padding-bottom: 6rem; /* 为 footer 预留一些空间 */
-}
-</style>
