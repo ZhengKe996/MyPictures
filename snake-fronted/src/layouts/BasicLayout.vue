@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col min-h-screen">
     <!-- Static sidebar for desktop -->
     <div
       class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-56 lg:flex-col"
@@ -10,7 +10,6 @@
       >
         <div class="flex h-16 shrink-0 items-center">
           <a href="#" class="-m-1.5 p-1.5">
-            <!-- <img class="h-8 w-auto" :src="LogoPath" alt="" /> -->
             <span class="text-sm/6 mx-2 font-semibold text-gray-900"
               ><span class="text-4xl">Snake</span>Images</span
             >
@@ -30,23 +29,12 @@
                       'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
                     ]"
                   >
-                    <!-- <component
-                      :is="item.icon"
-                      :class="[
-                        item.current
-                          ? 'text-indigo-600'
-                          : 'text-gray-400 group-hover:text-indigo-600',
-                        'size-6 shrink-0',
-                      ]"
-                      aria-hidden="true"
-                    /> -->
                     {{ item.name }}
                   </a>
                 </li>
               </ul>
             </li>
             <li class="mt-auto">
-              <!-- TODO 替换为RouterLink -->
               <a
                 href="#"
                 class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
@@ -62,20 +50,20 @@
       </div>
     </div>
 
-    <div class="lg:pl-56 pb-10">
+    <div class="lg:pl-56 flex-grow">
       <div
         class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-2 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8"
       >
         <GlobalHeader></GlobalHeader>
       </div>
 
-      <main class="py-10">
+      <main class="pt-6 flex-grow pb-24">
         <div class="mx-auto max-w-[1280px] w-full h-full sm:px-6 lg:px-8">
           <router-view class="w-full h-full"></router-view>
         </div>
       </main>
     </div>
-    <footer class="fixed bottom-0 left-0 right-0">
+    <footer class="fixed bottom-0 left-0 right-0 bg-white shadow-md">
       <div class="w-full flex justify-center">
         <GlobalFooter></GlobalFooter>
       </div>
@@ -96,3 +84,9 @@ const navigation = [
   { name: "Reports", href: "#", icon: "", current: false },
 ];
 </script>
+
+<style scoped>
+main {
+  padding-bottom: 6rem; /* 为 footer 预留一些空间 */
+}
+</style>
