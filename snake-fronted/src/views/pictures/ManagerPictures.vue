@@ -13,11 +13,12 @@
             {{ item.id }}
           </td>
           <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-            <!-- TODO 添加 图片预览 -->
             <img
-              class="inline-block size-14 rounded-md max-w-8 max-h-8"
+              ref="imageRefs"
+              class="inline-block size-14 rounded-md max-w-8 max-h-8 cursor-pointer"
               :src="item.url ? item.url : ''"
               alt=""
+              @click="toggleFullscreen(item.id)"
             />
           </td>
           <td
@@ -71,12 +72,41 @@
 import TableList from "@/components/TableList";
 import Pagination from "@/components/Pagination";
 import { PictureManagerColumns, type PictureType } from "@/config";
-import { ref, watchEffect } from "vue";
+import { ref, watchEffect, onMounted } from "vue";
 import { useThrottleFn } from "@vueuse/core";
 import { AdminGetPictureList } from "@/services";
 import { Message } from "@/components/Message";
+import { useFullscreen } from "@vueuse/core";
 import dayjs from "dayjs";
+
 const total = ref<number>(0); // 题目总数
+
+const imageRefs = ref<HTMLImageElement[]>([]);
+
+const fullscreenOptions = ref<{
+  enter: () => void;
+  exit: () => void;
+  toggle: () => void;
+  isActive: boolean;
+}>({ enter: () => {}, exit: () => {}, toggle: () => {}, isActive: false });
+
+const toggleFullscreen = (id: number | undefined) => {
+  if (id === undefined) return; // 如果 id 是 undefined，则直接返回
+  const index = PictureListInfo.value.findIndex((item) => item.id === id);
+  if (index !== -1 && imageRefs.value[index]) {
+    const { enter, exit, toggle, isFullscreen } = useFullscreen(
+      imageRefs.value[index]
+    );
+    fullscreenOptions.value = {
+      enter,
+      exit,
+      toggle,
+      isActive: isFullscreen.value,
+    };
+    toggle();
+  }
+};
+onMounted(() => LoadList());
 
 interface PictureInfoInterface {
   current: number;
@@ -87,6 +117,7 @@ interface PictureInfoInterface {
   picFormat?: string;
   userId?: number;
 }
+
 // 分页请求数据
 const PageInfo = ref<PictureInfoInterface>({
   current: 1,
@@ -122,8 +153,6 @@ const LoadList = useThrottleFn(async () => {
           editTime: dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
         }))
       : [];
-
-    console.log(PictureListInfo.value);
   } else Message("error", `获取失败, 原因: ${message}`);
 }, 1000);
 watchEffect(() => LoadList());
