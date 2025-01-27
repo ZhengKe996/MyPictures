@@ -2,7 +2,7 @@
   <div>
     <!-- Static sidebar for desktop -->
     <div
-      class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col"
+      class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-56 lg:flex-col"
     >
       <!-- Sidebar component, swap this element with another sidebar if you like -->
       <div
@@ -62,16 +62,16 @@
       </div>
     </div>
 
-    <div class="lg:pl-72 pb-10">
+    <div class="lg:pl-56 pb-10">
       <div
-        class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8"
+        class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-2 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8"
       >
         <GlobalHeader></GlobalHeader>
       </div>
 
       <main class="py-10">
-        <div class="px-4 w-full h-full sm:px-6 lg:px-8">
-          <router-view class=""></router-view>
+        <div class="mx-auto max-w-[1280px] w-full h-full sm:px-6 lg:px-8">
+          <router-view class="w-full h-full"></router-view>
         </div>
       </main>
     </div>
