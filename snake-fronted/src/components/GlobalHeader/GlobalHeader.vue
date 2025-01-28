@@ -36,7 +36,10 @@
           </div>
         </template>
 
-        <div class="w-[120px] overflow-hidden">
+        <div
+          v-if="LoginUserInfo.userRole != ACCESSENUM.NOLOGIN"
+          class="w-[120px] overflow-hidden"
+        >
           <div
             class="flex p-1 cursor-pointer rounded hover:bg-zinc-100/60 dark:hover:bg-zinc-800 text-base/6 font-semibold text-gray-900 items-center justify-center bg-white rounded-md focus:outline-none focus:shadow-outline transform transition hover:scale-102 duration-800 ease-in-out"
             @click="handleLogout"
