@@ -53,7 +53,9 @@
           <td
             class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 max-w-8 overflow-hidden"
           >
-            {{ item.name }}
+            <GenericTooltip :content="item.name">
+              <template #trigger> {{ item.name }} </template>
+            </GenericTooltip>
           </td>
           <td
             class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 max-w-8 overflow-hidden"
@@ -108,6 +110,7 @@ import { Message } from "@/components/Message";
 import { useFullscreen } from "@vueuse/core";
 import dayjs from "dayjs";
 import Button from "@/components/Button";
+import GenericTooltip from "@/lib/Tooltip";
 
 const total = ref<number>(0); // 题目总数
 
