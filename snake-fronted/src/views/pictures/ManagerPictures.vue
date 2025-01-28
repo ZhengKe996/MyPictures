@@ -1,5 +1,34 @@
 <template>
   <div class="w-full animated animated-duration-500 animated-fade-in">
+    <div class="flex flex-1 justify-start px-2">
+      <div
+        class="grid w-full max-w-xl lg:max-w-xs flex justify-start items-center"
+      >
+        <div class="flex w-full justify-start items-center">
+          <label for="search" class="block text-sm/6 font-medium text-gray-900"
+            >Name:
+          </label>
+          <div class="mx-2">
+            <div
+              class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600"
+            >
+              <input
+                type="text"
+                name="search"
+                v-model="PageInfo.name"
+                class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
+                @keypress="handleKeyPress"
+              />
+              <Button
+                @click="LoadList"
+                :icon="'i-tabler:pointer-search'"
+                size="small"
+              ></Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <TableList :columns="PictureManagerColumns">
       <template #tr>
         <tr
@@ -78,6 +107,7 @@ import { AdminGetPictureList } from "@/services";
 import { Message } from "@/components/Message";
 import { useFullscreen } from "@vueuse/core";
 import dayjs from "dayjs";
+import Button from "@/components/Button";
 
 const total = ref<number>(0); // 题目总数
 
