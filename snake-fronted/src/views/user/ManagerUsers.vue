@@ -121,9 +121,7 @@
       :total="total"
       :current="PageInfo.current"
       :page-size="PageInfo.pageSize"
-      @previous="PreviousHandle"
-      @next="NextHandle"
-      @select-page="SelectPageHandle"
+      @change="ChangeCurrentPageHandle"
     />
   </div>
 </template>
@@ -137,7 +135,7 @@ import { ref, watchEffect } from "vue";
 import { Message } from "@/lib/Message";
 import { useThrottleFn } from "@vueuse/core";
 import Badges from "@/lib/Badges";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/lib/Pagination";
 import { ACCESSENUM } from "@/access";
 
 const total = ref<number>(0); // 题目总数
@@ -159,14 +157,7 @@ const PageInfo = ref<UserInfoInterface>({
 });
 
 const UserListInfo = ref<UserType[]>([]);
-
-const PreviousHandle = (current: number) =>
-  (PageInfo.value = { ...PageInfo.value, current: current });
-
-const NextHandle = (current: number) =>
-  (PageInfo.value = { ...PageInfo.value, current: current });
-
-const SelectPageHandle = (current: number) =>
+const ChangeCurrentPageHandle = (current: number) =>
   (PageInfo.value = { ...PageInfo.value, current: current });
 
 const handleKeyPress = useThrottleFn((event: KeyboardEvent) => {

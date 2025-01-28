@@ -92,16 +92,14 @@
       :total="total"
       :current="PageInfo.current"
       :page-size="PageInfo.pageSize"
-      @previous="PreviousHandle"
-      @next="NextHandle"
-      @select-page="SelectPageHandle"
+      @change="ChangeCurrentPageHandle"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import TableList from "@/components/TableList";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/lib/Pagination";
 import { PictureManagerColumns, type PictureType } from "@/config";
 import { ref, watchEffect, onMounted } from "vue";
 import { useThrottleFn } from "@vueuse/core";
@@ -159,13 +157,7 @@ const PageInfo = ref<PictureInfoInterface>({
 
 const PictureListInfo = ref<PictureType[]>([]);
 
-const PreviousHandle = (current: number) =>
-  (PageInfo.value = { ...PageInfo.value, current: current });
-
-const NextHandle = (current: number) =>
-  (PageInfo.value = { ...PageInfo.value, current: current });
-
-const SelectPageHandle = (current: number) =>
+const ChangeCurrentPageHandle = (current: number) =>
   (PageInfo.value = { ...PageInfo.value, current: current });
 
 const handleKeyPress = useThrottleFn((event: KeyboardEvent) => {
