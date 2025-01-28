@@ -117,7 +117,7 @@
 
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
-import { Message } from "@/components/Message";
+import { Message } from "@/lib/Message";
 import { useRouter } from "vue-router";
 import { reactive, ref } from "vue";
 import { UserRegister } from "@/services";
@@ -137,10 +137,10 @@ const form = reactive<{
 const handleSubmit = async () => {
   const { code, data, message } = await UserRegister(form);
   if (code === 0 && data) {
-    Message("success", "注册成功, 请登录");
+    Message.success("注册成功, 请登录");
     setTimeout(() => router.push("/user/login"), 1000);
   } else {
-    Message("error", `注册失败, ${message}`);
+    Message.error(`注册失败, ${message}`);
   }
 };
 

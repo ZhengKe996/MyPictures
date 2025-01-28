@@ -106,7 +106,7 @@ import { PictureManagerColumns, type PictureType } from "@/config";
 import { ref, watchEffect, onMounted } from "vue";
 import { useThrottleFn } from "@vueuse/core";
 import { AdminGetPictureList } from "@/services";
-import { Message } from "@/components/Message";
+import { Message } from "@/lib/Message";
 import { useFullscreen } from "@vueuse/core";
 import dayjs from "dayjs";
 import Button from "@/components/Button";
@@ -186,7 +186,7 @@ const LoadList = useThrottleFn(async () => {
           editTime: dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
         }))
       : [];
-  } else Message("error", `获取失败, 原因: ${message}`);
+  } else Message.error(`获取失败, 原因: ${message}`);
 }, 1000);
 watchEffect(() => LoadList());
 </script>

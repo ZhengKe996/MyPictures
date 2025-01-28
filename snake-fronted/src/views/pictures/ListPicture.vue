@@ -51,7 +51,7 @@ import { type PictureType } from "@/config";
 import { useThrottleFn } from "@vueuse/core";
 import { AdminGetPictureList, GetTagCategory } from "@/services";
 import dayjs from "dayjs";
-import { Message } from "@/components/Message";
+import { Message } from "@/lib/Message";
 import Waterfall from "@/components/Waterfall";
 import Infinite from "@/components/Infinite";
 import Button from "@/components/Button";
@@ -106,7 +106,7 @@ const LoadList = useThrottleFn(async () => {
           editTime: dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
         }))
       : [];
-  } else Message("error", `获取失败, 原因: ${message}`);
+  } else Message.error(`获取失败, 原因: ${message}`);
   loading.value = false;
 }, 1000);
 watchEffect(() => LoadList());
@@ -129,7 +129,7 @@ const getTagCategoryOptions = useThrottleFn(async () => {
       label: category,
     }));
   } else {
-    Message("error", `获取标签和分类选项失败${message}`);
+    Message.error(`获取标签和分类选项失败${message}`);
   }
 }, 1000);
 watchEffect(() => getTagCategoryOptions());

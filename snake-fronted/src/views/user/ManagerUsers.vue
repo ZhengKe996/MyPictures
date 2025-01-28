@@ -134,7 +134,7 @@ import { UserManagerColumns, type UserType, DefaultUserAvatar } from "@/config";
 import { AdminGetUserList } from "@/services";
 import { ref, watchEffect } from "vue";
 
-import { Message } from "@/components/Message";
+import { Message } from "@/lib/Message";
 import { useThrottleFn } from "@vueuse/core";
 import Badges from "@/lib/Badges";
 import Pagination from "@/components/Pagination";
@@ -188,7 +188,7 @@ const LoadList = useThrottleFn(async () => {
           userProfile: item.userProfile ?? "",
         }))
       : [];
-  } else Message("error", `获取题目失败, 原因: ${message}`);
+  } else Message.error(`获取题目失败, 原因: ${message}`);
 }, 1000);
 
 watchEffect(() => LoadList());
