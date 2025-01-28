@@ -13,118 +13,104 @@
 
 ## 🚀 快速开始
 
-### 基础用法
+## 🎯 组件示例
 
-最简单的悬停提示：
-
-```vue
-<template>
-  <Popover>
-    <template #reference>
-      <button class="px-4 py-2 bg-blue-500 text-white rounded">
-        悬停查看更多
-      </button>
-    </template>
-    <div class="p-2">这是一段提示文本</div>
-  </Popover>
-</template>
-```
-
-### 四个方向展示
+### 1. 基础用法
 
 ```vue
 <template>
-  <div class="space-x-4">
-    <Popover
-      v-for="direction in ['top', 'right', 'bottom', 'left']"
-      :key="direction"
-      :placement="direction"
-      :offset="12"
-    >
+  <div class="flex space-x-4">
+    <!-- 悬停触发 -->
+    <Popover placement="top" :delay="200">
       <template #reference>
-        <button class="btn-blue">{{ direction }}</button>
+        <button
+          class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          悬停提示
+        </button>
       </template>
-      <div class="p-2">{{ direction }} 方向的提示</div>
+      <div class="p-2">简单的提示文本</div>
+    </Popover>
+
+    <!-- 点击触发 -->
+    <Popover trigger="click" placement="bottom">
+      <template #reference>
+        <button
+          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+        >
+          点击提示
+        </button>
+      </template>
+      <div class="p-2 w-48">点击显示的提示内容</div>
     </Popover>
   </div>
 </template>
 ```
 
-## 🎯 高级用法
-
-### 下拉菜单
-
-实现一个功能完整的下拉菜单：
+### 2. 十二个方位展示
 
 ```vue
 <template>
-  <Popover trigger="click" placement="bottom">
-    <template #reference>
-      <button
-        class="flex items-center px-4 py-2 bg-indigo-500 text-white rounded"
-      >
-        <span>操作菜单</span>
-        <svg class="w-4 h-4 ml-2" viewBox="0 0 24 24">
-          <path
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
-      </button>
-    </template>
-
-    <div class="w-48 py-2">
-      <a
-        v-for="item in menuItems"
-        :key="item.label"
-        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 cursor-pointer"
-      >
-        {{ item.label }}
-      </a>
-    </div>
-  </Popover>
+  <div class="grid grid-cols-4 gap-4 max-w-2xl">
+    <Popover
+      v-for="position in positions"
+      :key="position.value"
+      :placement="position.value"
+      :offset="12"
+    >
+      <template #reference>
+        <button :class="position.btnClass">
+          {{ position.label }} {{ position.icon }}
+        </button>
+      </template>
+      <div class="bg-gray-800 text-white px-3 py-1.5 rounded text-sm">
+        {{ position.tip }}
+      </div>
+    </Popover>
+  </div>
 </template>
 
-<script setup>
-const menuItems = [
-  { label: "查看详情", action: () => {} },
-  { label: "编辑信息", action: () => {} },
-  { label: "删除", action: () => {} },
+<script setup lang="ts">
+const positions = [
+  { value: "top-start", label: "上左", icon: "↖️", btnClass: "btn-blue" },
+  { value: "top", label: "上中", icon: "⬆️", btnClass: "btn-blue" },
+  { value: "top-end", label: "上右", icon: "↗️", btnClass: "btn-blue" },
+  { value: "right-start", label: "右上", icon: "↗️", btnClass: "btn-green" },
+  { value: "right", label: "右中", icon: "➡️", btnClass: "btn-green" },
+  { value: "right-end", label: "右下", icon: "↘️", btnClass: "btn-green" },
+  { value: "bottom-start", label: "下左", icon: "↙️", btnClass: "btn-yellow" },
+  { value: "bottom", label: "下中", icon: "⬇️", btnClass: "btn-yellow" },
+  { value: "bottom-end", label: "下右", icon: "↘️", btnClass: "btn-yellow" },
+  { value: "left-start", label: "左上", icon: "↖️", btnClass: "btn-purple" },
+  { value: "left", label: "左中", icon: "⬅️", btnClass: "btn-purple" },
+  { value: "left-end", label: "左下", icon: "↙️", btnClass: "btn-purple" },
 ];
 </script>
 ```
 
-### 用户信息卡片
+### 3. 高级用法示例
 
-展示丰富的用户信息卡片：
+#### 3.1 确认对话框
 
 ```vue
 <template>
-  <Popover trigger="hover" placement="right" :delay="200">
+  <Popover trigger="click" placement="top">
     <template #reference>
-      <span class="text-blue-500 hover:underline cursor-pointer"> 张三 </span>
+      <button class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+        删除项目
+      </button>
     </template>
-
-    <div class="w-72 p-4">
-      <div class="flex items-start space-x-4">
-        <img src="avatar.jpg" class="w-16 h-16 rounded-full" />
-        <div>
-          <h3 class="font-bold text-lg">张三</h3>
-          <p class="text-gray-500 text-sm">前端开发工程师</p>
-          <div class="mt-2 text-sm">
-            <p>✉️ zhangsan@example.com</p>
-            <p>📱 138****1234</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-4 pt-4 border-t dark:border-zinc-700">
-        <button class="w-full py-2 bg-blue-500 text-white rounded">
-          发送消息
+    <div class="p-4 w-64">
+      <p class="font-medium text-red-500">确认删除该项目？</p>
+      <p class="text-gray-500 text-sm mt-1">此操作不可恢复</p>
+      <div class="mt-4 flex justify-end space-x-2">
+        <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">
+          取消
+        </button>
+        <button
+          class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+        >
+          确认删除
         </button>
       </div>
     </div>
@@ -132,64 +118,99 @@ const menuItems = [
 </template>
 ```
 
-### 快速编辑表单
-
-在气泡中实现表单编辑功能：
+#### 3.2 颜色选择器
 
 ```vue
 <template>
-  <Popover trigger="click" placement="right" customClass="shadow-xl">
+  <Popover trigger="click" placement="bottom-start">
     <template #reference>
-      <button class="btn-yellow">编辑信息</button>
-    </template>
-
-    <form @submit.prevent="onSubmit" class="w-80 p-4">
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">标题</label>
-          <input
-            v-model="form.title"
-            type="text"
-            class="w-full px-3 py-2 border rounded"
-          />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium mb-1">描述</label>
-          <textarea
-            v-model="form.description"
-            rows="3"
-            class="w-full px-3 py-2 border rounded"
-          >
-          </textarea>
-        </div>
-
-        <div class="flex justify-end space-x-2">
-          <button type="button" class="px-4 py-2 border rounded">取消</button>
-          <button
-            type="submit"
-            class="px-4 py-2 bg-blue-500 text-white rounded"
-          >
-            保存
-          </button>
-        </div>
+      <div class="flex items-center space-x-2">
+        <div
+          class="w-6 h-6 rounded border"
+          :style="{ backgroundColor: selectedColor }"
+        ></div>
+        <span>选择颜色</span>
       </div>
-    </form>
+    </template>
+    <div class="p-2 w-48">
+      <div class="grid grid-cols-5 gap-2">
+        <div
+          v-for="color in colors"
+          :key="color"
+          class="w-6 h-6 rounded cursor-pointer hover:opacity-80"
+          :style="{ backgroundColor: color }"
+          @click="selectColor(color)"
+        ></div>
+      </div>
+    </div>
   </Popover>
 </template>
+
+<script setup>
+const colors = ["#f87171", "#60a5fa", "#34d399", "#fbbf24", "#a78bfa"];
+const selectedColor = ref("#60a5fa");
+const selectColor = (color) => (selectedColor.value = color);
+</script>
+```
+
+#### 3.3 搜索下拉框
+
+```vue
+<template>
+  <Popover trigger="click" placement="bottom-start" :offset="4">
+    <template #reference>
+      <input
+        v-model="searchQuery"
+        type="text"
+        class="w-64 px-3 py-2 border rounded"
+        placeholder="搜索用户..."
+      />
+    </template>
+    <div class="w-64 py-1 max-h-64 overflow-auto">
+      <template v-if="filteredUsers.length">
+        <div
+          v-for="user in filteredUsers"
+          :key="user.id"
+          class="px-3 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 cursor-pointer"
+          @click="selectUser(user)"
+        >
+          <div class="font-medium">{{ user.name }}</div>
+          <div class="text-sm text-gray-500">{{ user.email }}</div>
+        </div>
+      </template>
+      <div v-else class="px-3 py-2 text-gray-500">无匹配结果</div>
+    </div>
+  </Popover>
+</template>
+
+<script setup>
+const searchQuery = ref("");
+const users = [
+  { id: 1, name: "张三", email: "zhang@example.com" },
+  { id: 2, name: "李四", email: "li@example.com" },
+];
+const filteredUsers = computed(() => {
+  const query = searchQuery.value.toLowerCase();
+  return users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query)
+  );
+});
+</script>
 ```
 
 ## 📖 API
 
 ### Props
 
-| 参数        | 说明             | 类型                                   | 默认值   |
-| ----------- | ---------------- | -------------------------------------- | -------- |
-| placement   | 弹出位置         | 'top' \| 'right' \| 'bottom' \| 'left' | 'bottom' |
-| offset      | 偏移距离         | number                                 | 8        |
-| delay       | 延迟关闭时间(ms) | number                                 | 300      |
-| trigger     | 触发方式         | 'hover' \| 'click'                     | 'hover'  |
-| customClass | 自定义类名       | string                                 | ''       |
+| 参数        | 说明             | 类型                                                                                                                                                               | 默认值   |
+| ----------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
+| placement   | 弹出位置         | 'top' \| 'top-start' \| 'top-end' \| 'right' \| 'right-start' \| 'right-end' \| 'bottom' \| 'bottom-start' \| 'bottom-end' \| 'left' \| 'left-start' \| 'left-end' | 'bottom' |
+| offset      | 偏移距离         | number                                                                                                                                                             | 8        |
+| delay       | 延迟关闭时间(ms) | number                                                                                                                                                             | 300      |
+| trigger     | 触发方式         | 'hover' \| 'click'                                                                                                                                                 | 'hover'  |
+| customClass | 自定义类名       | string                                                                                                                                                             | ''       |
 
 ### Events
 
@@ -204,6 +225,30 @@ const menuItems = [
 | --------- | -------- |
 | reference | 触发元素 |
 | default   | 弹出内容 |
+
+## 🎨 样式指南
+
+### 常用按钮样式
+
+```css
+/* 基础按钮 */
+.btn-primary {
+  @apply px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600;
+}
+
+.btn-danger {
+  @apply px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600;
+}
+
+/* 方位按钮 */
+.btn-blue {
+  @apply px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600;
+}
+
+.btn-green {
+  @apply px-3 py-1.5 bg-green-500 text-white rounded hover:bg-green-600;
+}
+```
 
 ## 💡 最佳实践
 

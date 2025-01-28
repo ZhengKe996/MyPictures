@@ -42,8 +42,23 @@ import {
 } from "vue";
 import { useElementBounding } from "@vueuse/core";
 
+// 扩展位置类型
+type PlacementType =
+  | "top"
+  | "top-start"
+  | "top-end"
+  | "bottom"
+  | "bottom-start"
+  | "bottom-end"
+  | "left"
+  | "left-start"
+  | "left-end"
+  | "right"
+  | "right-start"
+  | "right-end";
+
 interface Props {
-  placement?: "top" | "bottom" | "left" | "right";
+  placement?: PlacementType;
   offset?: number;
   delay?: number;
   trigger?: "hover" | "click";
@@ -70,73 +85,102 @@ const popoverBounds = useElementBounding(popoverRef);
 
 let timeout: NodeJS.Timeout | null = null;
 
-// 计算弹出层样式
+// 更新弹出层样式计算逻辑
 const popoverStyle = computed(() => {
   const style: Record<string, string> = {};
 
   if (!triggerBounds.width.value || !popoverBounds.width.value) return style;
 
+  const { width: triggerWidth, height: triggerHeight } = triggerBounds;
+  const { width: popoverWidth, height: popoverHeight } = popoverBounds;
+
   switch (props.placement) {
+    // 顶部系列
     case "top":
-      style.bottom = `${triggerBounds.height.value + props.offset}px`;
-      style.left = `${
-        (triggerBounds.width.value - popoverBounds.width.value) / 2
-      }px`;
+      style.bottom = `${triggerHeight.value + props.offset}px`;
+      style.left = `${(triggerWidth.value - popoverWidth.value) / 2}px`;
       break;
+    case "top-start":
+      style.bottom = `${triggerHeight.value + props.offset}px`;
+      style.left = "0px";
+      break;
+    case "top-end":
+      style.bottom = `${triggerHeight.value + props.offset}px`;
+      style.right = "0px";
+      break;
+
+    // 底部系列
     case "bottom":
-      style.top = `${triggerBounds.height.value + props.offset}px`;
-      style.left = `${
-        (triggerBounds.width.value - popoverBounds.width.value) / 2
-      }px`;
+      style.top = `${triggerHeight.value + props.offset}px`;
+      style.left = `${(triggerWidth.value - popoverWidth.value) / 2}px`;
       break;
+    case "bottom-start":
+      style.top = `${triggerHeight.value + props.offset}px`;
+      style.left = "0px";
+      break;
+    case "bottom-end":
+      style.top = `${triggerHeight.value + props.offset}px`;
+      style.right = "0px";
+      break;
+
+    // 左侧系列
     case "left":
-      style.right = `${triggerBounds.width.value + props.offset}px`;
-      style.top = `${
-        (triggerBounds.height.value - popoverBounds.height.value) / 2
-      }px`;
+      style.right = `${triggerWidth.value + props.offset}px`;
+      style.top = `${(triggerHeight.value - popoverHeight.value) / 2}px`;
       break;
+    case "left-start":
+      style.right = `${triggerWidth.value + props.offset}px`;
+      style.top = "0px";
+      break;
+    case "left-end":
+      style.right = `${triggerWidth.value + props.offset}px`;
+      style.bottom = "0px";
+      break;
+
+    // 右侧系列
     case "right":
-      style.left = `${triggerBounds.width.value + props.offset}px`;
-      style.top = `${
-        (triggerBounds.height.value - popoverBounds.height.value) / 2
-      }px`;
+      style.left = `${triggerWidth.value + props.offset}px`;
+      style.top = `${(triggerHeight.value - popoverHeight.value) / 2}px`;
+      break;
+    case "right-start":
+      style.left = `${triggerWidth.value + props.offset}px`;
+      style.top = "0px";
+      break;
+    case "right-end":
+      style.left = `${triggerWidth.value + props.offset}px`;
+      style.bottom = "0px";
       break;
   }
 
   return style;
 });
 
-// 计算过渡动画类
+// 更新过渡动画类
 const transitClass = computed(() => {
   const base = "transition-all duration-200 ease-in-out";
-  const transitions = {
-    top: {
-      enter: `${base}`,
-      leave: `${base}`,
-      enterFrom: "opacity-0 transform -translate-y-2",
-      leaveTo: "opacity-0 transform -translate-y-2",
-    },
-    bottom: {
-      enter: `${base}`,
-      leave: `${base}`,
-      enterFrom: "opacity-0 transform translate-y-2",
-      leaveTo: "opacity-0 transform translate-y-2",
-    },
-    left: {
-      enter: `${base}`,
-      leave: `${base}`,
-      enterFrom: "opacity-0 transform -translate-x-2",
-      leaveTo: "opacity-0 transform -translate-x-2",
-    },
-    right: {
-      enter: `${base}`,
-      leave: `${base}`,
-      enterFrom: "opacity-0 transform translate-x-2",
-      leaveTo: "opacity-0 transform translate-x-2",
-    },
+  const baseTransitions = {
+    top: { y: "-2", x: "0" },
+    bottom: { y: "2", x: "0" },
+    left: { y: "0", x: "-2" },
+    right: { y: "0", x: "2" },
   };
 
-  return transitions[props.placement];
+  const getBaseDirection = (placement: PlacementType) => {
+    if (placement.startsWith("top")) return "top";
+    if (placement.startsWith("bottom")) return "bottom";
+    if (placement.startsWith("left")) return "left";
+    return "right";
+  };
+
+  const direction = getBaseDirection(props.placement);
+  const { x, y } = baseTransitions[direction];
+
+  return {
+    enter: base,
+    leave: base,
+    enterFrom: `opacity-0 transform translate-x-${x} translate-y-${y}`,
+    leaveTo: `opacity-0 transform translate-x-${x} translate-y-${y}`,
+  };
 });
 
 const emit = defineEmits(["show", "hide"]);

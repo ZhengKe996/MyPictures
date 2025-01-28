@@ -18,7 +18,7 @@
         </router-link>
       </div>
 
-      <popover>
+      <popover placement="bottom" :delay="200">
         <template #reference>
           <div class="flex justify-center items-center">
             <router-link
@@ -63,7 +63,7 @@ import { useUserStore } from "@/store/user";
 import { ACCESSENUM, CheckACCESS } from "@/access";
 import { UserLogout } from "@/services";
 import Avatar from "../Avatar";
-import Popover from "../Popover";
+import Popover from "@/lib/Popover";
 
 const handleLogout = async () => {
   await UserLogout();
