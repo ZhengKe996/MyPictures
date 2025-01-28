@@ -1,16 +1,14 @@
 <template>
   <div class="w-full h-full">
-    <div class="flex flex-1 justify-start px-2">
-      <div
-        class="grid w-full max-w-xl lg:max-w-xs flex justify-start items-center"
-      >
+    <div class="flex w-full mb-4 flex-1 justify-center items-center">
+      <div class="mx-auto w-full max-w-xl flex justify-start items-center">
         <div class="flex w-full justify-start items-center">
           <label for="search" class="block text-sm/6 font-medium text-gray-900"
             >Name:
           </label>
           <div class="mx-2">
             <div
-              class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600"
+              class="flex min-w-xl rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600"
             >
               <input
                 type="text"
