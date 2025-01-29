@@ -21,21 +21,21 @@
         class="hidden opacity-0 w-full h-full bg-zinc-900/50 absolute top-0 left-0 rounded duration-300 group-hover:opacity-100 xl:block"
       >
         <!-- 分享 -->
-        <Button class="absolute top-1.5 left-1.5">分享</Button>
+        <Button class="absolute top-1.5 left-1.5" size="lg">分享</Button>
 
         <!-- 点赞 -->
         <Button
           class="absolute top-1.5 right-1.5"
           :icon="'i-tabler:heart'"
-          fillClass="fill-zinc-900 dark:fill-zinc-200"
+          size="lg"
         ></Button>
 
         <!-- 下载 -->
         <Button
           class="absolute bottom-1.5 left-1.5 bg-zinc-100/70"
-          fillClass="fill-zinc-900 dark:fill-zinc-200"
           :icon="'i-tabler:download'"
           @click="onDownload"
+          size="lg"
         >
         </Button>
 
@@ -43,8 +43,8 @@
         <Button
           :icon="'i-tabler:aspect-ratio'"
           class="absolute bottom-1.5 right-1.5 bg-zinc-100/70"
-          fillClass="fill-zinc-900 dark:fill-zinc-200"
           @click="onImgFullScreen"
+          size="lg"
         ></Button>
       </div>
     </div>
@@ -70,7 +70,7 @@
 import { ref, computed } from "vue";
 import { useFullscreen, useElementBounding } from "@vueuse/core";
 import { type PictureType } from "@/config";
-import Button from "../Button";
+import Button from "@/lib/Button";
 import { randomRGB } from "@/utils/color";
 const { picture, width } = defineProps<{
   picture: PictureType;

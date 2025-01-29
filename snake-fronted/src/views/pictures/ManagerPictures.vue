@@ -22,7 +22,7 @@
               <Button
                 @click="LoadList"
                 :icon="'i-tabler:pointer-search'"
-                size="small"
+                size="md"
               ></Button>
             </div>
           </div>
@@ -107,7 +107,7 @@ import { AdminGetPictureList } from "@/services";
 import { Message } from "@/lib/Message";
 import { useFullscreen } from "@vueuse/core";
 import dayjs from "dayjs";
-import Button from "@/components/Button";
+import Button from "@/lib/Button";
 import GenericTooltip from "@/lib/Tooltip";
 
 const total = ref<number>(0); // 题目总数

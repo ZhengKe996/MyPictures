@@ -20,7 +20,7 @@
               <Button
                 @click="LoadList"
                 :icon="'i-tabler:pointer-search'"
-                size="small"
+                size="md"
               ></Button>
             </div>
           </div>
@@ -60,7 +60,7 @@ import dayjs from "dayjs";
 import { Message } from "@/lib/Message";
 import Waterfall from "@/lib/Waterfall";
 import Infinite from "@/lib/Infinite";
-import Button from "@/components/Button";
+import Button from "@/lib/Button";
 import { Item } from "@/components/ListItem";
 
 const loading = ref<boolean>(false);
