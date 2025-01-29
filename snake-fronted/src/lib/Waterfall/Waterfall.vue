@@ -6,29 +6,43 @@
       height: containerHeight + 'px',
     }"
   >
-    <!-- 数据渲染 -->
     <template v-if="columnWidth && data.length">
       <div
         v-for="(item, index) in data"
         :key="nodeKey ? item[nodeKey] : index"
-        class="m-waterfall-item absolute duration-300"
+        class="m-waterfall-item absolute transition-all duration-300 ease-in-out hover:shadow-lg"
+        :class="{ 'opacity-0': !item._style }"
         :style="{
           width: columnWidth + 'px',
           left: item._style?.left + 'px',
           top: item._style?.top + 'px',
+          transform: item._style ? 'translateY(0)' : 'translateY(20px)',
+          opacity: item._style ? 1 : 0,
         }"
       >
         <slot :item="item" :width="columnWidth" :index="index" />
       </div>
     </template>
-    <!-- 加载中 -->
-    <div v-else>加载中...</div>
+    <div v-else class="flex items-center justify-center p-4">
+      <div class="animate-pulse flex space-x-4">
+        <div class="rounded-full bg-slate-200 h-10 w-10"></div>
+        <div class="flex-1 space-y-6 py-1">
+          <div class="h-2 bg-slate-200 rounded"></div>
+          <div class="space-y-3">
+            <div class="grid grid-cols-3 gap-4">
+              <div class="h-2 bg-slate-200 rounded col-span-2"></div>
+              <div class="h-2 bg-slate-200 rounded col-span-1"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 export default {
-  name: "waterfall",
+  name: "Waterfall",
 };
 </script>
 
@@ -42,27 +56,40 @@ import {
   getMaxHeight,
   getMinHeightColumn,
 } from "./utils";
-interface Props {
-  data: any[];
-  // 唯一标识 key
-  nodeKey: string;
-  // 列数
-  column?: number;
-  // 列间距
-  columnSpacing?: number;
-  // 行间距
-  rowSpacing?: number;
-  // 是否需要进行图片预读取
-  picturePreReading?: boolean;
+
+// 优化类型定义
+interface WaterfallItem {
+  _style?: {
+    left: number;
+    top: number;
+  };
+  [key: string]: any;
 }
 
-const {
-  column = 2,
-  columnSpacing = 20,
-  rowSpacing = 20,
-  picturePreReading = true,
-  data = [],
-} = defineProps<Props>();
+interface Props {
+  data: WaterfallItem[];
+  nodeKey: string;
+  column?: number;
+  columnSpacing?: number;
+  rowSpacing?: number;
+  picturePreReading?: boolean;
+  animation?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  column: 2,
+  columnSpacing: 20,
+  rowSpacing: 20,
+  picturePreReading: true,
+  animation: true,
+});
+
+// 动画类
+const animationClass = computed(() => {
+  return props.animation
+    ? "opacity-0 transform translate-y-4 waterfall-item"
+    : "";
+});
 
 // 容器总高度
 const containerHeight = ref<number>(0);
@@ -75,7 +102,7 @@ const columnHeightObj = ref<any>({});
  */
 const useColumnHeightObj = () => {
   columnHeightObj.value = {};
-  for (let i = 0; i < column; i++) {
+  for (let i = 0; i < props.column; i++) {
     columnHeightObj.value[i] = 0;
   }
 };
@@ -113,7 +140,7 @@ const columnWidth = ref<number>(0);
 
 // 列间距合计
 const columnSpacingTotal = computed(() => {
-  return (column - 1) * columnSpacing;
+  return (props.column - 1) * props.columnSpacing;
 });
 
 /**
@@ -125,7 +152,7 @@ const useColumnWidth = () => {
 
   // 计算列宽
   columnWidth.value =
-    (containerWidth.value - columnSpacingTotal.value) / column;
+    (containerWidth.value - columnSpacingTotal.value) / props.column;
 };
 
 onMounted(() => {
@@ -188,13 +215,13 @@ const useItemHeight = () => {
 // 渲染位置
 const useItemLocation = () => {
   // 遍历数据源
-  data.forEach((item, index) => {
+  props.data.forEach((item, index) => {
     // 避免重复运算
     if (item._style) {
       return;
     }
     // 生成 style
-    item._style = {};
+    item._style = { left: 0, top: 0 };
 
     // left
     item._style.left = getItemLeft();
@@ -214,7 +241,7 @@ const useItemLocation = () => {
  * 在组件销毁时,清楚所有 _style
  */
 onUnmounted(() => {
-  data.forEach((item) => {
+  props.data.forEach((item) => {
     delete item._style;
   });
 });
@@ -226,14 +253,16 @@ const getItemLeft = () => {
   // 拿到最小宽度的列
   const column = parseFloat(getMinHeightColumn(columnHeightObj.value)!);
 
-  return column * (columnWidth.value + columnSpacing) + containerLeft.value;
+  return (
+    column * (columnWidth.value + props.columnSpacing) + containerLeft.value
+  );
 };
 
 /**
  * 返回下一个 item 的 top
  */
 const getItemTop = () => {
-  return getMinHeight(columnHeightObj.value);
+  return getMinHeight(columnHeightObj.value) ?? 0;
 };
 
 /**
@@ -245,14 +274,15 @@ const increasingHeight = (index: number) => {
     getMinHeightColumn(columnHeightObj.value)!
   );
   // 使该列自增
-  columnHeightObj.value[minHeightColumn] += itemHeights[index] + rowSpacing;
+  columnHeightObj.value[minHeightColumn] +=
+    itemHeights[index] + props.rowSpacing;
 };
 
 /**
  * 触发计算
  */
 watch(
-  () => data,
+  () => props.data,
   (newValue) => {
     nextTick(() => {
       // 第一次获取数据时，构建高度记录容器
@@ -261,7 +291,7 @@ watch(
         // 构建高度记录容器
         useColumnHeightObj();
       }
-      if (picturePreReading) {
+      if (props.picturePreReading) {
         waitImgComplate();
       } else {
         useItemHeight();
@@ -278,23 +308,31 @@ watch(
  * 重新构建瀑布流
  */
 const reset = () => {
-  setTimeout(() => {
-    // 重新计算列宽
+  return new Promise<void>((resolve) => {
     useColumnWidth();
-    // 重置所有的定位数据
-    data.forEach((item) => {
-      item._style = null;
+    props.data.forEach((item) => {
+      item._style = undefined;
     });
-  }, 200);
+    nextTick(() => {
+      setTimeout(() => {
+        resolve();
+      }, 300); // 匹配过渡动画时长
+    });
+  });
 };
+
+// 暴露方法给父组件
+defineExpose({
+  reset,
+});
 
 /**
  * 监听列数变化
  */
 watch(
-  () => column,
+  () => props.column,
   () => {
-    if (picturePreReading) {
+    if (props.picturePreReading) {
       columnWidth.value = 0;
       // 数据改变后 视图变化后的回调
       reset();
@@ -304,3 +342,26 @@ watch(
   }
 );
 </script>
+
+<style scoped>
+.m-waterfall-item {
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
+
+.m-waterfall-item:hover {
+  transform: translateY(-5px) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m-waterfall-item {
+    transition-duration: 0.1s;
+  }
+}
+
+.waterfall-container {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+</style>

@@ -39,11 +39,11 @@
         :data="PictureListInfo"
         nodeKey="id"
         :column="4"
-        :picturePreReading="false"
+        :picturePreReading="true"
       >
         <template v-slot="{ item, width }">
           <div class="overflow-hidden rounded-lg bg-white shadow-sm">
-            <Item :picture="item" :width="width"></Item>
+            <Item :picture="(item as PictureType)" :width="width"></Item>
           </div>
         </template>
       </waterfall>
@@ -58,7 +58,7 @@ import { useThrottleFn } from "@vueuse/core";
 import { AdminGetPictureList, GetTagCategory } from "@/services";
 import dayjs from "dayjs";
 import { Message } from "@/lib/Message";
-import Waterfall from "@/components/Waterfall";
+import Waterfall from "@/lib/Waterfall";
 import Infinite from "@/lib/Infinite";
 import Button from "@/components/Button";
 import { Item } from "@/components/ListItem";
