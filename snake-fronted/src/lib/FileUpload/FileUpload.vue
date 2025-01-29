@@ -1,185 +1,195 @@
 <template>
   <div
-    class="file-upload relative"
-    @drop.prevent="onDrop"
-    @dragover.prevent="onDragOver"
-    @dragleave.prevent="onDragLeave"
+    class="flex items-center justify-center w-full"
+    @drop="onDrop"
+    @dragover="onDragOver"
+    @dragleave="onDragLeave"
     :class="[
-      'transition-all duration-300 ease-in-out',
-      isDragging ? 'scale-102 bg-gray-100/50 dark:bg-gray-700/50' : '',
-      disabled ? 'opacity-50 cursor-not-allowed' : '',
+      containerClass,
+      {
+        'bg-gray-200/50 scale-102': isDragging,
+        'border-2 border-dashed border-gray-300 rounded-lg': !file?.url,
+      },
     ]"
   >
-    <div
-      v-if="!modelValue"
-      class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4"
+    <label
+      v-if="!file?.url"
+      :for="inputId"
+      class="flex flex-col items-center justify-center w-full h-64 cursor-pointer transition-all duration-300 ease-in-out"
       :class="[
-        'transition-colors duration-300',
-        isDragging ? 'border-primary-500' : '',
+        dragZoneClass,
+        {
+          'opacity-60': disabled,
+          'cursor-not-allowed': disabled,
+        },
       ]"
     >
-      <label
-        class="flex flex-col items-center justify-center min-h-[200px] cursor-pointer"
-        :class="{ 'cursor-not-allowed': disabled }"
-      >
-        <slot name="default" :isDragging="isDragging">
-          <div class="flex flex-col items-center justify-center space-y-4">
-            <div
-              class="p-4 rounded-full bg-gray-50 dark:bg-gray-800 transition-transform duration-300"
-              :class="{ 'scale-110': isDragging }"
-            >
-              <svg
-                class="w-8 h-8 text-gray-500 dark:text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                />
-              </svg>
-            </div>
-            <div class="text-center space-y-2">
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                <span class="font-medium">Click to upload</span> or drag and
-                drop
-              </p>
-              <p class="text-xs text-gray-500 dark:text-gray-500">
-                {{ accept }} (Max: {{ formatFileSize(maxSize) }})
-              </p>
-            </div>
-          </div>
+      <div class="flex flex-col items-center justify-center pt-5 pb-6">
+        <slot name="icon">
+          <svg
+            class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400 transition-transform duration-300 group-hover:scale-110"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 16"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+            />
+          </svg>
         </slot>
-        <input
-          ref="fileInput"
-          type="file"
-          :accept="accept"
-          class="hidden"
-          :disabled="disabled"
-          @change="handleFileSelect"
-        />
-      </label>
-    </div>
-
-    <div v-else-if="preview && previewUrl" class="relative group">
+        <slot name="label">
+          <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+            <span class="font-semibold">Click to upload</span> or drag and drop
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            {{ acceptedTypesMessage }}
+          </p>
+        </slot>
+      </div>
+      <input
+        :id="inputId"
+        ref="fileInput"
+        @change="handleFileSelect"
+        type="file"
+        :accept="accept"
+        class="hidden"
+        :disabled="disabled"
+      />
+    </label>
+    <div v-else class="relative group">
       <img
-        :src="previewUrl"
-        alt="Preview"
-        class="w-full h-[200px] object-cover rounded-lg shadow-lg transition-all duration-300 group-hover:brightness-90"
+        :src="file.url || defaultImage"
+        :alt="file.name || 'Uploaded Image'"
+        :class="[
+          previewClass,
+          'transition-all duration-300 ease-in-out group-hover:scale-105',
+        ]"
       />
       <button
         v-if="!disabled"
-        @click="removeFile"
-        class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+        @click.prevent="removeImage"
+        class="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+        aria-label="Remove Image"
       >
-        <span class="sr-only">Remove file</span>
-        <svg
-          class="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
+        <slot name="remove-icon">×</slot>
       </button>
+    </div>
+    <div
+      v-if="error"
+      class="absolute bottom-2 left-2 right-2 bg-red-100 text-red-600 px-4 py-2 rounded-md text-sm"
+      role="alert"
+    >
+      {{ error }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import type { FileUploadProps, FileUploadEmits } from "./types";
+import { ref, computed } from "vue";
+import { type PictureType } from "@/config";
+import { DEFAULT_CONFIG, ERROR_MESSAGES } from "./config";
 
-const props = withDefaults(defineProps<FileUploadProps>(), {
+interface Props {
+  file: PictureType;
+  defaultImage?: string;
+  accept?: string;
+  maxSize?: number;
+  disabled?: boolean;
+  inputId?: string;
+  containerClass?: string;
+  dragZoneClass?: string;
+  previewClass?: string;
+  allowedTypes?: string[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  defaultImage: "",
   accept: "image/*",
-  maxSize: 10 * 1024 * 1024,
-  preview: true,
+  maxSize: DEFAULT_CONFIG.maxSize,
   disabled: false,
-  previewUrl: "",
+  inputId: "dropzone-file",
+  containerClass: "",
+  dragZoneClass:
+    "bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600",
+  previewClass: "w-full h-64 object-cover rounded-lg shadow-lg",
+  allowedTypes: () => DEFAULT_CONFIG.acceptedTypes,
 });
 
-const emit = defineEmits<FileUploadEmits>();
+const emits = defineEmits<{
+  (e: "Upload", file: File | null): void;
+  (e: "error", message: string): void;
+}>();
 
 const isDragging = ref(false);
+const error = ref("");
 const fileInput = ref<HTMLInputElement | null>(null);
 
+const acceptedTypesMessage = computed(() => {
+  const types = props.allowedTypes
+    .map((type) => type.replace("image/", "").toUpperCase())
+    .join(", ");
+  return `Accepted files: ${types} (Max. ${props.maxSize / (1024 * 1024)}MB)`;
+});
+
+const validateFile = (file: File): boolean => {
+  if (!props.allowedTypes.includes(file.type)) {
+    error.value = ERROR_MESSAGES.INVALID_TYPE;
+    emits("error", ERROR_MESSAGES.INVALID_TYPE);
+    return false;
+  }
+
+  if (file.size > props.maxSize) {
+    error.value = ERROR_MESSAGES.SIZE_EXCEEDED;
+    emits("error", ERROR_MESSAGES.SIZE_EXCEEDED);
+    return false;
+  }
+
+  error.value = "";
+  return true;
+};
+
 const handleFileSelect = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  if (input.files?.length) {
-    validateAndEmitFile(input.files[0]);
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    const file = target.files[0];
+    if (validateFile(file)) {
+      emits("Upload", file);
+    }
   }
 };
 
 const onDrop = (event: DragEvent) => {
+  event.preventDefault();
   isDragging.value = false;
-  const file = event.dataTransfer?.files[0];
-  if (file) {
-    validateAndEmitFile(file);
+  if (event.dataTransfer && event.dataTransfer.files.length > 0) {
+    const file = event.dataTransfer.files[0];
+    if (validateFile(file)) {
+      emits("Upload", file);
+    }
   }
 };
 
-const validateAndEmitFile = (file: File) => {
+const onDragOver = (event: DragEvent) => {
+  event.preventDefault();
+  isDragging.value = true;
+};
+
+const onDragLeave = () => (isDragging.value = false);
+
+const removeImage = () => {
   if (props.disabled) return;
-
-  if (!file.type.match(props.accept.replace("/*", "/.*"))) {
-    emit("error", "Invalid file type");
-    return;
-  }
-
-  if (file.size > props.maxSize) {
-    emit("error", `File size exceeds ${formatFileSize(props.maxSize)}`);
-    return;
-  }
-
-  emit("update:modelValue", file);
-  emit("success", file);
-};
-
-const removeFile = () => {
-  if (props.disabled) return;
-  emit("update:modelValue", null);
-  emit("remove");
-  if (fileInput.value) {
-    fileInput.value.value = "";
-  }
-};
-
-const onDragOver = () => {
-  if (!props.disabled) {
-    isDragging.value = true;
-  }
-};
-
-const onDragLeave = () => {
-  isDragging.value = false;
-};
-
-const formatFileSize = (bytes: number): string => {
-  const units = ["B", "KB", "MB", "GB"];
-  let size = bytes;
-  let unitIndex = 0;
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024;
-    unitIndex++;
-  }
-  return `${size.toFixed(1)} ${units[unitIndex]}`;
+  if (fileInput.value) fileInput.value.value = "";
+  emits("Upload", null);
 };
 </script>
 
 <style scoped>
 .scale-102 {
   transform: scale(1.02);
-}
-
-.file-upload {
-  width: 100%;
 }
 </style>

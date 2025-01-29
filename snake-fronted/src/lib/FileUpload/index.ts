@@ -1,2 +1,2 @@
-export { default } from "./FileUpload.vue";
-export * from "./types";
+import FileUpload from "./FileUpload.vue";
+export default FileUpload;

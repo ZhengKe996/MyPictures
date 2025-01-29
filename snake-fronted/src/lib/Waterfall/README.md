@@ -132,7 +132,7 @@ const getColumnCount = () => {
 ## ⚠️ 注意事项
 
 1. 确保提供的 nodeKey 在数据项中是唯一的
-2. 大数据量场景建议开启 picturePreReading
+2. ~~. 大数据量场景建议开启 picturePreReading~~
 3. 如遇到性能问题，可以调整 animation 和过渡效果
 4. 对于图片密集型场景，建议使用图片懒加载
 
