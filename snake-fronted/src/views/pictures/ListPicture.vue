@@ -27,7 +27,13 @@
         </div>
       </div>
     </div>
-    <infinite v-model="loading" :isFinished="isFinished" @on-load="getListData">
+    <infinite
+      v-model="loading"
+      :isFinished="isFinished"
+      @on-load="getListData"
+      loading-text="玩命加载中..."
+      finished-text="我是有底线的"
+    >
       <waterfall
         class="px-1 w-full"
         :data="PictureListInfo"
@@ -53,7 +59,7 @@ import { AdminGetPictureList, GetTagCategory } from "@/services";
 import dayjs from "dayjs";
 import { Message } from "@/lib/Message";
 import Waterfall from "@/components/Waterfall";
-import Infinite from "@/components/Infinite";
+import Infinite from "@/lib/Infinite";
 import Button from "@/components/Button";
 import { Item } from "@/components/ListItem";
 
