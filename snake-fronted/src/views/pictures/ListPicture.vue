@@ -39,7 +39,7 @@
         :data="PictureListInfo"
         nodeKey="id"
         :column="4"
-        :picturePreReading="true"
+        :picturePreReading="false"
       >
         <template v-slot="{ item, width }">
           <div class="overflow-hidden rounded-lg bg-white shadow-sm">

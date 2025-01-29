@@ -1,40 +1,52 @@
 <template>
-  <a href="#" class="group block shrink-0">
-    <div class="flex items-center">
-      <div>
+  <component
+    :is="props.linkable ? 'a' : 'div'"
+    :href="props.linkable ? props.href : undefined"
+    :class="[
+      'group block',
+      props.linkable ? 'cursor-pointer' : 'cursor-default',
+      props.customClass,
+    ]"
+  >
+    <div class="flex items-center gap-3">
+      <div
+        class="relative overflow-hidden"
+        :style="{
+          width: avatarConfig.dimensions[props.size].width,
+          height: avatarConfig.dimensions[props.size].height,
+        }"
+      >
         <img
-          class="inline-block size-9 rounded-full"
-          :src="userAvatar"
-          alt=""
+          :class="[
+            'rounded-full object-cover w-full h-full transition-all',
+            avatarConfig.transitions.duration,
+            avatarConfig.transitions.timing,
+            'group-hover:ring-2 group-hover:ring-primary-300',
+          ]"
+          :src="props.userAvatar"
+          :alt="props.userName"
         />
       </div>
-      <div class="ml-3 max-w-24 overflow-hidden text-nowrap">
+      <div class="min-w-0 flex-1">
         <p
-          class="text-sm font-medium text-gray-700 group-hover:text-gray-900 truncate"
+          class="truncate text-sm font-semibold text-gray-700 transition-colors group-hover:text-gray-900"
         >
-          {{ userName }}
+          {{ props.userName }}
         </p>
         <p
-          class="text-xs font-medium text-gray-500 group-hover:text-gray-700 truncate"
+          v-if="props.showRole"
+          class="truncate text-xs font-medium text-gray-500 transition-colors group-hover:text-gray-700"
         >
-          {{ userRole }}
+          {{ props.userRole }}
         </p>
       </div>
     </div>
-  </a>
+  </component>
 </template>
 
 <script setup lang="ts">
-import { ACCESSENUM, NOLOGIN } from "@/access";
-import { DefaultUserAvatar } from "@/config";
-interface UserInfo {
-  userName: string;
-  userRole: ACCESSENUM;
-  userAvatar: string;
-}
-const {
-  userName = NOLOGIN,
-  userRole = ACCESSENUM.NOLOGIN,
-  userAvatar = DefaultUserAvatar,
-} = defineProps<UserInfo>();
+import { avatarConfig, defaultProps } from "./config";
+import type { AvatarProps } from "./types";
+
+const props = withDefaults(defineProps<AvatarProps>(), defaultProps);
 </script>

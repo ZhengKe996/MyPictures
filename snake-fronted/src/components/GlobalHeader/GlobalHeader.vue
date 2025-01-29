@@ -27,12 +27,16 @@
               to="/user/login"
               >Log in <span aria-hidden="true">&rarr;</span></router-link
             >
-            <avatar
+
+            <Avatar
               v-else
               :userName="userStore.getUserName"
               :userRole="userStore.getUserRole"
               :userAvatar="userStore.getUserAvatar"
-            ></avatar>
+              size="sm"
+              showRole
+              linkable
+            ></Avatar>
           </div>
         </template>
 
@@ -62,8 +66,8 @@ import { routes } from "@/router/routes";
 import { useUserStore } from "@/store/user";
 import { ACCESSENUM, CheckACCESS } from "@/access";
 import { UserLogout } from "@/services";
-import Avatar from "../Avatar";
 import Popover from "@/lib/Popover";
+import Avatar from "@/components/Avatar";
 
 const handleLogout = async () => {
   await UserLogout();
