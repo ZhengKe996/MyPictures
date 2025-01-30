@@ -39,7 +39,7 @@
       </Tabs>
     </div>
     <div
-      class="w-full mb-2 border-b border-gray-200 transition-all duration-300 ease-in-out"
+      class="w-full mb-4 border-b border-gray-200 transition-all duration-300 ease-in-out"
     >
       <TagsList
         :tags="tagOptions"
@@ -51,7 +51,7 @@
     <infinite
       v-model="loading"
       :isFinished="isFinished"
-      @on-load="getListData"
+      @on-load="getLoadData"
       loading-text="玩命加载中..."
       finished-text="我是有底线的"
     >
@@ -102,16 +102,11 @@ const handleChange = (tags: EnhancedTag[]) => {
     selectedTags.value = []; // Clear selected tags
     PageInfo.value.tags = []; // Clear tags in PageInfo
   } else PageInfo.value.tags = tags.map((tag) => tag.name);
-
   LoadList();
 };
 // Loading
 const loading = ref<boolean>(false);
 const isFinished = ref<boolean>(false);
-let query = {
-  page: 1,
-  size: 20,
-};
 
 interface PictureInfoInterface {
   current: number;
@@ -125,38 +120,52 @@ interface PictureInfoInterface {
 }
 const PageInfo = ref<PictureInfoInterface>({
   current: 1,
-  pageSize: 20,
+  pageSize: 5,
 });
 
 const PictureListInfo = ref<PictureType[]>([]);
 // TODO 这一块需要重构
-const resetQuery = (newQuery: any) => {
-  query = { ...query, ...newQuery };
-  // 重置状态
-  isFinished.value = false;
-};
-const getListData = async () => {
+
+const getLoadData = async () => {
+  // console.log("getLoadData", PageInfo.value, isFinished.value, loading.value);
   if (isFinished.value) return;
-  if (PictureListInfo.value.length) query.page += 1;
-  loading.value = false;
+  // 完成了第一次请求后，后续的请求让page自增
+  if (PictureListInfo.value.length > 0) PageInfo.value.current++;
+  LoadList();
 };
 const LoadList = useThrottleFn(async () => {
   loading.value = true;
-
+  // 触发接口
   const { data, code, message } = await GetPictureList(PageInfo.value);
 
   if (code === 0 && data) {
-    // total.value = Number(data.total) ?? 0;
+    if (PageInfo.value.current === 1) {
+      PictureListInfo.value = Array.isArray(data.records)
+        ? data.records.map((item: PictureType) => ({
+            ...item,
+            createTime:
+              dayjs(item.createTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
+            editTime: dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
+          }))
+        : [];
+    } else {
+      const formattedRecords = Array.isArray(data.records)
+        ? data.records.map((item: PictureType) => ({
+            ...item,
+            createTime:
+              dayjs(item.createTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
+            editTime: dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
+          }))
+        : [];
+      PictureListInfo.value.push(...formattedRecords);
+    }
 
-    PictureListInfo.value = Array.isArray(data.records)
-      ? data.records.map((item: PictureType) => ({
-          ...item,
-          createTime:
-            dayjs(item.createTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
-          editTime: dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
-        }))
-      : [];
+    // 判断数据是否全部加载完成
+    if (PictureListInfo.value.length >= (data.total ?? 0)) {
+      isFinished.value = true;
+    }
   } else Message.error(`获取失败, 原因: ${message}`);
+
   loading.value = false;
 }, 1000);
 watchEffect(() => LoadList());
