@@ -1,134 +1,135 @@
 <template>
-  <div class="infinite-scroll-component">
-    <slot />
-    <div
-      ref="loadingTarget"
-      class="py-4 flex justify-center items-center min-h-[60px]"
-    >
-      <template v-if="error">
-        <slot name="error">
-          <div
-            class="text-red-500 cursor-pointer hover:text-red-600 transition-colors"
-            @click="handleRetry"
-          >
-            {{ errorText }}
-          </div>
-        </slot>
-      </template>
+  <div class="infinite-loading" ref="container">
+    <div class="infinite-content">
+      <slot></slot>
+    </div>
 
-      <template v-else-if="loading">
-        <slot name="loading">
-          <div class="flex items-center gap-2">
-            <i class="i-tabler:loader w-5 h-5 animate-spin" />
-            <span class="text-zinc-500">{{ loadingText }}</span>
-          </div>
-        </slot>
-      </template>
+    <!-- Loading State -->
+    <div v-if="loading" class="infinite-loading-status">
+      <slot name="loading">
+        <p class="text-gray-500 text-center py-4">{{ loadingText }}</p>
+      </slot>
+    </div>
 
-      <template v-else-if="isFinished">
-        <slot name="finished">
-          <div class="text-zinc-400">{{ finishedText }}</div>
-        </slot>
-      </template>
+    <!-- Finished State -->
+    <div v-if="isFinished" class="infinite-finished-status">
+      <slot name="finished">
+        <p class="text-gray-400 text-center py-4">{{ finishedText }}</p>
+      </slot>
+    </div>
+
+    <!-- Error State -->
+    <div v-if="error" class="infinite-error-status">
+      <slot name="error">
+        <p class="text-red-500 text-center py-4">{{ errorText }}</p>
+      </slot>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
-import { useVModel, useIntersectionObserver } from "@vueuse/core";
+import { ref, watch, onMounted, onUnmounted, nextTick } from "vue";
+import { useThrottleFn } from "@vueuse/core";
 
 interface Props {
-  modelValue: boolean;
+  modelValue?: boolean; // loading state
   isFinished?: boolean;
-  error?: boolean;
+  threshold?: number;
+  distance?: number;
   loadingText?: string;
   finishedText?: string;
   errorText?: string;
-  threshold?: number;
-  immediateLoad?: boolean;
+  immediateCheck?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  modelValue: false,
   isFinished: false,
-  error: false,
-  loadingText: "加载中...",
-  finishedText: "没有更多数据了",
-  errorText: "加载失败，点击重试",
   threshold: 100,
-  immediateLoad: true,
+  distance: 0,
+  loadingText: "加载中...",
+  finishedText: "没有更多了",
+  errorText: "加载失败",
+  immediateCheck: true,
 });
 
-const emits = defineEmits(["onLoad", "onRetry", "update:modelValue"]);
+const emit = defineEmits<{
+  (e: "update:modelValue", value: boolean): void;
+  (e: "on-load"): void;
+}>();
 
-const loading = useVModel(props);
-const loadingTarget = ref<HTMLElement | null>(null);
-const targetIsIntersecting = ref(false);
+const container = ref<HTMLElement | null>(null);
+const loading = ref(props.modelValue);
+const error = ref(false);
 
-// 使用 Intersection Observer API 来观察目标元素与视口的交集情况
-// 该函数在目标元素进入视口时触发回调，用于实现无限滚动、懒加载等功能
-useIntersectionObserver(
-  loadingTarget, // 需要观察的目标元素
-  ([{ isIntersecting }]) => {
-    // 当目标元素与视口的交集情况发生变化时，更新目标元素是否 intersecting 的状态
-    targetIsIntersecting.value = isIntersecting;
-    // 根据目标元素是否在视口中，决定是否触发加载更多数据的操作
-    emitLoadIfNeeded();
-  },
-  {
-    threshold: 0, // 设置阈值为0，表示目标元素任何部分进入视口时即触发回调
-    rootMargin: `${props.threshold}px`, // 设置根元素的边距，可以调整触发回调的时机
+// 检查是否需要加载更多
+const checkPosition = () => {
+  if (!container.value || loading.value || props.isFinished) return;
+
+  const { scrollHeight, clientHeight, scrollTop } = document.documentElement;
+  const containerBottom = container.value.getBoundingClientRect().bottom;
+
+  // 检查是否接近底部
+  if (containerBottom <= clientHeight + props.threshold) {
+    loading.value = true;
+    emit("update:modelValue", true);
+    emit("on-load");
+  }
+};
+
+// 使用节流的滚动检查
+const throttledCheck = useThrottleFn(checkPosition, 200);
+
+// 监听 loading 状态变化
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    loading.value = newVal;
   }
 );
 
-/**
- * 根据条件触发加载事件
- * 此函数用于检查是否需要加载内容，如果需要，就触发加载事件
- * 它通过检查多个条件来决定是否开始加载过程：
- * - 目标元素是否在视口中（targetIsIntersecting）
- * - 当前是否没有在加载中（loading）
- * - 加载是否没有完成（isFinished）
- * - 没有发生错误（error）
- * 如果以上条件都满足，则设置加载状态为true，并触发onLoad事件
- */
-const emitLoadIfNeeded = () => {
-  // 当目标元素在视口中、没有在加载中、加载没有完成且没有错误时，执行加载
-  if (
-    targetIsIntersecting.value &&
-    !loading.value &&
-    !props.isFinished &&
-    !props.error
-  ) {
-    // 设置加载状态为true
-    loading.value = true;
-    // 触发onLoad事件
-    emits("onLoad");
+// 监听完成状态变化
+watch(
+  () => props.isFinished,
+  (newVal) => {
+    if (newVal) {
+      loading.value = false;
+      emit("update:modelValue", false);
+    }
   }
-};
+);
 
-/**
- * 重试操作处理函数
- *
- * 该函数在组件的错误状态存在时调用，目的是触发重新加载数据的操作
- * 它通过触发事件来通知父组件或其他监听者执行相应的操作
- */
-const handleRetry = () => {
-  // 当存在错误时，触发重试和加载事件
-  if (props.error) {
-    emits("onRetry");
-    emits("onLoad");
-  }
-};
-
-watch(loading, emitLoadIfNeeded);
-
+// 初始化和清理
 onMounted(() => {
-  if (props.immediateLoad) emitLoadIfNeeded();
+  document.addEventListener("scroll", throttledCheck);
+  if (props.immediateCheck) {
+    // 使用 nextTick 确保内容已渲染
+    nextTick(() => checkPosition());
+  }
 });
+
+onUnmounted(() => {
+  document.removeEventListener("scroll", throttledCheck);
+});
+
+// 提供重置方法
+const reset = () => {
+  error.value = false;
+  loading.value = false;
+  emit("update:modelValue", false);
+};
+
+// 暴露方法
+defineExpose({ reset });
 </script>
 
 <style scoped>
-.infinite-scroll-component {
-  position: relative;
+.infinite-loading {
+  width: 100%;
+  height: 100%;
+}
+
+.infinite-content {
+  min-height: 100px;
 }
 </style>

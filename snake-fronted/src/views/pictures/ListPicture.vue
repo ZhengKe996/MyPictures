@@ -52,6 +52,8 @@
       v-model="loading"
       :isFinished="isFinished"
       @on-load="getLoadData"
+      :threshold="100"
+      :immediate-check="true"
       loading-text="玩命加载中..."
       finished-text="我是有底线的"
     >
@@ -120,59 +122,62 @@ interface PictureInfoInterface {
 }
 const PageInfo = ref<PictureInfoInterface>({
   current: 1,
-  pageSize: 5,
+  pageSize: 10,
 });
 
 const PictureListInfo = ref<PictureType[]>([]);
-// TODO 这一块需要重构
 
 const getLoadData = async () => {
-  // console.log("getLoadData", PageInfo.value, isFinished.value, loading.value);
+  console.log("触底", PageInfo.value);
   if (isFinished.value) return;
   // 完成了第一次请求后，后续的请求让page自增
   if (PictureListInfo.value.length > 0) PageInfo.value.current++;
-  LoadList();
+  await LoadList();
 };
+const formatRecords = (records: PictureType[]) => {
+  return records.map((item: PictureType) => ({
+    ...item,
+    createTime: dayjs(item.createTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
+    editTime: dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
+  }));
+};
+
 const LoadList = useThrottleFn(async () => {
-  loading.value = true;
-  // 触发接口
-  const { data, code, message } = await GetPictureList(PageInfo.value);
+  try {
+    loading.value = true;
+    const { data, code, message } = await GetPictureList(PageInfo.value);
 
-  if (code === 0 && data) {
-    if (PageInfo.value.current === 1) {
-      PictureListInfo.value = Array.isArray(data.records)
-        ? data.records.map((item: PictureType) => ({
-            ...item,
-            createTime:
-              dayjs(item.createTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
-            editTime: dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
-          }))
-        : [];
-    } else {
+    if (code === 0 && data) {
       const formattedRecords = Array.isArray(data.records)
-        ? data.records.map((item: PictureType) => ({
-            ...item,
-            createTime:
-              dayjs(item.createTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
-            editTime: dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
-          }))
+        ? formatRecords(data.records)
         : [];
-      PictureListInfo.value.push(...formattedRecords);
-    }
 
-    // 判断数据是否全部加载完成
-    if (PictureListInfo.value.length >= (data.total ?? 0)) {
-      isFinished.value = true;
-    }
-  } else Message.error(`获取失败, 原因: ${message}`);
+      if (Number(PageInfo.value.current) === 1) {
+        PictureListInfo.value = formattedRecords;
+      } else {
+        PictureListInfo.value.push(...formattedRecords);
+      }
 
-  loading.value = false;
-}, 1000);
+      // 判断数据是否全部加载完成
+      const total = Number(data.total) || 0;
+      if (PictureListInfo.value.length >= total) {
+        isFinished.value = true;
+      }
+    } else {
+      Message.error(`获取失败, 原因: ${message}`);
+    }
+  } catch (error) {
+    Message.error(`请求失败: ${error}`);
+  } finally {
+    loading.value = false;
+  }
+}, 300);
+
 watchEffect(() => LoadList());
 
 const handleKeyPress = useThrottleFn((event: KeyboardEvent) => {
   if (event.key === "Enter") LoadList();
-}, 1000);
+}, 300);
 
 // Get Tag and Category Options
 const categoryOptions = ref<string[]>([]);
