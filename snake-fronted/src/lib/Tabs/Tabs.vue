@@ -109,9 +109,14 @@ const normalizedTabs = computed(() => {
 
 // 判断标签是否激活
 const isActive = (tabName: string) => {
-  return props.modelValue
-    ? props.modelValue === tabName
-    : props.defaultTab === tabName;
+  if (props.modelValue) {
+    return props.modelValue === tabName;
+  }
+  if (props.defaultTab) {
+    return props.defaultTab === tabName;
+  }
+  // 如果没有设置 modelValue 和 defaultTab，返回第一个标签
+  return normalizedTabs.value[0]?.name === tabName;
 };
 
 // 处理标签点击

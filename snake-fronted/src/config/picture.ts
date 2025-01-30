@@ -3,6 +3,7 @@ import type { PictureVO, PictureEditRequest } from "@/generated";
 export type { PictureVO as PictureType, PictureEditRequest as PictureEditType };
 
 import type { CustomColumn } from "./index";
+export const ALLCategory = "全部";
 
 export const PictureManagerColumns: CustomColumn[] = [
   { key: "id", label: "ID" },

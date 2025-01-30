@@ -27,6 +27,15 @@
         </div>
       </div>
     </div>
+    <div class="w-full mb-4">
+      <Tabs
+        v-model="activeTab"
+        :tabs="categoryOptions"
+        @change="handleTabChange"
+        class="transition-all duration-300 ease-in-out"
+      >
+      </Tabs>
+    </div>
     <infinite
       v-model="loading"
       :isFinished="isFinished"
@@ -53,7 +62,7 @@
 
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
-import { type PictureType } from "@/config";
+import { type PictureType, ALLCategory } from "@/config";
 import { useThrottleFn } from "@vueuse/core";
 import { AdminGetPictureList, GetTagCategory } from "@/services";
 import dayjs from "dayjs";
@@ -63,6 +72,16 @@ import Infinite from "@/lib/Infinite";
 import Button from "@/lib/Button";
 import { Item } from "@/components/ListItem";
 
+// Tabs
+import Tabs, { type TabItem } from "@/lib/Tabs";
+const activeTab = ref("");
+const handleTabChange = (tab: TabItem) => {
+  if (tab.name === ALLCategory) PageInfo.value.category = "";
+  else PageInfo.value.category = tab.name;
+  LoadList();
+};
+
+// Loading
 const loading = ref<boolean>(false);
 const isFinished = ref<boolean>(false);
 let query = {
@@ -121,7 +140,8 @@ const handleKeyPress = useThrottleFn((event: KeyboardEvent) => {
   if (event.key === "Enter") LoadList();
 }, 1000);
 
-const categoryOptions = ref<{ value: string; label: string }[]>([]);
+// Get Tag and Category Options
+const categoryOptions = ref<string[]>([]);
 const tagOptions = ref<{ value: string; label: string }[]>([]);
 const getTagCategoryOptions = useThrottleFn(async () => {
   const { data, code, message } = await GetTagCategory();
@@ -130,10 +150,7 @@ const getTagCategoryOptions = useThrottleFn(async () => {
       value: tag,
       label: tag,
     }));
-    categoryOptions.value = (data.categoryList ?? []).map((category) => ({
-      value: category,
-      label: category,
-    }));
+    categoryOptions.value = [ALLCategory, ...(data.categoryList ?? [])];
   } else {
     Message.error(`获取标签和分类选项失败${message}`);
   }
