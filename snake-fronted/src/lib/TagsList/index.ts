@@ -27,14 +27,12 @@ export interface TagProps {
 }
 
 const COLOR_PALETTE = [
-  "blue-600",
-  "green-500",
-  "red-500",
-  "yellow-500",
-  "purple-400",
-  "pink-500",
-  "indigo-500",
-  "teal-500",
+  "blue-5", // 基础蓝色
+  "red-5", // 基础红色
+  "green-5", // 基础绿色
+  "cyan-5", // 基础青色（替换 orange-5）
+  "gray-5", // 基础灰色
+  "yellow-5", // 基础黄色
 ];
 
 export const getRandomColor = () => {

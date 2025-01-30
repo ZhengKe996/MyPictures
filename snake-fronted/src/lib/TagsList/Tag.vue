@@ -4,7 +4,7 @@
       baseClasses,
       sizeClasses,
       variantClasses,
-      clickable ? 'cursor-pointer hover:opacity-80' : '',
+      clickable ? 'cursor-pointer hover:opacity-90 active:scale-95' : '',
     ]"
     @click="handleClick"
   >
@@ -13,8 +13,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, ref } from "vue";
 import type { TagProps } from "./index";
+import { getRandomColor } from "./index";
 
 const props = withDefaults(defineProps<TagProps>(), {
   variant: "primary",
@@ -30,9 +31,12 @@ const baseClasses = computed(() => [
   "inline-block",
   "font-bold",
   "text-center",
-  "rounded",
+  "rounded-full", // 改为圆角效果
   "transition-all",
-  "duration-200",
+  "duration-300",
+  "ease-in-out",
+  "shadow-sm",
+  "backdrop-blur-sm",
 ]);
 
 const sizeClasses = computed(() => ({
@@ -41,20 +45,30 @@ const sizeClasses = computed(() => ({
   "text-base py-2 px-4": props.size === "lg",
 }));
 
+const randomBgColor = ref("");
+
+onMounted(() => {
+  randomBgColor.value = getRandomColor();
+});
+
 const variantClasses = computed(() => {
   if (props.customColor) {
     return `bg-${props.customColor} text-white`;
   }
 
+  if (!props.variant) {
+    return `bg-${randomBgColor.value} text-white`;
+  }
+
   const variants = {
-    primary: "bg-blue-600 text-white",
-    secondary: "bg-gray-500 text-white",
-    success: "bg-green-500 text-white",
-    danger: "bg-red-500 text-white",
-    warning: "bg-yellow-500 text-white",
-    info: "bg-purple-400 text-white",
-    light: "bg-gray-100 text-gray-800",
-    dark: "bg-gray-800 text-white",
+    primary: "bg-blue-5 text-white",
+    secondary: "bg-gray-5 text-white",
+    success: "bg-green-5 text-white",
+    danger: "bg-red-5 text-white",
+    warning: "bg-yellow-5 text-white",
+    info: "bg-cyan-5 text-white", // 更改为 cyan
+    light: "bg-gray-3 text-gray-8",
+    dark: "bg-gray-7 text-white",
   };
 
   return variants[props.variant];
@@ -70,12 +84,18 @@ const handleClick = () => {
 <style scoped>
 .tag-enter-active,
 .tag-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tag-enter-from,
 .tag-leave-to {
   opacity: 0;
   transform: scale(0.9);
+}
+
+span {
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 </style>

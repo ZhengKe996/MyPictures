@@ -27,7 +27,9 @@
         </div>
       </div>
     </div>
-    <div class="w-full mb-4">
+    <div
+      class="w-full mb-2 border-b border-gray-200 transition-all duration-300 ease-in-out"
+    >
       <Tabs
         v-model="activeTab"
         :tabs="categoryOptions"
@@ -35,6 +37,16 @@
         class="transition-all duration-300 ease-in-out"
       >
       </Tabs>
+    </div>
+    <div
+      class="w-full mb-2 border-b border-gray-200 transition-all duration-300 ease-in-out"
+    >
+      <TagsList
+        :tags="tagOptions"
+        v-model="selectedTags"
+        @change="handleChange"
+        :multiple="true"
+      ></TagsList>
     </div>
     <infinite
       v-model="loading"
@@ -76,11 +88,23 @@ import { Item } from "@/components/ListItem";
 import Tabs, { type TabItem } from "@/lib/Tabs";
 const activeTab = ref("");
 const handleTabChange = (tab: TabItem) => {
-  if (tab.name === ALLCategory) PageInfo.value.category = "";
+  if (tab.name === ALLCategory) PageInfo.value.category = undefined;
   else PageInfo.value.category = tab.name;
   LoadList();
 };
 
+// TagsList
+import { TagsList, type EnhancedTag } from "@/lib/TagsList";
+const selectedTags = ref([]);
+const handleChange = (tags: EnhancedTag[]) => {
+  // Check if "全部" is selected
+  if (tags.some((tag) => tag.name === ALLCategory)) {
+    selectedTags.value = []; // Clear selected tags
+    PageInfo.value.tags = []; // Clear tags in PageInfo
+  } else PageInfo.value.tags = tags.map((tag) => tag.name);
+
+  LoadList();
+};
 // Loading
 const loading = ref<boolean>(false);
 const isFinished = ref<boolean>(false);
@@ -97,6 +121,7 @@ interface PictureInfoInterface {
   name?: string;
   picFormat?: string;
   userId?: number;
+  tags?: Array<string>;
 }
 const PageInfo = ref<PictureInfoInterface>({
   current: 1,
@@ -142,14 +167,15 @@ const handleKeyPress = useThrottleFn((event: KeyboardEvent) => {
 
 // Get Tag and Category Options
 const categoryOptions = ref<string[]>([]);
-const tagOptions = ref<{ value: string; label: string }[]>([]);
+const tagOptions = ref<{ id: number; name: string }[]>([]);
 const getTagCategoryOptions = useThrottleFn(async () => {
   const { data, code, message } = await GetTagCategory();
   if (code === 0 && data) {
-    tagOptions.value = (data.tagList ?? []).map((tag) => ({
-      value: tag,
-      label: tag,
+    tagOptions.value = (data.tagList ?? []).map((tag, index) => ({
+      id: index + 1, // 假设 id 是从 1 开始的唯一标识符
+      name: tag,
     }));
+    tagOptions.value.unshift({ id: 0, name: ALLCategory });
     categoryOptions.value = [ALLCategory, ...(data.categoryList ?? [])];
   } else {
     Message.error(`获取标签和分类选项失败${message}`);

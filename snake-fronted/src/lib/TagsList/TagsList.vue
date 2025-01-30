@@ -9,8 +9,18 @@
         :custom-color="getTagColor(index)"
         :clickable="true"
         :class="[
-          'transform transition-all duration-200',
-          isSelected(tag) ? 'scale-105 ring-2 ring-offset-2' : '',
+          'transform transition-all duration-300 ease-in-out',
+          isSelected(tag)
+            ? [
+                'scale-105',
+                'shadow-lg',
+                'ring-2',
+                'ring-offset-2',
+                'ring-opacity-60',
+                'ring-blue-5',
+                '-translate-y-0.5',
+              ]
+            : 'hover:scale-102 hover:shadow-md',
         ]"
         @click="handleTagClick(tag)"
       />
@@ -89,16 +99,38 @@ watch(
 <style scoped>
 .tag-list-enter-active,
 .tag-list-leave-active {
-  transition: all 0.4s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tag-list-enter-from,
 .tag-list-leave-to {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(10px) scale(0.95);
 }
 
 .tag-list-move {
-  transition: transform 0.4s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px) scale(1.05);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.05);
+  }
+  100% {
+    transform: translateY(0px) scale(1.05);
+  }
+}
+
+.scale-102 {
+  --un-scale-x: 1.02;
+  --un-scale-y: 1.02;
+  transform: translateX(var(--un-translate-x)) translateY(var(--un-translate-y))
+    translateZ(var(--un-translate-z)) rotate(var(--un-rotate))
+    rotateX(var(--un-rotate-x)) rotateY(var(--un-rotate-y))
+    rotateZ(var(--un-rotate-z)) skewX(var(--un-skew-x)) skewY(var(--un-skew-y))
+    scaleX(var(--un-scale-x)) scaleY(var(--un-scale-y)) !important;
 }
 </style>
