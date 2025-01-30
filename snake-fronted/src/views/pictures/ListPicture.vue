@@ -76,7 +76,7 @@
 import { ref, watchEffect } from "vue";
 import { type PictureType, ALLCategory } from "@/config";
 import { useThrottleFn } from "@vueuse/core";
-import { AdminGetPictureList, GetTagCategory } from "@/services";
+import { GetPictureList, GetTagCategory } from "@/services";
 import dayjs from "dayjs";
 import { Message } from "@/lib/Message";
 import Waterfall from "@/lib/Waterfall";
@@ -143,7 +143,7 @@ const getListData = async () => {
 const LoadList = useThrottleFn(async () => {
   loading.value = true;
 
-  const { data, code, message } = await AdminGetPictureList(PageInfo.value);
+  const { data, code, message } = await GetPictureList(PageInfo.value);
 
   if (code === 0 && data) {
     // total.value = Number(data.total) ?? 0;

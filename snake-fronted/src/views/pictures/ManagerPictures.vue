@@ -103,7 +103,7 @@ import Pagination from "@/lib/Pagination";
 import { PictureManagerColumns, type PictureType } from "@/config";
 import { ref, watchEffect, onMounted } from "vue";
 import { useThrottleFn } from "@vueuse/core";
-import { AdminGetPictureList } from "@/services";
+import { GetPictureList } from "@/services";
 import { Message } from "@/lib/Message";
 import { useFullscreen } from "@vueuse/core";
 import dayjs from "dayjs";
@@ -165,7 +165,7 @@ const handleKeyPress = useThrottleFn((event: KeyboardEvent) => {
 }, 1000);
 
 const LoadList = useThrottleFn(async () => {
-  const { data, code, message } = await AdminGetPictureList(PageInfo.value);
+  const { data, code, message } = await GetPictureList(PageInfo.value);
 
   if (code === 0 && data) {
     total.value = Number(data.total) ?? 0;
