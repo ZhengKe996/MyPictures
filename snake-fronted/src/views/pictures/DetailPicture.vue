@@ -11,7 +11,13 @@
               v-if="picture?.url"
               :src="picture.url"
               :alt="picture?.name"
-              class="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+              ref="imgTarget"
+              :class="[
+                'w-full h-full transition-all duration-500',
+                isFullscreen
+                  ? 'object-contain'
+                  : 'object-cover group-hover:scale-105',
+              ]"
             />
             <div
               v-else
@@ -22,10 +28,12 @@
           </div>
           <!-- 图片悬浮操作区 -->
           <div
+            v-show="!isFullscreen"
             class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100"
           >
             <Button
               class="px-4 py-2 rounded-lg shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
+              @click="onImgFullScreen"
             >
               查看原图
             </Button>
@@ -159,6 +167,7 @@ import Button from "@/lib/Button/Button.vue"; // 更新导入路径
 import Badges from "@/lib/Badges/Badges.vue";
 import { getRandomUnoColor } from "@/utils/color";
 import dayjs from "dayjs";
+import { useFullscreen } from "@vueuse/core";
 
 interface PictureDisplay extends PictureType {
   createTime: string;
@@ -239,6 +248,17 @@ const hasMoreContent = computed(() => {
 onMounted(() => {
   if (id) LoadInfo();
 });
+const imgTarget = ref<HTMLImageElement>();
+const { isFullscreen, enter: onImgFullScreen, exit } = useFullscreen(imgTarget);
+
+// 监听 ESC 键退出全屏
+onMounted(() => {
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && isFullscreen.value) {
+      exit();
+    }
+  });
+});
 </script>
 
 <style scoped>
@@ -260,5 +280,11 @@ onMounted(() => {
 /* 添加文本过渡动画 */
 .line-clamp-3 {
   transition: all 0.3s ease;
+}
+
+/* 全屏时的图片样式 */
+:deep([data-fullscreen]) img {
+  background-color: rgb(0 0 0 / 0.8);
+  padding: 1rem;
 }
 </style>
