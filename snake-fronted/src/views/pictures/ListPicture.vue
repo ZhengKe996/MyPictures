@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full">
+  <div class="w-full h-full animated animated-duration-500 animated-fade-in">
     <div class="flex w-full mb-4 flex-1 justify-center items-center">
       <div class="mx-auto w-full max-w-xl flex justify-start items-center">
         <div class="flex w-full justify-start items-center">

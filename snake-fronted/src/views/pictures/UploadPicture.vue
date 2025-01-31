@@ -1,5 +1,7 @@
 <template>
-  <div class="w-full h-full flex flex-col">
+  <div
+    class="w-full h-full flex flex-col animated animated-duration-500 animated-fade-in"
+  >
     <h2 class="mb-4 text-xl">{{ isUpdateMode ? "更新图片" : "创建图片" }}</h2>
     <a-spin :spinning="loadding" :delay="delayTime">
       <FileUpload :file="picture" @upload="uploadFileHandle" />
@@ -72,7 +74,7 @@ const pictureForm = ref<PictureEditType>(DefaultPictureEditInfo);
 
 // UPDATE MODE
 const { id } = defineProps<{
-  id: string;
+  id?: string;
 }>();
 
 /**
