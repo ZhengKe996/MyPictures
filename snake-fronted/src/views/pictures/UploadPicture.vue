@@ -70,6 +70,11 @@ const delayTime = 500;
 const picture = ref<PictureType>(DefaultPictureInfo);
 const pictureForm = ref<PictureEditType>(DefaultPictureEditInfo);
 
+// UPDATE MODE
+const { id } = defineProps<{
+  id: string;
+}>();
+
 /**
  * 异步处理上传文件的函数
  * @param {File} file - 需要上传的文件对象
@@ -134,10 +139,7 @@ const getOldPicture = async (id: string) => {
 
 onMounted(() => {
   nextTick(() => {
-    if (isUpdateMode && route.query.id) {
-      const id = Array.isArray(route.query.id)
-        ? route.query.id[0]
-        : route.query.id;
+    if (isUpdateMode && id) {
       if (typeof id === "string") {
         getOldPicture(id);
       } else {
@@ -157,7 +159,7 @@ const handleSubmit = async () => {
   const { data, code, message } = await EditPictureInfo(pictureForm.value);
   if (code === 0 && data) {
     Message.success("成功");
-    router.push(`/detail/picture?id=${pictureId}`);
+    router.push(`/detail/picture/${pictureId}`);
   } else Message.error(`失败, ${message}`);
 };
 </script>

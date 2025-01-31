@@ -190,7 +190,7 @@ const LoadList = useThrottleFn(async () => {
 watchEffect(() => LoadList());
 
 const EditPicture = (id: number | string) => {
-  console.log("EditPicture", id);
+  router.push(`/update/picture/${id}`);
 };
 const DetailPicture = (id: number | string) =>
   router.push(`/detail/picture/${id}`);

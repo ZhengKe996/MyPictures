@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 const { id } = defineProps<{
-  id: string | number;
+  id: string;
 }>();
 console.log("id", id);
 </script>

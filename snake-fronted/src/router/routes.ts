@@ -50,16 +50,6 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/add/picture",
-    name: "ADD Picture",
-    component: () => import("@/views/pictures/UploadPicture.vue"),
-    meta: {
-      layout: LayoutMenu.BasicLayout,
-      access: ACCESSENUM.USER,
-      isHeader: true,
-    },
-  },
-  {
     path: "/mamager/pictures",
     name: "Manager Pictures",
     component: () => import("@/views/pictures/ManagerPictures.vue"),
@@ -69,6 +59,17 @@ export const routes: RouteRecordRaw[] = [
       isHeader: true,
     },
   },
+  {
+    path: "/add/picture",
+    name: "ADD Picture",
+    component: () => import("@/views/pictures/UploadPicture.vue"),
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.USER,
+      isHeader: true,
+    },
+  },
+
   {
     path: "/list/pictures",
     name: "List Pictures",
@@ -80,18 +81,20 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/detail/picture",
+    path: "/detail/picture/:id",
     name: "Detail Picture",
-    component: () => import("@/views/pictures/ManagerPictures.vue"),
+    component: () => import("@/views/pictures/DetailPicture.vue"),
+    props: true,
     meta: {
       layout: LayoutMenu.BasicLayout,
       isHeader: false,
     },
   },
   {
-    path: "/update/picture",
+    path: "/update/picture/:id",
     name: "UPDATE Picture",
     component: () => import("@/views/pictures/UploadPicture.vue"),
+    props: true,
     meta: {
       layout: LayoutMenu.BasicLayout,
       isHeader: false,
