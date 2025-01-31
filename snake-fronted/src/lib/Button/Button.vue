@@ -1,32 +1,33 @@
 <template>
   <button
     :disabled="disabled || loading"
-    class="inline-flex items-center justify-center rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+    class="inline-flex items-center justify-center rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed gap-2"
     :class="[
       variantStyles,
       sizeStyles,
       { 'hover:scale-105 active:scale-100': isActiveAnim },
-      { 'flex-row-reverse': icon && !loading && !isIconOnly },
       { 'opacity-75 cursor-wait': loading },
-      { 'p-2': isIconOnly }, // 纯图标按钮使用对称的内边距
+      { 'p-2': isIconOnly },
+      { 'w-full': block },
     ]"
     @click="handleClick"
   >
-    <span v-if="loading" class="mr-2">
-      <i class="i-tabler:loader animate-spin w-4 h-4"></i>
-    </span>
+    <!-- Loading 状态 -->
+    <i
+      v-if="loading"
+      class="i-tabler:loader animate-spin"
+      :class="[iconSizeStyles]"
+    ></i>
 
+    <!-- Icon -->
     <i
       v-else-if="icon"
       :class="[icon, iconSizeStyles]"
       :style="{ color: iconColor }"
-      class="transform transition-transform"
     ></i>
 
-    <span
-      v-if="!isIconOnly"
-      :class="[{ 'ml-2': icon && !loading, 'mr-2': loading }]"
-    >
+    <!-- Text content -->
+    <span v-if="!isIconOnly" class="inline-block">
       <slot />
     </span>
   </button>
@@ -98,11 +99,11 @@ const variantStyles = computed(
 // 修改 sizeStyles computed
 const sizeStyles = computed(() => {
   const baseStyles = {
-    xs: isIconOnly.value ? "" : "px-2 py-1 text-xs",
-    sm: isIconOnly.value ? "" : "px-3 py-1.5 text-sm",
-    md: isIconOnly.value ? "" : "px-4 py-2 text-base",
-    lg: isIconOnly.value ? "" : "px-5 py-2.5 text-lg",
-    xl: isIconOnly.value ? "" : "px-6 py-3 text-xl",
+    xs: isIconOnly.value ? "" : "px-2.5 py-1 text-xs",
+    sm: isIconOnly.value ? "" : "px-3.5 py-1.5 text-sm",
+    md: isIconOnly.value ? "" : "px-4.5 py-2 text-base",
+    lg: isIconOnly.value ? "" : "px-5.5 py-2.5 text-lg",
+    xl: isIconOnly.value ? "" : "px-6.5 py-3 text-xl",
   };
   return baseStyles[props.size];
 });

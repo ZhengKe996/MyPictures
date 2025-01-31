@@ -64,3 +64,16 @@ export const GetPictureList = async (form: {
 }) => {
   return await PictureControllerService.listPictureVoByPageUsingPost(form);
 };
+
+/**
+ * 根据图片ID获取图片信息
+ *
+ * 此函数通过调用PictureControllerService的服务接口，异步获取指定ID的图片信息
+ * 主要用于在需要的地方通过图片ID来获取图片的详细信息，以便进行后续的操作或处理
+ *
+ * @param id 图片的唯一标识符，用于指定需要获取信息的图片
+ * @returns 返回一个Promise，解析后提供图片信息对象
+ */
+export const GetPictureInfoById = async (id: string) => {
+  return await PictureControllerService.getPictureVoByIdUsingGet(id);
+};

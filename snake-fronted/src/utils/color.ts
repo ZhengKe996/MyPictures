@@ -13,3 +13,34 @@ export const randomRGB = () => {
   const b = Math.floor(Math.random() * 255);
   return `rgb(${r}, ${g}, ${b})`;
 };
+
+type ColorScheme =
+  | "red"
+  | "orange"
+  | "yellow"
+  | "green"
+  | "blue"
+  | "indigo"
+  | "purple"
+  | "gray";
+
+// UnoCSS支持的基础颜色
+const unoColors: ColorScheme[] = [
+  "red",
+  "orange",
+  "yellow",
+  "green",
+  "blue",
+  "indigo",
+  "purple",
+  "gray",
+];
+
+/**
+ * 获取随机的UnoCSS颜色
+ * @returns {ColorScheme} UnoCSS支持的颜色名称
+ */
+export const getRandomUnoColor = (): ColorScheme => {
+  const randomIndex = Math.floor(Math.random() * unoColors.length);
+  return unoColors[randomIndex];
+};
