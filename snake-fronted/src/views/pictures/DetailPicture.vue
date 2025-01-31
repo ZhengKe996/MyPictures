@@ -242,6 +242,13 @@ const { id } = defineProps<{
 
 const picture = ref<PictureDisplay>();
 
+/**
+ * 加载图片信息
+ *
+ * 该函数通过图片ID从后端获取图片详细信息，并将其存储在picture响应式变量中
+ * 如果获取成功，将对数据进行格式化处理，包括时间格式化、默认值设置等
+ * 如果获取失败，将显示错误消息
+ */
 const LoadInfo = async () => {
   try {
     const { data, code, message } = await GetPictureInfoById(id);
@@ -281,6 +288,14 @@ const LoadInfo = async () => {
   }
 };
 
+/**
+ * 处理标签点击事件
+ *
+ * 当用户点击图片标签时，触发此函数，目前仅在控制台打印标签信息
+ * 可以在此处添加更多标签点击后的逻辑
+ *
+ * @param tag 被点击的标签文本
+ */
 const handleTagClick = (tag: string) => {
   console.log("Tag clicked:", tag);
   // 处理标签点击事件
@@ -291,6 +306,7 @@ import { ACCESSENUM } from "@/access";
 
 /**
  * 处理下载图片的功能
+ *
  * 此函数检查图片是否存在和用户信息是否完整，然后尝试下载图片
  * 如果图片或用户信息不完整，或者下载过程中出现错误，将显示相应的警告或错误消息
  */
@@ -325,6 +341,12 @@ const handleDownload = async () => {
   }
 };
 
+/**
+ * 处理分享图片的功能
+ *
+ * 当用户点击分享按钮时，触发此函数，目前仅在控制台打印分享开始信息
+ * 可以在此处添加更多分享逻辑，如复制图片链接等
+ */
 const handleShare = () => {
   if (!picture.value?.url) {
     Message.warning("暂无可分享的图片");
@@ -335,6 +357,15 @@ const handleShare = () => {
 };
 
 const isExpanded = ref(false);
+
+/**
+ * 计算属性，判断图片描述是否有多余内容
+ *
+ * 该属性用于判断图片描述是否超过三行，如果超过则显示“展开”按钮
+ * 通过创建临时DOM元素计算文本高度来实现判断
+ *
+ * @returns 如果描述内容超过三行则返回true，否则返回false
+ */
 const hasMoreContent = computed(() => {
   if (!picture.value?.introduction) return false;
   const tempEl = document.createElement("div");
@@ -347,7 +378,13 @@ const hasMoreContent = computed(() => {
   return hasMore;
 });
 
-// 添加reviewStatus的样式计算属性
+/**
+ * 计算属性，根据审核状态返回对应的样式类名
+ *
+ * 该属性根据图片的审核状态返回不同的样式类名，用于在页面上显示不同的颜色和背景
+ *
+ * @returns 包含颜色和背景样式的字符串
+ */
 const reviewStatusStyle = computed(() => {
   switch (picture.value?.reviewStatus) {
     case 0:
@@ -361,7 +398,13 @@ const reviewStatusStyle = computed(() => {
   }
 });
 
-// 添加reviewStatus的图标计算属性
+/**
+ * 计算属性，根据审核状态返回对应的图标类名
+ *
+ * 该属性根据图片的审核状态返回不同的图标类名，用于在页面上显示不同的图标
+ *
+ * @returns 包含图标的字符串
+ */
 const reviewStatusIcon = computed(() => {
   switch (picture.value?.reviewStatus) {
     case 0:
@@ -377,19 +420,39 @@ const reviewStatusIcon = computed(() => {
 
 // 获取用户状态
 const userStore = useUserStore();
+
+/**
+ * 计算属性，判断当前用户是否为管理员
+ *
+ * 该属性通过用户状态存储中的角色信息判断当前用户是否具有管理员权限
+ *
+ * @returns 如果当前用户是管理员则返回true，否则返回false
+ */
 const isAdmin = computed(() => userStore.getUserRole === ACCESSENUM.ADMIN);
 
 // 审核相关的状态
 const showReviewDialog = ref(false);
 const reviewComment = ref("");
 
-// 打开审核对话框
+/**
+ * 打开审核对话框
+ *
+ * 该函数用于显示审核对话框，并清空之前的审核意见
+ */
 const openReviewDialog = () => {
   showReviewDialog.value = true;
   reviewComment.value = "";
 };
 
-// 处理审核操作
+/**
+ * 处理审核操作
+ *
+ * 该函数根据传入的审核状态和审核意见，调用后端接口进行图片审核操作
+ * 如果审核成功，将更新本地图片数据并显示成功消息
+ * 如果审核失败，将显示错误消息
+ *
+ * @param status 审核状态，0表示待审核，1表示审核通过，2表示审核未通过
+ */
 const handleReview = async (status: number) => {
   if (!picture.value?.id) return;
   try {
@@ -420,6 +483,8 @@ const handleReview = async (status: number) => {
 onMounted(() => {
   if (id) LoadInfo();
 });
+
+// 全屏
 const imgTarget = ref<HTMLImageElement>();
 const { isFullscreen, enter: onImgFullScreen, exit } = useFullscreen(imgTarget);
 
