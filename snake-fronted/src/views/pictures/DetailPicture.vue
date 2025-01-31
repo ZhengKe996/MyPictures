@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-center">
     <div
-      class="w-full max-w-5xl h-[75vh] bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl"
+      class="w-full max-w-5xl h-[75vh] bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl scroll-smooth"
     >
       <div class="flex h-full">
         <!-- 左侧图片区域 -->
@@ -13,9 +13,9 @@
               :alt="picture?.name"
               ref="imgTarget"
               :class="[
-                'w-full h-full transition-all duration-500',
+                'w-full h-full transition-all duration-500 selection:bg-blue-100 selection:text-blue-900',
                 isFullscreen
-                  ? 'object-contain'
+                  ? 'object-contain bg-black/80 p-4'
                   : 'object-cover group-hover:scale-105',
               ]"
             />
@@ -67,8 +67,8 @@
             <div class="relative">
               <p
                 v-if="picture?.introduction"
-                class="text-gray-600 leading-relaxed text-sm transition-all duration-300"
-                :class="{ 'line-clamp-3': !isExpanded }"
+                class="text-gray-600 leading-relaxed text-sm transition-all duration-300 selection:bg-blue-100 selection:text-blue-900"
+                :class="{ 'line-clamp-3 hover:line-clamp-none': !isExpanded }"
               >
                 {{ picture.introduction }}
               </p>
@@ -260,31 +260,3 @@ onMounted(() => {
   });
 });
 </script>
-
-<style scoped>
-/* 添加平滑滚动效果 */
-.overflow-y-auto {
-  scroll-behavior: smooth;
-}
-
-/* 优化文本选择效果 */
-::selection {
-  @apply bg-blue-100 text-blue-900;
-}
-
-/* 确保渐变遮罩在深色模式下也能正常工作 */
-.dark .from-white {
-  --tw-gradient-from: rgb(var(--color-background));
-}
-
-/* 添加文本过渡动画 */
-.line-clamp-3 {
-  transition: all 0.3s ease;
-}
-
-/* 全屏时的图片样式 */
-:deep([data-fullscreen]) img {
-  background-color: rgb(0 0 0 / 0.8);
-  padding: 1rem;
-}
-</style>
