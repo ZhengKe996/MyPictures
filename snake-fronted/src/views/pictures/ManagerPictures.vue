@@ -75,10 +75,16 @@
             {{ item.editTime }}
           </td>
           <!-- TODO: Router Link -->
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+          <td
+            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+            @click="item.id && DetailPicture(item.id)"
+          >
             Detail
           </td>
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+          <td
+            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+            @click="item.id && EditPicture(item.id)"
+          >
             Edit
           </td>
           <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
@@ -109,6 +115,7 @@ import { useFullscreen } from "@vueuse/core";
 import dayjs from "dayjs";
 import Button from "@/lib/Button";
 import GenericTooltip from "@/lib/Tooltip";
+import router from "@/router";
 
 const total = ref<number>(0); // 题目总数
 
@@ -181,4 +188,10 @@ const LoadList = useThrottleFn(async () => {
   } else Message.error(`获取失败, 原因: ${message}`);
 }, 1000);
 watchEffect(() => LoadList());
+
+const EditPicture = (id: number | string) => {
+  console.log("EditPicture", id);
+};
+const DetailPicture = (id: number | string) =>
+  router.push(`/detail/picture/${id}`);
 </script>
