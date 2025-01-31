@@ -91,6 +91,7 @@ const uploadFileHandle = async (file: File) => {
     } else {
       Message.error(`上传失败, ${message}`);
     }
+    // TODO 使用AI识别图片，自动填充标签和分类
   } catch (error) {
     Message.error(`上传失败, ${error}`);
   } finally {

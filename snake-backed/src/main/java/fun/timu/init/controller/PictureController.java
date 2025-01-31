@@ -10,12 +10,10 @@ import fun.timu.init.common.ResultUtils;
 import fun.timu.init.constant.UserConstant;
 import fun.timu.init.exception.BusinessException;
 import fun.timu.init.exception.ThrowUtils;
-import fun.timu.init.model.dto.picture.PictureEditRequest;
-import fun.timu.init.model.dto.picture.PictureQueryRequest;
-import fun.timu.init.model.dto.picture.PictureUpdateRequest;
-import fun.timu.init.model.dto.picture.PictureUploadRequest;
+import fun.timu.init.model.dto.picture.*;
 import fun.timu.init.model.entity.Picture;
 import fun.timu.init.model.entity.User;
+import fun.timu.init.model.enums.PictureReviewStatusEnum;
 import fun.timu.init.model.vo.PictureTagCategory;
 import fun.timu.init.model.vo.PictureVO;
 import fun.timu.init.service.PictureService;
@@ -178,7 +176,7 @@ public class PictureController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest) {
+    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest, HttpServletRequest request) {
         // 参数有效性检查
         if (pictureUpdateRequest == null || pictureUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -195,6 +193,10 @@ public class PictureController {
         long id = pictureUpdateRequest.getId();
         Picture oldPicture = pictureService.getById(id);
         ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+
+        // 补充审核参数
+        User loginUser = userService.getLoginUser(request);
+        pictureService.fillReviewParams(oldPicture, loginUser);
         // 操作数据库
         boolean result = pictureService.updateById(picture);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -291,6 +293,8 @@ public class PictureController {
         // 限制爬虫：如果页面大小超过20，则抛出参数错误异常
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
 
+        // 普通用户只能查询已过审的数据
+        pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
         // 查询数据库：根据当前页码和页面大小查询图片记录
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
 
@@ -347,6 +351,9 @@ public class PictureController {
             if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
             }
+
+            // 补充审核参数
+            pictureService.fillReviewParams(picture, loginUser);
             // 操作数据库
             boolean result = pictureService.updateById(picture);
             ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -383,6 +390,30 @@ public class PictureController {
 
         // 使用ResultUtils工具类，构建并返回一个表示成功操作的响应对象
         return ResultUtils.success(pictureTagCategory);
+    }
+
+    /**
+     * 处理图片审核请求
+     * 该方法用于对上传的图片进行审核操作，只有具有管理员角色的用户可以执行此操作
+     *
+     * @param pictureReviewRequest 包含图片审核相关信息的请求对象，包括图片ID、审核结果等
+     * @param request              HTTP请求对象，用于获取当前登录用户信息
+     * @return 返回一个表示操作成功的响应对象，包含一个布尔值表示审核操作是否成功
+     */
+    @PostMapping("/review")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> doPictureReview(@RequestBody PictureReviewRequest pictureReviewRequest, HttpServletRequest request) {
+        // 检查请求参数是否为空，如果为空则抛出参数错误异常
+        ThrowUtils.throwIf(pictureReviewRequest == null, ErrorCode.PARAMS_ERROR);
+
+        // 获取当前登录的用户信息
+        User loginUser = userService.getLoginUser(request);
+
+        // 执行图片审核操作
+        pictureService.doPictureReview(pictureReviewRequest, loginUser);
+
+        // 返回成功响应
+        return ResultUtils.success(true);
     }
 
 
