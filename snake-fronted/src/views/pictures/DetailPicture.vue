@@ -214,13 +214,42 @@ const handleTagClick = (tag: string) => {
   // 处理标签点击事件
 };
 
-const handleDownload = () => {
-  if (!picture.value?.url) {
+import { saveAs } from "file-saver";
+
+/**
+ * 处理下载图片的功能
+ * 此函数检查图片是否存在和用户信息是否完整，然后尝试下载图片
+ * 如果图片或用户信息不完整，或者下载过程中出现错误，将显示相应的警告或错误消息
+ */
+const handleDownload = async () => {
+  // 检查是否有图片URL可用
+  if (!picture.value || !picture.value.url) {
     Message.warning("暂无可下载的图片");
     return;
   }
-  // 处理下载逻辑
-  console.log("Downloading...");
+
+  // 从picture对象中解构出所需信息
+  const { url, name, user, picFormat } = picture.value;
+
+  // 验证必要的字段
+  if (!url || !name || !user || !user.userName || !picFormat) {
+    Message.warning("图片信息不完整，无法下载");
+    return;
+  }
+
+  try {
+    // 打印下载开始的调试信息
+    console.log("Downloading...");
+    // 使用saveAs函数下载图片，并根据图片名称和用户名重命名文件
+    const fileName = `${name}-作者:${user.userName}.${picFormat}`; // 确保有扩展名
+    await saveAs(url, fileName);
+    Message.success("下载成功");
+  } catch (error) {
+    // 打印下载失败的错误信息
+    console.error("下载失败:", error);
+    // 显示下载失败的错误消息
+    Message.error("下载失败，请稍后再试");
+  }
 };
 
 const handleShare = () => {
