@@ -1,6 +1,6 @@
 <template>
-  <div class="relative inline-block" ref="tooltipContainer">
-    <div @mouseenter="showTooltip" @mouseleave="hideTooltip">
+  <div class="relative inline-block w-full" ref="tooltipContainer">
+    <div @mouseenter="showTooltip" @mouseleave="hideTooltip" class="w-full">
       <slot name="trigger">
         <button
           class="text-gray-600 transition-colors duration-200 focus:outline-none dark:text-gray-200 dark:hover:text-blue-400 hover:text-blue-500"

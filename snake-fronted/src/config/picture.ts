@@ -15,6 +15,7 @@ export const PictureManagerColumns: CustomColumn[] = [
   // { key: "picInfo", label: "Info" },
   { key: "user", label: "Author" },
   { key: "editTime", label: "EditTime" },
+  { key: "reviewMessage", label: "Review" },
   { key: "detail", label: "Detail" },
   { key: "edit", label: "Edit" },
   { key: "remove", label: "Remove" },
@@ -29,6 +30,7 @@ export enum DefaultPictureTexts {
   NO_CREATE_TIME = "暂无创建时间",
   NO_UPDATE_TIME = "暂无更新时间",
   NO_TIME = "暂无时间信息",
+  NO_REVIEW = "未审核",
 }
 
 // 定义图片审核状态的枚举，以便统一审核状态码

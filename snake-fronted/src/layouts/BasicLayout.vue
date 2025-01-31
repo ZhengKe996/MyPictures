@@ -2,7 +2,7 @@
   <div class="flex flex-col min-h-screen">
     <!-- Static sidebar for desktop -->
     <div
-      class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-56 lg:flex-col"
+      class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-48 lg:flex-col"
     >
       <!-- Sidebar component, swap this element with another sidebar if you like -->
       <div
@@ -50,15 +50,15 @@
       </div>
     </div>
 
-    <div class="lg:pl-56 flex-grow">
+    <div class="lg:pl-48 flex-grow">
       <div
-        class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-2 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8"
+        class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-2 shadow-sm sm:gap-x-6"
       >
         <GlobalHeader></GlobalHeader>
       </div>
 
       <main class="pt-6 flex-grow pb-24">
-        <div class="mx-auto max-w-[1280px] w-full h-full sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-[1280px] w-full h-full">
           <router-view class="w-full h-full"></router-view>
         </div>
       </main>

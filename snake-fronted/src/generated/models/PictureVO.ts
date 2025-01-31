@@ -17,6 +17,9 @@ export type PictureVO = {
     picScale?: number;
     picSize?: number;
     picWidth?: number;
+    reviewMessage?: string;
+    reviewStatus?: number;
+    reviewTime?: string;
     spaceId?: number;
     tags?: Array<string>;
     thumbnailUrl?: string;

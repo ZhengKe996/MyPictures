@@ -58,7 +58,7 @@ public class PictureController {
      * @return 返回包含上传成功后的图片信息的响应对象
      */
     @PostMapping("/upload")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
     public BaseResponse<PictureVO> uploadPicture(@RequestPart("file") MultipartFile multipartFile, PictureUploadRequest pictureUploadRequest, HttpServletRequest request) {
         try {
             // 获取当前登录的用户信息
@@ -293,8 +293,12 @@ public class PictureController {
         // 限制爬虫：如果页面大小超过20，则抛出参数错误异常
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
 
-        // 普通用户只能查询已过审的数据
-        pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser.getUserRole().equals(UserConstant.ADMIN_ROLE)) {
+            pictureQueryRequest.setReviewStatus(null);
+        } else {
+            pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+        }
         // 查询数据库：根据当前页码和页面大小查询图片记录
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
 

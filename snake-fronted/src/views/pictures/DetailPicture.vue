@@ -49,11 +49,17 @@
             >
               {{ picture?.name || "未命名图片" }}
             </h1>
-            <div class="flex items-center text-sm text-gray-600 space-x-4">
+            <div
+              class="flex my-2 items-center text-sm text-gray-600 space-x-4 whitespace-nowrap overflow-hidden"
+            >
               <span class="flex items-center">
                 <i class="i-tabler:user size-4 opacity-75 mr-1.5"></i>
                 {{ picture?.user?.userName || "未知用户" }}
               </span>
+            </div>
+            <div
+              class="flex my-2 items-center text-sm text-gray-600 space-x-4 whitespace-nowrap overflow-hidden"
+            >
               <span class="flex items-center">
                 <i class="i-tabler:clock size-4 opacity-75 mr-1.5"></i>
                 {{ picture?.editTime || "暂无时间信息" }}
@@ -85,6 +91,20 @@
                   {{ isExpanded ? "收起" : "展开" }}
                 </button>
               </div>
+            </div>
+          </div>
+
+          <!-- 审核信息区域 -->
+          <div class="py-5" v-if="picture?.reviewMessage">
+            <h2 class="text-sm font-medium text-gray-500 mb-3">审核信息</h2>
+            <div class="relative">
+              <p
+                class="leading-relaxed text-sm transition-all duration-300 selection:bg-blue-100 selection:text-blue-900 p-3 rounded-lg border"
+                :class="reviewStatusStyle"
+              >
+                <i :class="reviewStatusIcon" class="mr-1.5"></i>
+                {{ picture.reviewMessage }}
+              </p>
             </div>
           </div>
 
@@ -200,6 +220,16 @@ const LoadInfo = async () => {
         editTime: data.editTime
           ? dayjs(data.editTime).format("YYYY-MM-DD HH:mm:ss")
           : "暂无更新时间",
+        reviewStatus: data.reviewStatus ?? 0, // 添加这一行
+        reviewMessage:
+          data.reviewMessage ||
+          (data.reviewStatus === 0
+            ? "待审核"
+            : data.reviewStatus === 1
+            ? "审核通过"
+            : data.reviewStatus === 2
+            ? "审核未通过"
+            : "未知状态"),
       };
     } else {
       Message.error(`获取图片信息失败: ${message}`);
@@ -272,6 +302,34 @@ const hasMoreContent = computed(() => {
   const hasMore = tempEl.offsetHeight > 72; // 约3行文本的高度
   document.body.removeChild(tempEl);
   return hasMore;
+});
+
+// 添加reviewStatus的样式计算属性
+const reviewStatusStyle = computed(() => {
+  switch (picture.value?.reviewStatus) {
+    case 0:
+      return "text-orange-600 bg-orange-50 border-orange-100";
+    case 1:
+      return "text-green-600 bg-green-50 border-green-100";
+    case 2:
+      return "text-red-600 bg-red-50 border-red-100";
+    default:
+      return "text-gray-600 bg-gray-50 border-gray-100";
+  }
+});
+
+// 添加reviewStatus的图标计算属性
+const reviewStatusIcon = computed(() => {
+  switch (picture.value?.reviewStatus) {
+    case 0:
+      return "i-tabler:clock";
+    case 1:
+      return "i-tabler:check";
+    case 2:
+      return "i-tabler:x";
+    default:
+      return "i-tabler:question-mark";
+  }
 });
 
 onMounted(() => {

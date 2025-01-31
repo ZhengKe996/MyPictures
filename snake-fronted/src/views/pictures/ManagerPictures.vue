@@ -38,14 +38,20 @@
         >
           <!-- ID列 -->
           <td
-            class="whitespace-nowrap py-2 pl-6 pr-4 text-sm font-medium text-gray-900 border-r border-gray-100/50"
+            class="whitespace-nowrap py-2 pl-6 pr-4 text-sm font-medium text-gray-900 border-r border-gray-100/50 text-center max-w-[80px] truncate"
           >
-            {{ item.id || "-" }}
+            <GenericTooltip :content="String(item.id) || '-'">
+              <template #trigger>
+                <span :class="{ 'text-gray-400 italic': !item.user?.userName }">
+                  {{ item.id || "-" }}
+                </span>
+              </template>
+            </GenericTooltip>
           </td>
 
           <!-- 图片列 -->
           <td
-            class="whitespace-nowrap p-4 text-sm text-gray-500 border-r border-gray-100/50"
+            class="whitespace-nowrap p-4 text-sm text-gray-500 border-r border-gray-100/50 text-center"
           >
             <img
               v-if="item.url"
@@ -65,38 +71,40 @@
 
           <!-- 名称列 -->
           <td
-            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-[100px] overflow-hidden border-r border-gray-100/50"
+            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px]"
           >
             <GenericTooltip
               :content="item.name || DefaultPictureTexts.UNNAMED_PICTURE"
             >
-              <template #trigger>{{
-                item.name || DefaultPictureTexts.UNNAMED_PICTURE
-              }}</template>
+              <template #trigger>
+                <div class="w-full truncate">
+                  {{ item.name || DefaultPictureTexts.UNNAMED_PICTURE }}
+                </div>
+              </template>
             </GenericTooltip>
           </td>
 
           <!-- 描述列 -->
           <td
-            class="whitespace-nowrap truncate px-2 py-2 text-sm text-gray-500 max-w-[100px] overflow-hidden border-r border-gray-100/50"
+            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px]"
           >
             <GenericTooltip
               :content="item.introduction || DefaultPictureTexts.NO_DESCRIPTION"
             >
               <template #trigger>
-                <span
-                  class="italic"
-                  :class="{ 'text-gray-400': !item.introduction }"
+                <div
+                  class="w-full truncate"
+                  :class="{ 'text-gray-400 italic': !item.introduction }"
                 >
                   {{ item.introduction || DefaultPictureTexts.NO_DESCRIPTION }}
-                </span>
+                </div>
               </template>
             </GenericTooltip>
           </td>
 
           <!-- 分类列 -->
           <td
-            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 w-[100px]"
+            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px] truncate"
           >
             <span :class="{ 'text-gray-400 italic': !item.category }">
               {{ item.category || DefaultPictureTexts.UNCLASSIFIED }}
@@ -105,7 +113,7 @@
 
           <!-- 标签列 -->
           <td
-            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-[100px] overflow-hidden border-r border-gray-100/50"
+            class="whitespace-nowrap truncate px-2 py-2 text-sm text-gray-500 max-w-[80px] overflow-hidden border-r border-gray-100/50 text-center"
           >
             <GenericTooltip
               :content="
@@ -115,10 +123,7 @@
               "
             >
               <template #trigger>
-                <span
-                  class="truncate"
-                  :class="{ 'text-gray-400 italic': !item.tags?.length }"
-                >
+                <span :class="{ 'text-gray-400 italic': !item.tags?.length }">
                   {{
                     item.tags?.length
                       ? item.tags.join(", ")
@@ -131,25 +136,46 @@
 
           <!-- 用户列 -->
           <td
-            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 w-[120px]"
+            class="whitespace-nowrap truncate px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px]"
           >
-            <span :class="{ 'text-gray-400 italic': !item.user?.userName }">
-              {{ item.user?.userName || DefaultPictureTexts.UNKNOWN_USER }}
-            </span>
+            <GenericTooltip
+              :content="item.user?.userName || DefaultPictureTexts.UNKNOWN_USER"
+            >
+              <template #trigger>
+                <span :class="{ 'text-gray-400 italic': !item.user?.userName }">
+                  {{ item.user?.userName || DefaultPictureTexts.UNKNOWN_USER }}
+                </span>
+              </template>
+            </GenericTooltip>
           </td>
 
           <!-- 时间列 -->
           <td
-            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 w-[160px]"
+            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px] truncate"
+          >
+            <GenericTooltip
+              :content="item.editTime || DefaultPictureTexts.NO_TIME"
+            >
+              <template #trigger>
+                <span :class="{ 'text-gray-400 italic': !item.user?.userName }">
+                  {{ item.editTime || DefaultPictureTexts.NO_TIME }}
+                </span>
+              </template>
+            </GenericTooltip>
+          </td>
+
+          <!--  审核信息列 -->
+          <td
+            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[100px] truncate"
           >
             <span :class="{ 'text-gray-400 italic': !item.editTime }">
-              {{ item.editTime || DefaultPictureTexts.NO_TIME }}
+              {{ item.reviewMessage || DefaultPictureTexts.NO_REVIEW }}
             </span>
           </td>
 
           <!-- 操作按钮列 -->
           <td
-            class="whitespace-nowrap px-2 py-2 text-sm font-medium w-[80px] text-center"
+            class="whitespace-nowrap px-2 py-2 text-sm font-medium text-center max-w-[50px]"
           >
             <span
               class="text-blue-600 hover:text-blue-700 cursor-pointer transition-colors hover:underline"
@@ -159,7 +185,7 @@
             </span>
           </td>
           <td
-            class="whitespace-nowrap px-2 py-2 text-sm font-medium w-[80px] text-center"
+            class="whitespace-nowrap px-2 py-2 text-sm font-medium text-center max-w-[50px]"
           >
             <span
               class="text-emerald-600 hover:text-emerald-700 cursor-pointer transition-colors hover:underline"
@@ -169,7 +195,7 @@
             </span>
           </td>
           <td
-            class="whitespace-nowrap px-2 py-2 text-sm font-medium w-[80px] text-center"
+            class="whitespace-nowrap px-2 py-2 text-sm font-medium text-center max-w-[50px]"
           >
             <span
               class="text-red-600 hover:text-red-700 cursor-pointer transition-colors hover:underline"
