@@ -15,6 +15,10 @@ export type Picture = {
     picScale?: number;
     picSize?: number;
     picWidth?: number;
+    reviewMessage?: string;
+    reviewStatus?: number;
+    reviewTime?: string;
+    reviewerId?: number;
     tags?: string;
     updateTime?: string;
     url?: string;

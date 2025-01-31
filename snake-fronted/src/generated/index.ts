@@ -33,6 +33,7 @@ export type { Page_UserVO_ } from './models/Page_UserVO_';
 export type { Picture } from './models/Picture';
 export type { PictureEditRequest } from './models/PictureEditRequest';
 export type { PictureQueryRequest } from './models/PictureQueryRequest';
+export type { PictureReviewRequest } from './models/PictureReviewRequest';
 export type { PictureTagCategory } from './models/PictureTagCategory';
 export type { PictureUpdateRequest } from './models/PictureUpdateRequest';
 export type { PictureVO } from './models/PictureVO';
