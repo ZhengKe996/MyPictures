@@ -34,61 +34,149 @@
         <tr
           v-for="item in PictureListInfo"
           :key="item.id"
-          class="even:bg-gray-50"
+          class="even:bg-gray-50 border-b border-gray-100 hover:bg-gray-50/60 transition-colors duration-200"
         >
+          <!-- ID列 -->
           <td
-            class="whitespace-nowrap py-4 pl-4 px-3 text-sm font-medium text-gray-900 sm:pl-3"
+            class="whitespace-nowrap py-2 pl-6 pr-4 text-sm font-medium text-gray-900 border-r border-gray-100/50"
           >
-            {{ item.id }}
+            {{ item.id || "-" }}
           </td>
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+
+          <!-- 图片列 -->
+          <td
+            class="whitespace-nowrap p-4 text-sm text-gray-500 border-r border-gray-100/50"
+          >
             <img
+              v-if="item.url"
               ref="imageRefs"
-              class="inline-block size-14 rounded-md max-w-8 max-h-8 cursor-pointer"
-              :src="item.url ? item.url : ''"
-              alt=""
+              class="inline-block size-14 rounded-md object-cover cursor-pointer hover:opacity-90 transition-opacity shadow-sm hover:shadow-md"
+              :src="item.url"
+              :alt="item.name || DefaultPictureTexts.UNNAMED_PICTURE"
               @click="toggleFullscreen(item.id)"
             />
+            <div
+              v-else
+              class="inline-flex size-14 rounded-md bg-gray-100 items-center justify-center text-gray-400"
+            >
+              <i class="i-tabler:photo-off size-6"></i>
+            </div>
           </td>
+
+          <!-- 名称列 -->
           <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 max-w-8 overflow-hidden"
+            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-[100px] overflow-hidden border-r border-gray-100/50"
           >
-            <GenericTooltip :content="item.name">
-              <template #trigger> {{ item.name }} </template>
+            <GenericTooltip
+              :content="item.name || DefaultPictureTexts.UNNAMED_PICTURE"
+            >
+              <template #trigger>{{
+                item.name || DefaultPictureTexts.UNNAMED_PICTURE
+              }}</template>
             </GenericTooltip>
           </td>
+
+          <!-- 描述列 -->
           <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 max-w-8 overflow-hidden"
+            class="whitespace-nowrap truncate px-2 py-2 text-sm text-gray-500 max-w-[100px] overflow-hidden border-r border-gray-100/50"
           >
-            {{ item.introduction }}
+            <GenericTooltip
+              :content="item.introduction || DefaultPictureTexts.NO_DESCRIPTION"
+            >
+              <template #trigger>
+                <span
+                  class="italic"
+                  :class="{ 'text-gray-400': !item.introduction }"
+                >
+                  {{ item.introduction || DefaultPictureTexts.NO_DESCRIPTION }}
+                </span>
+              </template>
+            </GenericTooltip>
           </td>
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-            {{ item.category }}
-          </td>
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-            {{ item.category }}
-          </td>
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-            {{ item.user?.userName }}
-          </td>
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-            {{ item.editTime }}
-          </td>
-          <!-- TODO: Router Link -->
+
+          <!-- 分类列 -->
           <td
-            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
-            @click="item.id && DetailPicture(item.id)"
+            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 w-[100px]"
           >
-            Detail
+            <span :class="{ 'text-gray-400 italic': !item.category }">
+              {{ item.category || DefaultPictureTexts.UNCLASSIFIED }}
+            </span>
+          </td>
+
+          <!-- 标签列 -->
+          <td
+            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-[100px] overflow-hidden border-r border-gray-100/50"
+          >
+            <GenericTooltip
+              :content="
+                item.tags?.length
+                  ? item.tags.join(', ')
+                  : DefaultPictureTexts.NO_TAGS
+              "
+            >
+              <template #trigger>
+                <span
+                  class="truncate"
+                  :class="{ 'text-gray-400 italic': !item.tags?.length }"
+                >
+                  {{
+                    item.tags?.length
+                      ? item.tags.join(", ")
+                      : DefaultPictureTexts.NO_TAGS
+                  }}
+                </span>
+              </template>
+            </GenericTooltip>
+          </td>
+
+          <!-- 用户列 -->
+          <td
+            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 w-[120px]"
+          >
+            <span :class="{ 'text-gray-400 italic': !item.user?.userName }">
+              {{ item.user?.userName || DefaultPictureTexts.UNKNOWN_USER }}
+            </span>
+          </td>
+
+          <!-- 时间列 -->
+          <td
+            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 w-[160px]"
+          >
+            <span :class="{ 'text-gray-400 italic': !item.editTime }">
+              {{ item.editTime || DefaultPictureTexts.NO_TIME }}
+            </span>
+          </td>
+
+          <!-- 操作按钮列 -->
+          <td
+            class="whitespace-nowrap px-2 py-2 text-sm font-medium w-[80px] text-center"
+          >
+            <span
+              class="text-blue-600 hover:text-blue-700 cursor-pointer transition-colors hover:underline"
+              @click="item.id && DetailPicture(item.id)"
+            >
+              Detail
+            </span>
           </td>
           <td
-            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
-            @click="item.id && EditPicture(item.id)"
+            class="whitespace-nowrap px-2 py-2 text-sm font-medium w-[80px] text-center"
           >
-            Edit
+            <span
+              class="text-emerald-600 hover:text-emerald-700 cursor-pointer transition-colors hover:underline"
+              @click="item.id && EditPicture(item.id)"
+            >
+              Edit
+            </span>
           </td>
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-            Delete
+          <td
+            class="whitespace-nowrap px-2 py-2 text-sm font-medium w-[80px] text-center"
+          >
+            <span
+              class="text-red-600 hover:text-red-700 cursor-pointer transition-colors hover:underline"
+              @click="item.id && handleDelete(item.id)"
+            >
+              Delete
+            </span>
           </td>
         </tr>
       </template>
@@ -116,6 +204,7 @@ import dayjs from "dayjs";
 import Button from "@/lib/Button";
 import GenericTooltip from "@/lib/Tooltip";
 import router from "@/router";
+import { DefaultPictureTexts } from "@/config";
 
 const total = ref<number>(0); // 题目总数
 
@@ -180,9 +269,20 @@ const LoadList = useThrottleFn(async () => {
     PictureListInfo.value = Array.isArray(data.records)
       ? data.records.map((item: PictureType) => ({
           ...item,
-          createTime:
-            dayjs(item.createTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
-          editTime: dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
+          name: item.name || DefaultPictureTexts.UNNAMED_PICTURE,
+          introduction: item.introduction || "",
+          category: item.category || DefaultPictureTexts.UNCLASSIFIED,
+          tags: item.tags || [],
+          user: {
+            ...item.user,
+            userName: item.user?.userName || DefaultPictureTexts.UNKNOWN_USER,
+          },
+          createTime: item.createTime
+            ? dayjs(item.createTime).format("YYYY-MM-DD HH:mm:ss")
+            : DefaultPictureTexts.NO_CREATE_TIME,
+          editTime: item.editTime
+            ? dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss")
+            : DefaultPictureTexts.NO_UPDATE_TIME,
         }))
       : [];
   } else Message.error(`获取失败, 原因: ${message}`);
@@ -194,4 +294,10 @@ const EditPicture = (id: number | string) => {
 };
 const DetailPicture = (id: number | string) =>
   router.push(`/detail/picture/${id}`);
+
+// 添加删除处理函数
+const handleDelete = (id: number | string) => {
+  // TODO: 实现删除逻辑
+  console.log("Delete item:", id);
+};
 </script>
