@@ -77,3 +77,23 @@ export const GetPictureList = async (form: {
 export const GetPictureInfoById = async (id: string) => {
   return await PictureControllerService.getPictureVoByIdUsingGet(id);
 };
+
+/**
+ * 执行图片的管理员审核操作
+ *
+ * 此函数用于更新图片的审核状态和信息，通过发送异步请求给后端服务来完成审核流程
+ * 它主要用于管理员在审核界面进行图片审核时调用
+ *
+ * @param form 包含审核信息的对象
+ * @param form.id 图片的唯一标识符
+ * @param form.reviewStatus 图片的审核状态，通常用数字表示（如0表示未审核，1表示审核通过等）
+ * @param form.reviewMessage 管理员输入的审核消息或意见
+ * @returns 返回后端服务的响应结果，通常包括审核是否成功的信息
+ */
+export const AdminReviewPicture = async (form: {
+  id: string;
+  reviewStatus: number;
+  reviewMessage: string;
+}) => {
+  return await PictureControllerService.doPictureReviewUsingPost(form);
+};

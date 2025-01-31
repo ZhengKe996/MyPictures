@@ -3,8 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type PictureReviewRequest = {
-    id?: number;
-    reviewMessage?: string;
-    reviewStatus?: number;
+  id?: string;
+  reviewMessage?: string;
+  reviewStatus?: number;
 };
-

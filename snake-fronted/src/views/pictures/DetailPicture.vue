@@ -50,7 +50,7 @@
               {{ picture?.name || "未命名图片" }}
             </h1>
             <div
-              class="flex my-2 items-center text-sm text-gray-600 space-x-4 whitespace-nowrap overflow-hidden"
+              class="flex my-1 items-center text-sm text-gray-600 space-x-4 whitespace-nowrap overflow-hidden"
             >
               <span class="flex items-center">
                 <i class="i-tabler:user size-4 opacity-75 mr-1.5"></i>
@@ -58,7 +58,7 @@
               </span>
             </div>
             <div
-              class="flex my-2 items-center text-sm text-gray-600 space-x-4 whitespace-nowrap overflow-hidden"
+              class="flex my-1 items-center text-sm text-gray-600 space-x-4 whitespace-nowrap overflow-hidden"
             >
               <span class="flex items-center">
                 <i class="i-tabler:clock size-4 opacity-75 mr-1.5"></i>
@@ -68,7 +68,7 @@
           </div>
 
           <!-- 描述信息区域 -->
-          <div class="py-5">
+          <div class="py-1">
             <h2 class="text-sm font-medium text-gray-500 mb-3">简介</h2>
             <div class="relative">
               <p
@@ -95,7 +95,7 @@
           </div>
 
           <!-- 审核信息区域 -->
-          <div class="py-5" v-if="picture?.reviewMessage">
+          <div class="py-1" v-if="picture?.reviewMessage">
             <h2 class="text-sm font-medium text-gray-500 mb-3">审核信息</h2>
             <div class="relative">
               <p
@@ -171,10 +171,47 @@
                 分享
               </Button>
             </div>
+            <!-- 审核按钮（仅管理员可见） -->
+            <div v-if="isAdmin" class="mt-4">
+              <Button
+                type="warning"
+                size="md"
+                icon="i-tabler:checklist"
+                class="w-full"
+                :is-active-anim="true"
+                @click="openReviewDialog"
+              >
+                审核图片
+              </Button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- 审核对话框 -->
+    <Dialog
+      v-model="showReviewDialog"
+      :title="'审核图片 - ' + (picture?.name || '未命名图片')"
+      confirmText="通过"
+      cancelText="不通过"
+      :confirmButtonColor="'green'"
+      :cancelButtonColor="'red'"
+      :confirmHandler="() => handleReview(1)"
+      :cancelHandler="() => handleReview(2)"
+    >
+      <div class="space-y-4">
+        <p class="text-gray-600">请选择审核结果：</p>
+        <div class="space-y-2">
+          <textarea
+            v-model="reviewComment"
+            rows="3"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="请输入审核意见（可选）"
+          ></textarea>
+        </div>
+      </div>
+    </Dialog>
   </div>
 </template>
 
@@ -188,6 +225,11 @@ import Badges from "@/lib/Badges/Badges.vue";
 import { getRandomUnoColor } from "@/utils/color";
 import dayjs from "dayjs";
 import { useFullscreen } from "@vueuse/core";
+import Dialog from "@/lib/Dialog/Dialog.vue";
+
+import { AdminReviewPicture } from "@/services";
+
+import { useUserStore } from "@/store/user";
 
 interface PictureDisplay extends PictureType {
   createTime: string;
@@ -245,6 +287,7 @@ const handleTagClick = (tag: string) => {
 };
 
 import { saveAs } from "file-saver";
+import { ACCESSENUM } from "@/access";
 
 /**
  * 处理下载图片的功能
@@ -331,6 +374,48 @@ const reviewStatusIcon = computed(() => {
       return "i-tabler:question-mark";
   }
 });
+
+// 获取用户状态
+const userStore = useUserStore();
+const isAdmin = computed(() => userStore.getUserRole === ACCESSENUM.ADMIN);
+
+// 审核相关的状态
+const showReviewDialog = ref(false);
+const reviewComment = ref("");
+
+// 打开审核对话框
+const openReviewDialog = () => {
+  showReviewDialog.value = true;
+  reviewComment.value = "";
+};
+
+// 处理审核操作
+const handleReview = async (status: number) => {
+  if (!picture.value?.id) return;
+  try {
+    const { code, message } = await AdminReviewPicture({
+      id: id,
+      reviewStatus: status,
+      reviewMessage: reviewComment.value,
+    });
+
+    if (code === 0) {
+      Message.success("审核操作成功");
+      // 更新本地数据
+      if (picture.value) {
+        picture.value.reviewStatus = status;
+        picture.value.reviewMessage =
+          reviewComment.value || (status === 1 ? "审核通过" : "审核未通过");
+      }
+    } else {
+      Message.error(`审核失败: ${message}`);
+    }
+  } catch (error) {
+    Message.error("审核操作失败");
+  } finally {
+    showReviewDialog.value = false;
+  }
+};
 
 onMounted(() => {
   if (id) LoadInfo();
