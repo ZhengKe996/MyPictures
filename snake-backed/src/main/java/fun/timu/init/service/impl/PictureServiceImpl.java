@@ -71,10 +71,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
 
         // 用于判断是新增还是更新图片
-        Long pictureId = null;
-        if (pictureUploadRequest != null) {
-            pictureId = pictureUploadRequest.getId();
-        }
+        Long pictureId = pictureUploadRequest != null ? pictureUploadRequest.getId() : null;
 
         // 如果是更新图片，需要校验图片是否存在
         if (pictureId != null) {
@@ -94,8 +91,13 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         PictureUploadTemplate pictureUploadTemplate = filePictureUpload;
         if (inputSource instanceof String) pictureUploadTemplate = urlPictureUpload;
 
-        UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
-
+        UploadPictureResult uploadPictureResult;
+        try {
+            uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
+        } catch (Exception e) {
+            log.error("图片上传失败: {}", e.getMessage());
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "图片上传失败");
+        }
         // 构造要入库的图片信息
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());

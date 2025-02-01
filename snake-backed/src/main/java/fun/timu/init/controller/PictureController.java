@@ -83,6 +83,31 @@ public class PictureController {
         }
     }
 
+    /**
+     * 通过 URL 上传图片（可重新上传）
+     */
+    @PostMapping("/upload/url")
+    @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
+    public BaseResponse<PictureVO> uploadPictureByUrl(@RequestBody PictureUploadRequest pictureUploadRequest, HttpServletRequest request) {
+        try {
+            // 获取当前登录用户
+            User loginUser = userService.getLoginUser(request);
+            // 获取图片的URL
+            String fileUrl = pictureUploadRequest.getFileUrl();
+            // 调用服务层方法上传图片
+            PictureVO pictureVO = pictureService.uploadPicture(fileUrl, pictureUploadRequest, loginUser);
+            // 日志记录图片上传信息
+            logger.info("User {} uploaded picture: {}", loginUser.getUserName(), pictureVO.getName());
+            // 返回上传成功的图片信息
+            return ResultUtils.success(pictureVO);
+        } catch (Exception e) {
+            // 记录异常日志
+            logger.error("Failed to upload picture", e);
+            // 返回错误信息给前端
+            return ResultUtils.error(ErrorCode.OPERATION_ERROR, e.getMessage());
+        }
+    }
+
 
     /**
      * 验证上传的文件是否符合规范

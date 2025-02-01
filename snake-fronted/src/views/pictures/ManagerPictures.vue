@@ -309,6 +309,9 @@ const LoadList = useThrottleFn(async () => {
           editTime: item.editTime
             ? dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss")
             : DefaultPictureTexts.NO_UPDATE_TIME,
+          reviewMessage:
+            item.reviewMessage ||
+            (item.reviewStatus === 1 ? "审核通过" : "审核未通过"),
         }))
       : [];
   } else Message.error(`获取失败, 原因: ${message}`);
