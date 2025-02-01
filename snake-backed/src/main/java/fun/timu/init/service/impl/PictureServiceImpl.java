@@ -10,6 +10,7 @@ import fun.timu.init.common.ErrorCode;
 import fun.timu.init.exception.BusinessException;
 import fun.timu.init.exception.ThrowUtils;
 import fun.timu.init.manager.upload.FilePictureUpload;
+import fun.timu.init.manager.upload.PictureUploadTemplate;
 import fun.timu.init.manager.upload.UrlPictureUpload;
 import fun.timu.init.mapper.PictureMapper;
 import fun.timu.init.model.dto.file.UploadPictureResult;
@@ -54,7 +55,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     /**
      * 上传图片方法
      *
-     * @param multipartFile        图片文件，用于上传
+     * @param inputSource          图片文件，用于上传
      * @param pictureUploadRequest 图片上传请求对象，可能包含图片ID，用于判断是新增还是更新图片
      * @param loginUser            登录用户信息，用于验证权限和确定用户ID
      * @return 返回上传后的图片信息对象
@@ -65,7 +66,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
      * 最后，将保存的图片对象转换为视图对象返回
      */
     @Override
-    public PictureVO uploadPicture(MultipartFile multipartFile, PictureUploadRequest pictureUploadRequest, User loginUser) {
+    public PictureVO uploadPicture(Object inputSource, PictureUploadRequest pictureUploadRequest, User loginUser) {
         // 检查用户是否已登录，未登录则抛出无权限错误
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
 
@@ -85,11 +86,15 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             }
         }
 
-
         // 上传图片，得到信息
         // 按照用户 id 划分目录
         String uploadPathPrefix = String.format("public/%s", loginUser.getId());
-        UploadPictureResult uploadPictureResult = filePictureUpload.uploadPicture(multipartFile, uploadPathPrefix);
+
+        // 根据 inputSource 的类型区分上传方式
+        PictureUploadTemplate pictureUploadTemplate = filePictureUpload;
+        if (inputSource instanceof String) pictureUploadTemplate = urlPictureUpload;
+
+        UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
 
         // 构造要入库的图片信息
         Picture picture = new Picture();
