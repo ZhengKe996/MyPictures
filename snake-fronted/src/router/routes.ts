@@ -69,7 +69,16 @@ export const routes: RouteRecordRaw[] = [
       isHeader: true,
     },
   },
-
+  {
+    path: "/add/picture/url",
+    name: "ADD URL",
+    component: () => import("@/views/pictures/UploadByUrlPicture.vue"),
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.USER,
+      isHeader: true,
+    },
+  },
   {
     path: "/list/pictures",
     name: "List Pictures",

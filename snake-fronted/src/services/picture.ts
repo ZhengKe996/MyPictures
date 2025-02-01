@@ -97,3 +97,21 @@ export const AdminReviewPicture = async (form: {
 }) => {
   return await PictureControllerService.doPictureReviewUsingPost(form);
 };
+
+/**
+ * 通过URL上传图片文件
+ *
+ * 此函数用于通过URL地址上传图片到服务器它接受一个包含图片URL的对象作为参数，
+ * 并可选地接受一个ID参数，用于指定与上传图片相关的实体ID
+ *
+ * @param form - 包含上传图片所需信息的对象
+ * @param form.fileUrl - 图片的URL地址，这是上传图片的来源
+ * @param form.id - （可选）与上传图片相关的实体ID，用于在服务器端关联图片和实体
+ * @returns 返回一个Promise，表示上传图片的异步操作
+ */
+export const UploadImageFileByUrl = async (form: {
+  fileUrl: string;
+  id?: number;
+}) => {
+  return await PictureControllerService.uploadPictureByUrlUsingPost(form);
+};
