@@ -36,6 +36,7 @@ export type { PictureQueryRequest } from './models/PictureQueryRequest';
 export type { PictureReviewRequest } from './models/PictureReviewRequest';
 export type { PictureTagCategory } from './models/PictureTagCategory';
 export type { PictureUpdateRequest } from './models/PictureUpdateRequest';
+export type { PictureUploadRequest } from './models/PictureUploadRequest';
 export type { PictureVO } from './models/PictureVO';
 export type { Post } from './models/Post';
 export type { PostAddRequest } from './models/PostAddRequest';

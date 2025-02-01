@@ -13,6 +13,7 @@ import type { PictureEditRequest } from "../models/PictureEditRequest";
 import type { PictureQueryRequest } from "../models/PictureQueryRequest";
 import type { PictureReviewRequest } from "../models/PictureReviewRequest";
 import type { PictureUpdateRequest } from "../models/PictureUpdateRequest";
+import type { PictureUploadRequest } from "../models/PictureUploadRequest";
 import type { CancelablePromise } from "../core/CancelablePromise";
 import { OpenAPI } from "../core/OpenAPI";
 import { request as __request } from "../core/request";
@@ -206,6 +207,7 @@ export class PictureControllerService {
   /**
    * uploadPicture
    * @param file file
+   * @param fileUrl
    * @param id
    * @returns BaseResponse_PictureVO_ OK
    * @returns any Created
@@ -213,17 +215,40 @@ export class PictureControllerService {
    */
   public static uploadPictureUsingPost(
     file: Blob,
+    fileUrl?: string,
     id?: string
   ): CancelablePromise<BaseResponse_PictureVO_ | any> {
     return __request(OpenAPI, {
       method: "POST",
       url: "/api/picture/upload",
       query: {
+        fileUrl: fileUrl,
         id: id,
       },
       formData: {
         file: file,
       },
+      errors: {
+        401: `Unauthorized`,
+        403: `Forbidden`,
+        404: `Not Found`,
+      },
+    });
+  }
+  /**
+   * uploadPictureByUrl
+   * @param pictureUploadRequest pictureUploadRequest
+   * @returns BaseResponse_PictureVO_ OK
+   * @returns any Created
+   * @throws ApiError
+   */
+  public static uploadPictureByUrlUsingPost(
+    pictureUploadRequest: PictureUploadRequest
+  ): CancelablePromise<BaseResponse_PictureVO_ | any> {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/picture/upload/url",
+      body: pictureUploadRequest,
       errors: {
         401: `Unauthorized`,
         403: `Forbidden`,
