@@ -91,13 +91,16 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         PictureUploadTemplate pictureUploadTemplate = filePictureUpload;
         if (inputSource instanceof String) pictureUploadTemplate = urlPictureUpload;
 
-        UploadPictureResult uploadPictureResult;
-        try {
-            uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
-        } catch (Exception e) {
-            log.error("图片上传失败: {}", e.getMessage());
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "图片上传失败");
-        }
+//        UploadPictureResult uploadPictureResult;
+//        try {
+//            uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
+//        } catch (Exception e) {
+//            log.error("图片上传失败: {}", e.getMessage());
+//            throw new BusinessException(ErrorCode.OPERATION_ERROR, "图片上传失败");
+//        }
+
+        UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
+
         // 构造要入库的图片信息
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());

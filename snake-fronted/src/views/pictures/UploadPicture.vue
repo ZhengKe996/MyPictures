@@ -3,9 +3,54 @@
     class="w-full h-full flex flex-col animated animated-duration-500 animated-fade-in"
   >
     <h2 class="mb-4 text-xl">{{ isUpdateMode ? "更新图片" : "创建图片" }}</h2>
-    <a-spin :spinning="loadding" :delay="delayTime">
-      <FileUpload :file="picture" @upload="uploadFileHandle" />
-    </a-spin>
+    <div
+      class="w-full mb-2 border-b border-gray-200 transition-all duration-300 ease-in-out"
+    >
+      <Tabs
+        v-model="activeTab"
+        :tabs="['File', 'URL']"
+        @change="handleTabChange"
+        class="transition-all duration-300 ease-in-out"
+      >
+        <template #File>
+          <a-spin :spinning="loadding" :delay="delayTime">
+            <FileUpload :file="picture" @upload="uploadFileHandle" />
+          </a-spin>
+        </template>
+        <template #URL>
+          <div class="container mx-auto px-4 py-8">
+            <div class="max-w-4xl mx-auto space-y-8">
+              <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h1 class="text-2xl font-bold mb-6 text-gray-800">
+                  Image Upload
+                </h1>
+
+                <URLUpload
+                  v-bind:image-url="imageUrl"
+                  :is-loading="loadding"
+                  @upload="handleUpload"
+                  placeholder="Enter image URL"
+                />
+
+                <!-- Display additional image information if needed -->
+                <div v-if="currentImage" class="mt-4 p-4 bg-gray-50 rounded-lg">
+                  <p class="text-sm text-gray-600">
+                    Current image URL:
+                    <a
+                      :href="currentImage"
+                      target="_blank"
+                      class="text-blue-500 hover:underline break-all"
+                    >
+                      {{ currentImage }}
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </Tabs>
+    </div>
     <a-form class="my-2" layout="vertical" :model="pictureForm">
       <a-form-item label="名称" name="name">
         <a-input v-model:value="pictureForm.name" placeholder="请输入名称" />
@@ -61,16 +106,59 @@ import {
   GetTagCategory,
   GetPictureById,
   EditPictureInfo,
+  UploadImageFileByUrl,
 } from "@/services";
 import { Message } from "@/lib/Message";
 import { type PictureType, type PictureEditType } from "@/config";
 import { DefaultPictureInfo, DefaultPictureEditInfo } from "./config";
 import { convertTagsToStringArray } from "@/utils";
+import URLUpload from "@/components/URLUpload";
+
+import Tabs, { type TabItem } from "@/lib/Tabs";
+const imageUrl = ref("");
+const activeTab = ref("File");
+
+const currentImage = ref<string>("");
 const loadding = ref<boolean>(false);
 const delayTime = 500;
 
 const picture = ref<PictureType>(DefaultPictureInfo);
 const pictureForm = ref<PictureEditType>(DefaultPictureEditInfo);
+
+const handleTabChange = (tab: TabItem) => (activeTab.value = tab.name);
+
+/**
+ * 异步上传图片函数。
+ * 该函数通过 UploadImageFileByUrl API 根据提供的 URL 上传图片，并在成功上传后更新图片信息或在失败时显示错误消息。
+ *
+ * @param {string} url - 要上传的图片的 URL。
+ */
+const handleUpload = async (url: string) => {
+  // 开始上传前设置加载状态为 true
+  loadding.value = true;
+  try {
+    // 调用 UploadImageFileByUrl 函数上传图片
+    const { data, code, message } = await UploadImageFileByUrl({
+      fileUrl: url,
+    });
+    // 如果上传成功且返回了数据
+    if (code === 0 && data) {
+      // 更新图片信息
+      picture.value = pictureForm.value = data;
+      // 更新图片 URL
+      imageUrl.value = data.url;
+    } else {
+      // 如果上传失败，抛出错误
+      throw new Error(message || "上传失败");
+    }
+  } catch (error) {
+    // 显示错误消息
+    Message.error(`上传失败, ${error}`);
+  } finally {
+    // 无论成功或失败，上传完成后设置加载状态为 false
+    loadding.value = false;
+  }
+};
 
 // UPDATE MODE
 const { id } = defineProps<{
@@ -153,12 +241,7 @@ const resetForm = () => {
 };
 
 // 路由离开时重置表单
-onBeforeRouteLeave(() => {
-  console.log("onBeforeRouteLeave,路由离开时重置表单");
-  resetForm();
-  console.log("picture", picture.value);
-  console.log("pictureForm", pictureForm.value);
-});
+onBeforeRouteLeave(() => resetForm());
 
 onMounted(() => {
   nextTick(() => {
@@ -174,7 +257,6 @@ onMounted(() => {
 
 const handleSubmit = async () => {
   const pictureId = picture.value.id;
-  console.log("handleSubmit", pictureForm.value);
   if (!pictureId) return;
   const { data, code, message } = await EditPictureInfo(pictureForm.value);
   if (code === 0 && data) {
