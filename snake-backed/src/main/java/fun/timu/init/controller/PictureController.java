@@ -446,4 +446,31 @@ public class PictureController {
     }
 
 
+    /**
+     * 处理批量抓取图片的请求（bing）
+     * 该接口仅限于管理员角色的用户使用，用于批量抓取图片
+     *
+     * @param pictureUploadByBatchRequest 批量抓取图片的请求体，包含需要上传的图片信息
+     * @param request                     HTTP请求对象，用于获取当前登录的用户信息
+     * @return 返回抓取成功的图片数量
+     * <p>
+     * 注意：如果请求体为null，则抛出参数错误的异常
+     * 通过userService获取当前登录的用户信息，然后调用pictureService进行图片的批量上传
+     * 最终返回上传成功的图片数量
+     */
+    @PostMapping("/upload/bing")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Integer> uploadPictureByBing(@RequestBody PictureUploadByBatchRequest pictureUploadByBatchRequest, HttpServletRequest request) {
+        // 检查请求体是否为null，如果为null则抛出参数错误的异常
+        ThrowUtils.throwIf(pictureUploadByBatchRequest == null, ErrorCode.PARAMS_ERROR);
+
+        // 获取当前登录的用户信息
+        User loginUser = userService.getLoginUser(request);
+
+        // 调用服务层方法执行图片的批量抓取，并获取抓取成功的图片数量
+        int uploadCount = pictureService.uploadPictureByBing(pictureUploadByBatchRequest, loginUser);
+
+        // 返回上传成功的图片数量
+        return ResultUtils.success(uploadCount);
+    }
 }

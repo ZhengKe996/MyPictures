@@ -92,6 +92,8 @@ const activeTab = ref("");
 const handleTabChange = (tab: TabItem) => {
   if (tab.name === ALLCategory) PageInfo.value.category = undefined;
   else PageInfo.value.category = tab.name;
+  PageInfo.value.current = 1;
+  isFinished.value = false;
   LoadList();
 };
 
@@ -104,6 +106,8 @@ const handleChange = (tags: EnhancedTag[]) => {
     selectedTags.value = []; // Clear selected tags
     PageInfo.value.tags = []; // Clear tags in PageInfo
   } else PageInfo.value.tags = tags.map((tag) => tag.name);
+  PageInfo.value.current = 1;
+  isFinished.value = false;
   LoadList();
 };
 // Loading
@@ -148,6 +152,7 @@ const LoadList = useThrottleFn(async () => {
     const { data, code, message } = await GetPictureList(PageInfo.value);
 
     if (code === 0 && data) {
+      console.log("获取成功", data);
       const formattedRecords = Array.isArray(data.records)
         ? formatRecords(data.records)
         : [];
