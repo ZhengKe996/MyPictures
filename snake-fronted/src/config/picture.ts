@@ -31,6 +31,8 @@ export enum DefaultPictureTexts {
   NO_UPDATE_TIME = "暂无更新时间",
   NO_TIME = "暂无时间信息",
   NO_REVIEW = "未审核",
+  REVIEW_PASS = "审核通过",
+  REVIEW_REJECT = "审核未通过",
 }
 
 // 定义图片审核状态的枚举，以便统一审核状态码

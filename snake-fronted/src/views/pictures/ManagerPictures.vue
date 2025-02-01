@@ -311,7 +311,11 @@ const LoadList = useThrottleFn(async () => {
             : DefaultPictureTexts.NO_UPDATE_TIME,
           reviewMessage:
             item.reviewMessage ||
-            (item.reviewStatus === 1 ? "审核通过" : "审核未通过"),
+            (item.reviewStatus === 1
+              ? DefaultPictureTexts.REVIEW_PASS
+              : item.reviewStatus === 2
+              ? DefaultPictureTexts.REVIEW_REJECT
+              : DefaultPictureTexts.NO_REVIEW),
         }))
       : [];
   } else Message.error(`获取失败, 原因: ${message}`);

@@ -217,7 +217,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
-import { type PictureType } from "@/config";
+import { type PictureType, DefaultPictureTexts } from "@/config";
 import { GetPictureInfoById } from "@/services";
 import { Message } from "@/lib/Message";
 import Button from "@/lib/Button/Button.vue"; // 更新导入路径
@@ -255,30 +255,30 @@ const LoadInfo = async () => {
     if (code === 0 && data) {
       picture.value = {
         ...data,
-        name: data.name || "未命名图片",
+        name: data.name || DefaultPictureTexts.UNNAMED_PICTURE,
         introduction: data.introduction || "",
-        category: data.category || "未分类",
+        category: data.category || DefaultPictureTexts.UNCLASSIFIED,
         tags: data.tags || [],
         user: {
           ...data.user,
-          userName: data.user?.userName || "未知用户",
+          userName: data.user?.userName || DefaultPictureTexts.UNKNOWN_USER,
         },
         createTime: data.createTime
           ? dayjs(data.createTime).format("YYYY-MM-DD HH:mm:ss")
-          : "暂无创建时间",
+          : DefaultPictureTexts.NO_CREATE_TIME,
         editTime: data.editTime
           ? dayjs(data.editTime).format("YYYY-MM-DD HH:mm:ss")
-          : "暂无更新时间",
+          : DefaultPictureTexts.NO_UPDATE_TIME,
         reviewStatus: data.reviewStatus ?? 0, // 添加这一行
         reviewMessage:
           data.reviewMessage ||
           (data.reviewStatus === 0
-            ? "待审核"
+            ? DefaultPictureTexts.NO_REVIEW
             : data.reviewStatus === 1
-            ? "审核通过"
+            ? DefaultPictureTexts.REVIEW_PASS
             : data.reviewStatus === 2
-            ? "审核未通过"
-            : "未知状态"),
+            ? DefaultPictureTexts.REVIEW_REJECT
+            : "Error"),
       };
     } else {
       Message.error(`获取图片信息失败: ${message}`);
