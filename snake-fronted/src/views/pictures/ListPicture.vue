@@ -18,7 +18,7 @@
                 @keypress="handleKeyPress"
               />
               <Button
-                @click="LoadList"
+                @click="handleSearch"
                 :icon="'i-tabler:pointer-search'"
                 size="md"
               ></Button>
@@ -132,7 +132,6 @@ const PageInfo = ref<PictureInfoInterface>({
 const PictureListInfo = ref<PictureType[]>([]);
 
 const getLoadData = async () => {
-  console.log("触底", PageInfo.value);
   if (isFinished.value) return;
   // 完成了第一次请求后，后续的请求让page自增
   if (PictureListInfo.value.length > 0) PageInfo.value.current++;
@@ -146,13 +145,18 @@ const formatRecords = (records: PictureType[]) => {
   }));
 };
 
+const handleSearch = () => {
+  PageInfo.value.current = 1;
+  isFinished.value = false;
+  LoadList();
+};
+
 const LoadList = useThrottleFn(async () => {
   try {
     loading.value = true;
     const { data, code, message } = await GetPictureList(PageInfo.value);
 
     if (code === 0 && data) {
-      console.log("获取成功", data);
       const formattedRecords = Array.isArray(data.records)
         ? formatRecords(data.records)
         : [];
@@ -181,7 +185,7 @@ const LoadList = useThrottleFn(async () => {
 watchEffect(() => LoadList());
 
 const handleKeyPress = useThrottleFn((event: KeyboardEvent) => {
-  if (event.key === "Enter") LoadList();
+  if (event.key === "Enter") handleSearch();
 }, 300);
 
 // Get Tag and Category Options
