@@ -2,10 +2,9 @@
   <div
     class="w-full h-full flex flex-col animated animated-duration-500 animated-fade-in"
   >
-    <h2 class="mb-4 text-xl">{{ isUpdateMode ? "更新图片" : "创建图片" }}</h2>
-
+    <h2 class="mb-4 text-xl">创建图片</h2>
     <div class="container mx-auto px-4 py-8">
-      <div class="max-w-2xl mx-auto space-y-8">
+      <div class="max-w-4xl mx-auto space-y-8">
         <div class="bg-white p-6 rounded-lg shadow-lg">
           <h1 class="text-2xl font-bold mb-6 text-gray-800">Image Upload</h1>
 
@@ -69,7 +68,7 @@
           type="primary"
           html-type="submit"
           class="w-full"
-          >{{ isUpdateMode ? "更新" : "创建" }}</a-button
+          >创建</a-button
         >
       </a-form-item>
     </a-form>
@@ -77,9 +76,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-const route = useRoute();
+import { nextTick, onMounted, ref } from "vue";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
 const router = useRouter();
 
 import URLUpload from "@/components/URLUpload";
@@ -87,13 +85,11 @@ import URLUpload from "@/components/URLUpload";
 import {
   UploadImageFileByUrl,
   GetTagCategory,
-  GetPictureById,
   EditPictureInfo,
 } from "@/services";
 import { Message } from "@/lib/Message";
 import { type PictureType, type PictureEditType } from "@/config";
 import { DefaultPictureInfo, DefaultPictureEditInfo } from "./config";
-import { convertTagsToStringArray } from "@/utils";
 
 const imageUrl = ref("");
 
@@ -105,7 +101,6 @@ const handleUpload = async (url: string) => {
     const { data, code, message } = await UploadImageFileByUrl({
       fileUrl: url,
     });
-
     if (code === 0 && data) {
       console.log("handleUpload", data);
       picture.value = pictureForm.value = data;
@@ -124,11 +119,6 @@ const currentImage = ref<string>("");
 
 const picture = ref<PictureType>(DefaultPictureInfo);
 const pictureForm = ref<PictureEditType>(DefaultPictureEditInfo);
-
-// UPDATE MODE
-const { id } = defineProps<{
-  id?: string;
-}>();
 
 // 定义为对象数组类型
 const categoryOptions = ref<{ value: string; label: string }[]>([]);
@@ -151,41 +141,6 @@ const getTagCategoryOptions = async () => {
 
 onMounted(() => nextTick(() => getTagCategoryOptions()));
 
-const isUpdateMode = computed(() => route.path.includes("update"));
-
-// 获取老数据
-const getOldPicture = async (id: string) => {
-  const { data, code, message } = await GetPictureById(id);
-  if (code === 0 && data) {
-    picture.value = {
-      ...data,
-      tags: convertTagsToStringArray(data.tags),
-    };
-    pictureForm.value.id = data.id;
-    pictureForm.value.name = data.name;
-    pictureForm.value.introduction = data.introduction;
-    pictureForm.value.category = data.category;
-    pictureForm.value.tags = convertTagsToStringArray(data.tags);
-  } else {
-    Message.error(`获取图片信息失败${message}`);
-  }
-};
-
-onMounted(() => {
-  nextTick(() => {
-    if (isUpdateMode && id) {
-      if (typeof id === "string") {
-        getOldPicture(id);
-      } else {
-        Message.error("无效的图片ID");
-      }
-    } else {
-      picture.value = DefaultPictureInfo;
-      pictureForm.value = DefaultPictureEditInfo;
-    }
-  });
-});
-
 const handleSubmit = async () => {
   const pictureId = picture.value.id;
   if (!pictureId) return;
@@ -195,4 +150,20 @@ const handleSubmit = async () => {
     router.push(`/detail/picture/${pictureId}`);
   } else Message.error(`失败, ${message}`);
 };
+
+// 重置表单方法
+const resetForm = () => {
+  picture.value = JSON.parse(JSON.stringify(DefaultPictureInfo));
+  pictureForm.value = {
+    id: -1,
+    name: "",
+    introduction: "",
+    category: "",
+    tags: [],
+  };
+};
+
+// 路由离开时重置表单
+onBeforeRouteLeave(() => resetForm());
+onMounted(() => resetForm());
 </script>

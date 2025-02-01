@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 const route = useRoute();
 const router = useRouter();
 import FileUpload from "@/components/FileUpload";
@@ -140,6 +140,26 @@ const getOldPicture = async (id: string) => {
   }
 };
 
+// 重置表单方法
+const resetForm = () => {
+  picture.value = JSON.parse(JSON.stringify(DefaultPictureInfo));
+  pictureForm.value = {
+    id: -1,
+    name: "",
+    introduction: "",
+    category: "",
+    tags: [],
+  };
+};
+
+// 路由离开时重置表单
+onBeforeRouteLeave(() => {
+  console.log("onBeforeRouteLeave,路由离开时重置表单");
+  resetForm();
+  console.log("picture", picture.value);
+  console.log("pictureForm", pictureForm.value);
+});
+
 onMounted(() => {
   nextTick(() => {
     if (isUpdateMode && id) {
@@ -148,10 +168,7 @@ onMounted(() => {
       } else {
         Message.error("无效的图片ID");
       }
-    } else {
-      picture.value = DefaultPictureInfo;
-      pictureForm.value = DefaultPictureEditInfo;
-    }
+    } else resetForm();
   });
 });
 
