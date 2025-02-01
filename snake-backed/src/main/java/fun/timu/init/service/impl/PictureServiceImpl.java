@@ -9,7 +9,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import fun.timu.init.common.ErrorCode;
 import fun.timu.init.exception.BusinessException;
 import fun.timu.init.exception.ThrowUtils;
-import fun.timu.init.manager.FileManager;
+import fun.timu.init.manager.upload.FilePictureUpload;
+import fun.timu.init.manager.upload.UrlPictureUpload;
 import fun.timu.init.mapper.PictureMapper;
 import fun.timu.init.model.dto.file.UploadPictureResult;
 import fun.timu.init.model.dto.picture.PictureQueryRequest;
@@ -39,11 +40,16 @@ import java.util.stream.Collectors;
 @Service
 public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> implements PictureService {
 
-    @Resource
-    private FileManager fileManager;
 
-    @Resource
+    private FilePictureUpload filePictureUpload;
+    private UrlPictureUpload urlPictureUpload;
     private UserService userService;
+
+    PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService) {
+        this.filePictureUpload = filePictureUpload;
+        this.urlPictureUpload = urlPictureUpload;
+        this.userService = userService;
+    }
 
     /**
      * 上传图片方法
@@ -83,7 +89,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         // 上传图片，得到信息
         // 按照用户 id 划分目录
         String uploadPathPrefix = String.format("public/%s", loginUser.getId());
-        UploadPictureResult uploadPictureResult = fileManager.uploadPicture(multipartFile, uploadPathPrefix);
+        UploadPictureResult uploadPictureResult = filePictureUpload.uploadPicture(multipartFile, uploadPathPrefix);
 
         // 构造要入库的图片信息
         Picture picture = new Picture();

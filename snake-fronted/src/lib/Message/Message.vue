@@ -121,7 +121,7 @@ const timer = ref<NodeJS.Timeout>();
 const icons = {
   success: "i-tabler:circle-check",
   warning: "i-tabler:alert-octagon",
-  error: "i-tabler:x-circle",
+  error: "i-tabler:circle-dashed-x",
 } as const;
 
 const styles = {
