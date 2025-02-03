@@ -1,18 +1,18 @@
-import { PictureControllerService } from "@/generated";
+import { PictureControllerService as Service } from "@/generated";
 import { type PictureEditType } from "@/config";
 
 /**
  * 异步上传图像文件。
  *
- * 该函数使用 `PictureControllerService.uploadPictureUsingPost` 方法来上传图像。注释描述了函数的目的、参数和返回值类型，
+ * 该函数使用 `Service.uploadPictureUsingPost` 方法来上传图像。注释描述了函数的目的、参数和返回值类型，
  * 而不涉及底层实现细节。
  *
  * @param file 要上传的图像文件。必须是 File 对象的实例。
  * @param id 可选。当id不为空时，为更新图片信息，否则为上传图片。
- * @returns 返回一个 Promise，在图像成功上传后解析。具体的返回类型取决于 `PictureControllerService.uploadPictureUsingPost` 方法的实现。
+ * @returns 返回一个 Promise，在图像成功上传后解析。具体的返回类型取决于 `Service.uploadPictureUsingPost` 方法的实现。
  */
 export const UploadImageFile = async (file: File, id?: string) => {
-  return await PictureControllerService.uploadPictureUsingPost(file, id);
+  return await Service.uploadPictureUsingPost(file, id);
 };
 
 /**
@@ -23,39 +23,37 @@ export const UploadImageFile = async (file: File, id?: string) => {
  * @returns {Promise<any>} 返回一个Promise对象，解析后包含标签分类信息
  */
 export const GetTagCategory = async () => {
-  return await PictureControllerService.listPictureTagCategoryUsingGet();
+  return await Service.listPictureTagCategoryUsingGet();
 };
 
 /**
  * 根据图片ID获取图片信息
- * 此函数调用了PictureControllerService中的getPictureByIdUsingGet方法，以异步方式获取图片信息
+ * 此函数调用了Service中的getPictureByIdUsingGet方法，以异步方式获取图片信息
  *
  * @param id 图片的唯一标识符，用于指定需要获取信息的图片
  * @returns 返回一个Promise，解析为图片信息
  */
 export const GetPictureById = async (id: string) => {
-  return await PictureControllerService.getPictureByIdUsingGet(id);
+  return await Service.getPictureByIdUsingGet(id);
 };
 
 /**
  * 编辑图片信息的异步函数
  *
- * 此函数通过调用PictureControllerService中的editPictureUsingPost方法来编辑图片信息
+ * 此函数通过调用Service中的editPictureUsingPost方法来编辑图片信息
  * 它封装了对服务层的调用，提供了一个更具体的接口给其他组件使用
  *
  * @param pictureEditRequest 图片编辑的请求对象，包含需要编辑的图片信息
  * @returns 返回一个Promise，解析为服务层editPictureUsingPost方法的返回值
  */
 export const EditPictureInfo = async (pictureEditRequest: PictureEditType) => {
-  return await PictureControllerService.editPictureUsingPost(
-    pictureEditRequest
-  );
+  return await Service.editPictureUsingPost(pictureEditRequest);
 };
 
 /**
  * 获取图片列表(缓存)
  *
- * 此函数通过调用PictureControllerService的listPictureVoByPageUsingPost方法来获取图片列表
+ * 此函数通过调用Service的listPictureVoByPageUsingPost方法来获取图片列表
  * 它接受一个包含多种可选参数的对象，以满足不同条件下的图片查询需求
  *
  * @param form 包含分页和查询条件的表单对象
@@ -79,23 +77,22 @@ export const GetPictureList = async (form: {
   picFormat?: string;
   tags?: Array<string>;
 }) => {
-  // return await PictureControllerService.listPictureVoByPageUsingPost(form);
-  return await PictureControllerService.listPictureVoByPageWithCacheUsingPost(
-    form
-  );
+  // return await Service.listPictureVoByPageUsingPost(form);
+  // return await Service.listPictureVoByPageWithCacheUsingPost(form);
+  return await Service.listPictureVoByPageWithLocalCacheUsingPost(form);
 };
 
 /**
  * 根据图片ID获取图片信息
  *
- * 此函数通过调用PictureControllerService的服务接口，异步获取指定ID的图片信息
+ * 此函数通过调用Service的服务接口，异步获取指定ID的图片信息
  * 主要用于在需要的地方通过图片ID来获取图片的详细信息，以便进行后续的操作或处理
  *
  * @param id 图片的唯一标识符，用于指定需要获取信息的图片
  * @returns 返回一个Promise，解析后提供图片信息对象
  */
 export const GetPictureInfoById = async (id: string) => {
-  return await PictureControllerService.getPictureVoByIdUsingGet(id);
+  return await Service.getPictureVoByIdUsingGet(id);
 };
 
 /**
@@ -115,7 +112,7 @@ export const AdminReviewPicture = async (form: {
   reviewStatus: number;
   reviewMessage: string;
 }) => {
-  return await PictureControllerService.doPictureReviewUsingPost(form);
+  return await Service.doPictureReviewUsingPost(form);
 };
 
 /**
@@ -133,25 +130,25 @@ export const UploadImageFileByUrl = async (form: {
   fileUrl: string;
   id?: string;
 }) => {
-  return await PictureControllerService.uploadPictureByUrlUsingPost(form);
+  return await Service.uploadPictureByUrlUsingPost(form);
 };
 
 /**
  * 使用必应搜索引擎进行图片上传
  *
- * 本函数通过调用PictureControllerService的uploadPictureByBingUsingPost方法，实现批量上传图片的功能
+ * 本函数通过调用Service的uploadPictureByBingUsingPost方法，实现批量上传图片的功能
  * 主要用于后台管理操作，可以根据指定的搜索文本、数量和名称前缀从必应上抓取并上传图片
  *
  * @param form 包含上传请求参数的对象
  * @param form.count 可选参数，指定希望上传的图片数量，默认为服务端配置的默认值
  * @param form.namePrefix 可选参数，上传后的图片名称前缀，默认为服务端配置的默认值
  * @param form.searchText 可选参数，用于必应搜索的文本，默认为服务端配置的默认值
- * @returns 返回上传图片的结果，具体类型依赖于PictureControllerService.uploadPictureByBingUsingPost方法的返回值
+ * @returns 返回上传图片的结果，具体类型依赖于Service.uploadPictureByBingUsingPost方法的返回值
  */
 export const AdminBatchByBing = async (form: {
   count?: number;
   namePrefix?: string;
   searchText?: string;
 }) => {
-  return await PictureControllerService.uploadPictureByBingUsingPost(form);
+  return await Service.uploadPictureByBingUsingPost(form);
 };

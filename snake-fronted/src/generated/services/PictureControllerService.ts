@@ -170,6 +170,27 @@ export class PictureControllerService {
     });
   }
   /**
+   * listPictureVOByPageWithLocalCache
+   * @param pictureQueryRequest pictureQueryRequest
+   * @returns BaseResponse_Page_PictureVO_ OK
+   * @returns any Created
+   * @throws ApiError
+   */
+  public static listPictureVoByPageWithLocalCacheUsingPost(
+    pictureQueryRequest: PictureQueryRequest
+  ): CancelablePromise<BaseResponse_Page_PictureVO_ | any> {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/picture/list/page/vo/local_cache",
+      body: pictureQueryRequest,
+      errors: {
+        401: `Unauthorized`,
+        403: `Forbidden`,
+        404: `Not Found`,
+      },
+    });
+  }
+  /**
    * doPictureReview
    * @param pictureReviewRequest pictureReviewRequest
    * @returns BaseResponse_boolean_ OK

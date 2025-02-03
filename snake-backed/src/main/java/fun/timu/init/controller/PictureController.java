@@ -3,6 +3,8 @@ package fun.timu.init.controller;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import fun.timu.init.annotation.AuthCheck;
 import fun.timu.init.common.BaseResponse;
 import fun.timu.init.common.DeleteRequest;
@@ -41,6 +43,8 @@ public class PictureController {
     private static final Logger logger = LoggerFactory.getLogger(PictureController.class);
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     private static final String[] ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif"};
+
+    private final Cache<String, String> LOCAL_CACHE = Caffeine.newBuilder().initialCapacity(1024).maximumSize(10000L).expireAfterWrite(5L, TimeUnit.MINUTES).build(); // 缓存 5 分钟移除
 
 
     private final UserService userService;
@@ -351,10 +355,15 @@ public class PictureController {
         long size = pictureQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        // 普通用户默认只能查看已过审的数据
-        pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
 
-        // TODO: 新增缓存逻辑
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser.getUserRole().equals(UserConstant.ADMIN_ROLE)) {
+            pictureQueryRequest.setReviewStatus(null);
+        } else {
+            pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+        }
+
+        // TODO: 新增分布式缓存逻辑
         // 构建缓存 key
         String queryCondition = JSONUtil.toJsonStr(pictureQueryRequest);
         String hashKey = DigestUtils.md5DigestAsHex(queryCondition.getBytes());
@@ -381,6 +390,59 @@ public class PictureController {
         valueOps.set(redisKey, cacheValue, cacheExpireTime, TimeUnit.SECONDS);
 
         // 返回结果
+        return ResultUtils.success(pictureVOPage);
+    }
+
+
+    /**
+     * 根据页面查询图片信息列表，并使用本地缓存来加速响应
+     *
+     * @param pictureQueryRequest 包含查询条件和分页信息的请求对象
+     * @param request             HTTP请求对象，用于获取登录用户信息
+     * @return 包含图片信息列表的响应对象
+     */
+    @PostMapping("/list/page/vo/local_cache")
+    public BaseResponse<Page<PictureVO>> listPictureVOByPageWithLocalCache(@RequestBody PictureQueryRequest pictureQueryRequest, HttpServletRequest request) {
+        // 获取当前页码和页面大小
+        long current = pictureQueryRequest.getCurrent();
+        long size = pictureQueryRequest.getPageSize();
+
+        // 限制爬虫：如果页面大小超过20，则抛出参数错误异常
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        // 根据用户角色设置审核状态查询条件
+        if (loginUser.getUserRole().equals(UserConstant.ADMIN_ROLE)) {
+            pictureQueryRequest.setReviewStatus(null);
+        } else {
+            pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+        }
+
+        // TODO: 新增本地缓存逻辑
+        // 构建缓存 key
+        String queryCondition = JSONUtil.toJsonStr(pictureQueryRequest);
+        String hashKey = DigestUtils.md5DigestAsHex(queryCondition.getBytes());
+        String cacheKey = "listPictureVOByPage:" + hashKey;
+        // 从本地缓存中查询
+        String cachedValue = LOCAL_CACHE.getIfPresent(cacheKey);
+        if (cachedValue != null) {
+            // 如果缓存命中，返回结果
+            Page<PictureVO> cachedPage = JSONUtil.toBean(cachedValue, Page.class);
+            return ResultUtils.success(cachedPage);
+        }
+
+        // 查询数据库：根据当前页码和页面大小查询图片记录
+        Page<Picture> picturePage = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
+
+        // 将查询结果转换为VO对象
+        Page<PictureVO> pictureVOPage = pictureService.getPictureVOPage(picturePage, request);
+
+        // 存入本地缓存
+        String cacheValue = JSONUtil.toJsonStr(pictureVOPage);
+        LOCAL_CACHE.put(cacheKey, cacheValue);
+
+        // 返回查询结果
         return ResultUtils.success(pictureVOPage);
     }
 
