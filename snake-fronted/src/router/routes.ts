@@ -90,6 +90,16 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/add/bybing",
+    name: "ADD By Bing",
+    component: () => import("@/views/pictures/BatchByBing.vue"),
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.ADMIN,
+      isHeader: true,
+    },
+  },
+  {
     path: "/update/picture/:id",
     name: "UPDATE Picture",
     component: () => import("@/views/pictures/UploadPicture.vue"),

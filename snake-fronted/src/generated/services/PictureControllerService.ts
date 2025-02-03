@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BaseResponse_boolean_ } from "../models/BaseResponse_boolean_";
+import type { BaseResponse_int_ } from "../models/BaseResponse_int_";
 import type { BaseResponse_Page_Picture_ } from "../models/BaseResponse_Page_Picture_";
 import type { BaseResponse_Page_PictureVO_ } from "../models/BaseResponse_Page_PictureVO_";
 import type { BaseResponse_Picture_ } from "../models/BaseResponse_Picture_";
@@ -13,6 +14,7 @@ import type { PictureEditRequest } from "../models/PictureEditRequest";
 import type { PictureQueryRequest } from "../models/PictureQueryRequest";
 import type { PictureReviewRequest } from "../models/PictureReviewRequest";
 import type { PictureUpdateRequest } from "../models/PictureUpdateRequest";
+import type { PictureUploadByBatchRequest } from "../models/PictureUploadByBatchRequest";
 import type { PictureUploadRequest } from "../models/PictureUploadRequest";
 import type { CancelablePromise } from "../core/CancelablePromise";
 import { OpenAPI } from "../core/OpenAPI";
@@ -209,6 +211,7 @@ export class PictureControllerService {
    * @param file file
    * @param fileUrl
    * @param id
+   * @param picName
    * @returns BaseResponse_PictureVO_ OK
    * @returns any Created
    * @throws ApiError
@@ -216,7 +219,8 @@ export class PictureControllerService {
   public static uploadPictureUsingPost(
     file: Blob,
     fileUrl?: string,
-    id?: string
+    id?: string,
+    picName?: string
   ): CancelablePromise<BaseResponse_PictureVO_ | any> {
     return __request(OpenAPI, {
       method: "POST",
@@ -224,10 +228,32 @@ export class PictureControllerService {
       query: {
         fileUrl: fileUrl,
         id: id,
+        picName: picName,
       },
       formData: {
         file: file,
       },
+      errors: {
+        401: `Unauthorized`,
+        403: `Forbidden`,
+        404: `Not Found`,
+      },
+    });
+  }
+  /**
+   * uploadPictureByBing
+   * @param pictureUploadByBatchRequest pictureUploadByBatchRequest
+   * @returns BaseResponse_int_ OK
+   * @returns any Created
+   * @throws ApiError
+   */
+  public static uploadPictureByBingUsingPost(
+    pictureUploadByBatchRequest: PictureUploadByBatchRequest
+  ): CancelablePromise<BaseResponse_int_ | any> {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/picture/upload/bing",
+      body: pictureUploadByBatchRequest,
       errors: {
         401: `Unauthorized`,
         403: `Forbidden`,

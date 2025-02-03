@@ -111,7 +111,27 @@ export const AdminReviewPicture = async (form: {
  */
 export const UploadImageFileByUrl = async (form: {
   fileUrl: string;
-  id?: number;
+  id?: string;
 }) => {
   return await PictureControllerService.uploadPictureByUrlUsingPost(form);
+};
+
+/**
+ * 使用必应搜索引擎进行图片上传
+ *
+ * 本函数通过调用PictureControllerService的uploadPictureByBingUsingPost方法，实现批量上传图片的功能
+ * 主要用于后台管理操作，可以根据指定的搜索文本、数量和名称前缀从必应上抓取并上传图片
+ *
+ * @param form 包含上传请求参数的对象
+ * @param form.count 可选参数，指定希望上传的图片数量，默认为服务端配置的默认值
+ * @param form.namePrefix 可选参数，上传后的图片名称前缀，默认为服务端配置的默认值
+ * @param form.searchText 可选参数，用于必应搜索的文本，默认为服务端配置的默认值
+ * @returns 返回上传图片的结果，具体类型依赖于PictureControllerService.uploadPictureByBingUsingPost方法的返回值
+ */
+export const AdminBatchByBing = async (form: {
+  count?: number;
+  namePrefix?: string;
+  searchText?: string;
+}) => {
+  return await PictureControllerService.uploadPictureByBingUsingPost(form);
 };
