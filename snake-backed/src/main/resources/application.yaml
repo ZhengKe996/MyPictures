@@ -6,9 +6,8 @@ spring:
     url: jdbc:mysql://localhost:3306/SnakePC
     username: root
     password: 123456
-  data:
-    redis:
-      { database: 1, host: localhost, port: 6379, timeout: 5000 }
+  redis:
+    { database: 1, host: localhost, port: 6379, timeout: 5000 }
   session:
     store-type: redis
   profiles:

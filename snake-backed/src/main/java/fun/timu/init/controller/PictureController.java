@@ -1,5 +1,6 @@
 package fun.timu.init.controller;
 
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import fun.timu.init.annotation.AuthCheck;
@@ -21,6 +22,9 @@ import fun.timu.init.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 @RestController
@@ -40,10 +45,12 @@ public class PictureController {
 
     private final UserService userService;
     private final PictureService pictureService;
+    private final StringRedisTemplate stringRedisTemplate;
 
-    public PictureController(UserService userService, PictureService pictureService) {
+    public PictureController(UserService userService, PictureService pictureService, StringRedisTemplate stringRedisTemplate) {
         this.userService = userService;
         this.pictureService = pictureService;
+        this.stringRedisTemplate = stringRedisTemplate;
     }
 
     /**
@@ -331,6 +338,51 @@ public class PictureController {
         return ResultUtils.success(pictureService.getPictureVOPage(picturePage, request));
     }
 
+    @PostMapping("/list/page/vo/cache")
+    /**
+     * 根据页面查询图片信息，并使用缓存来优化性能
+     *
+     * @param pictureQueryRequest 包含查询条件的请求对象
+     * @param request HTTP请求对象，用于获取请求信息
+     * @return 包含图片信息列表的响应对象
+     */ public BaseResponse<Page<PictureVO>> listPictureVOByPageWithCache(@RequestBody PictureQueryRequest pictureQueryRequest, HttpServletRequest request) {
+        // 获取当前页码和页面大小
+        long current = pictureQueryRequest.getCurrent();
+        long size = pictureQueryRequest.getPageSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        // 普通用户默认只能查看已过审的数据
+        pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+
+        // TODO: 新增缓存逻辑
+        // 构建缓存 key
+        String queryCondition = JSONUtil.toJsonStr(pictureQueryRequest);
+        String hashKey = DigestUtils.md5DigestAsHex(queryCondition.getBytes());
+        String redisKey = "SnakePictures:listPictureVOByPage:" + hashKey;
+        // 从 Redis 缓存中查询
+        ValueOperations<String, String> valueOps = stringRedisTemplate.opsForValue();
+        String cachedValue = valueOps.get(redisKey);
+
+        if (cachedValue != null) {
+            // 如果缓存命中，返回结果
+            Page<PictureVO> cachedPage = JSONUtil.toBean(cachedValue, Page.class);
+            return ResultUtils.success(cachedPage);
+        }
+
+        // 查询数据库
+        Page<Picture> picturePage = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
+        // 获取封装类
+        Page<PictureVO> pictureVOPage = pictureService.getPictureVOPage(picturePage, request);
+
+        // 存入 Redis 缓存
+        String cacheValue = JSONUtil.toJsonStr(pictureVOPage);
+        // 5 - 10 分钟随机过期，防止雪崩
+        int cacheExpireTime = 300 + RandomUtil.randomInt(0, 300);
+        valueOps.set(redisKey, cacheValue, cacheExpireTime, TimeUnit.SECONDS);
+
+        // 返回结果
+        return ResultUtils.success(pictureVOPage);
+    }
 
     /**
      * 编辑图片信息的接口
@@ -473,4 +525,6 @@ public class PictureController {
         // 返回上传成功的图片数量
         return ResultUtils.success(uploadCount);
     }
+
+
 }

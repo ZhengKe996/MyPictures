@@ -52,6 +52,23 @@ export const EditPictureInfo = async (pictureEditRequest: PictureEditType) => {
   );
 };
 
+/**
+ * 获取图片列表(缓存)
+ *
+ * 此函数通过调用PictureControllerService的listPictureVoByPageUsingPost方法来获取图片列表
+ * 它接受一个包含多种可选参数的对象，以满足不同条件下的图片查询需求
+ *
+ * @param form 包含分页和查询条件的表单对象
+ * @param form.current 当前页码，用于分页查询
+ * @param form.pageSize 每页记录数，与current一起使用进行分页
+ * @param form.category 可选参数，图片类别，用于筛选特定类别的图片
+ * @param form.id 可选参数，图片ID，用于查询特定的图片
+ * @param form.name 可选参数，图片名称，用于模糊匹配图片名称
+ * @param form.userId 可选参数，用户ID，用于查询特定用户相关的图片
+ * @param form.picFormat 可选参数，图片格式，用于筛选特定格式的图片
+ * @param form.tags 可选参数，标签数组，用于筛选包含特定标签的图片
+ * @returns 返回一个Promise，解析为图片列表
+ */
 export const GetPictureList = async (form: {
   current: number;
   pageSize: number;
@@ -62,7 +79,10 @@ export const GetPictureList = async (form: {
   picFormat?: string;
   tags?: Array<string>;
 }) => {
-  return await PictureControllerService.listPictureVoByPageUsingPost(form);
+  // return await PictureControllerService.listPictureVoByPageUsingPost(form);
+  return await PictureControllerService.listPictureVoByPageWithCacheUsingPost(
+    form
+  );
 };
 
 /**
