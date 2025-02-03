@@ -235,29 +235,31 @@ import { DefaultPictureTexts } from "@/config";
 const total = ref<number>(0); // 题目总数
 
 const imageRefs = ref<HTMLImageElement[]>([]);
-
-const fullscreenOptions = ref<{
-  enter: () => void;
-  exit: () => void;
-  toggle: () => void;
-  isActive: boolean;
-}>({ enter: () => {}, exit: () => {}, toggle: () => {}, isActive: false });
-
+/**
+ * 切换图片的全屏显示状态
+ * @param id - 图片的唯一标识符
+ * @description
+ * 1. 根据传入的id查找对应的图片数据
+ * 2. 通过图片URL找到对应的DOM元素引用
+ * 3. 使用useFullscreen hook为特定图片创建全屏实例
+ * 4. 切换全屏显示状态
+ * @returns void
+ */
 const toggleFullscreen = (id: number | undefined) => {
-  if (id === undefined) return; // 如果 id 是 undefined，则直接返回
-  const index = PictureListInfo.value.findIndex((item) => item.id === id);
-  if (index !== -1 && imageRefs.value[index]) {
-    const { enter, exit, toggle, isFullscreen } = useFullscreen(
-      imageRefs.value[index]
-    );
-    fullscreenOptions.value = {
-      enter,
-      exit,
-      toggle,
-      isActive: isFullscreen.value,
-    };
-    toggle();
-  }
+  if (id === undefined) return;
+  // Find the actual image element for this specific id
+  const item = PictureListInfo.value.find((picture) => picture.id === id);
+  if (!item) return;
+
+  // Find the DOM element for this specific image
+  const imageElement = imageRefs.value.find(
+    (ref) => ref?.getAttribute("src") === item.url
+  );
+  if (!imageElement) return;
+
+  // Create a new fullscreen instance for this specific image
+  const { toggle } = useFullscreen(imageElement);
+  toggle();
 };
 onMounted(() => LoadList());
 
