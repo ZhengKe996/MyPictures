@@ -54,10 +54,10 @@
             class="whitespace-nowrap p-4 text-sm text-gray-500 border-r border-gray-100/50 text-center"
           >
             <img
-              v-if="item.url"
+              v-if="item.url || item.thumbnailUrl"
               ref="imageRefs"
               class="inline-block size-14 rounded-md object-cover cursor-pointer hover:opacity-90 transition-opacity shadow-sm hover:shadow-md"
-              :src="item.url"
+              :src="item.thumbnailUrl ?? item.url"
               :alt="item.name || DefaultPictureTexts.UNNAMED_PICTURE"
               @click="toggleFullscreen(item.id)"
             />
@@ -235,32 +235,43 @@ import { DefaultPictureTexts } from "@/config";
 const total = ref<number>(0); // 题目总数
 
 const imageRefs = ref<HTMLImageElement[]>([]);
+
 /**
- * 切换图片的全屏显示状态
- * @param id - 图片的唯一标识符
- * @description
- * 1. 根据传入的id查找对应的图片数据
- * 2. 通过图片URL找到对应的DOM元素引用
- * 3. 使用useFullscreen hook为特定图片创建全屏实例
- * 4. 切换全屏显示状态
- * @returns void
+ * 切换指定图片的全屏模式。
+ *
+ * @param id 图片的唯一标识符，用于定位要切换全屏的特定图片。如果为 undefined，则函数不执行任何操作。
  */
 const toggleFullscreen = (id: number | undefined) => {
+  // 如果未提供 ID，则不执行任何操作
   if (id === undefined) return;
-  // Find the actual image element for this specific id
+
+  // 根据 ID 查找实际的图片元素
   const item = PictureListInfo.value.find((picture) => picture.id === id);
+  // 如果找不到图片元素，则不执行任何操作
   if (!item) return;
 
-  // Find the DOM element for this specific image
+  // 查找特定图片的 DOM 元素
   const imageElement = imageRefs.value.find(
-    (ref) => ref?.getAttribute("src") === item.url
+    (ref) => ref?.getAttribute("src") === (item.thumbnailUrl ?? item.url)
   );
+  // 如果找不到图片的 DOM 元素，则不执行任何操作
   if (!imageElement) return;
 
-  // Create a new fullscreen instance for this specific image
-  const { toggle } = useFullscreen(imageElement);
-  toggle();
+  // 在进入全屏前将源设置为原始图片 URL
+  if (item.url) {
+    imageElement.src = item.url;
+    // 为该特定图片创建一个新的全屏实例
+    const { toggle } = useFullscreen(imageElement);
+    toggle();
+    // 在退出全屏后重置为缩略图
+    imageElement.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement && item.thumbnailUrl) {
+        imageElement.src = item.thumbnailUrl;
+      }
+    });
+  }
 };
+
 onMounted(() => LoadList());
 
 interface PictureInfoInterface {

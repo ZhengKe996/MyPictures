@@ -11,7 +11,7 @@
       <img
         ref="imgTarget"
         class="w-full rounded bg-transparent"
-        :src="picture.url"
+        :src="currentImageUrl"
         :style="{
           height: calculateImageHeight() + 'px',
         }"
@@ -65,10 +65,9 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useFullscreen, useElementBounding } from "@vueuse/core";
+import { ref, computed, watch } from "vue";
+import { useFullscreen } from "@vueuse/core";
 import { type PictureType } from "@/config";
 import Button from "@/lib/Button";
 import { randomRGB } from "@/utils/color";
@@ -92,11 +91,6 @@ const calculateImageHeight = (): number => {
 const onToPinsClick = () => {};
 
 /**
- * 生成全屏方法
- */
-const { enter: onImgFullScreen } = useFullscreen(imgTarget);
-
-/**
  * 下载按钮点击事件
  */
 const onDownload = () => {
@@ -108,5 +102,30 @@ const onDownload = () => {
    * 2. 下载的文件名称
    */
   setTimeout(() => {}, 300);
+};
+
+// 追踪全屏状态
+const isFullscreen = ref(false);
+
+// 计算当前应该显示的图片URL
+const currentImageUrl = computed(() => {
+  return isFullscreen.value ? picture.url : picture.thumbnailUrl ?? picture.url;
+});
+
+// 全屏控制
+const { toggle: toggleFullscreen, isFullscreen: fullscreenState } =
+  useFullscreen(imgTarget);
+
+// 使用 watch 监听全屏状态变化
+watch(fullscreenState, (newVal) => {
+  isFullscreen.value = newVal;
+});
+
+/**
+ * 生成全屏方法
+ */
+const onImgFullScreen = async (event: Event) => {
+  event.stopPropagation();
+  await toggleFullscreen();
 };
 </script>

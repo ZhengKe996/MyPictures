@@ -83,6 +83,7 @@ create table if not exists picture
     picHeight     int                                null comment '图片高度',
     picScale      double                             null comment '图片宽高比例',
     picFormat     varchar(32)                        null comment '图片格式',
+    thumbnailUrl  varchar(512)                       not null COMMENT '缩略图 url',
     userId        bigint                             not null comment '创建用户 id',
     createTime    datetime default CURRENT_TIMESTAMP not null comment '创建时间',
     editTime      datetime default CURRENT_TIMESTAMP not null comment '编辑时间',

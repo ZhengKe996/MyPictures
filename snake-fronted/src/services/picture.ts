@@ -77,10 +77,10 @@ export const GetPictureList = async (form: {
   picFormat?: string;
   tags?: Array<string>;
 }) => {
-  // return await Service.listPictureVoByPageUsingPost(form); // 不使用缓存
+  return await Service.listPictureVoByPageUsingPost(form); // 不使用缓存
   // return await Service.listPictureVoByPageWithCacheUsingPost(form); // 使用分布式缓存
   // return await Service.listPictureVoByPageWithLocalCacheUsingPost(form); // 使用本地缓存
-  return await Service.listPictureVoByPageWithMultilevelCacheUsingPost(form); // 使用多级缓存
+  // return await Service.listPictureVoByPageWithMultilevelCacheUsingPost(form); // 使用多级缓存
 };
 
 /**

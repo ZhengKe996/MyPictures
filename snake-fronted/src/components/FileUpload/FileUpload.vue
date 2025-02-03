@@ -10,7 +10,7 @@
     }"
   >
     <label
-      v-if="!file.url"
+      v-if="!file.thumbnailUrl || !file.url"
       for="dropzone-file"
       class="flex flex-col items-center justify-center w-full h-64 cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
     >
@@ -47,7 +47,7 @@
     </label>
     <div v-else class="relative">
       <img
-        :src="file.url || DefaultImage"
+        :src="(file.thumbnailUrl ?? file.url) || DefaultImage"
         alt="Uploaded Image"
         class="w-full h-64 object-cover rounded-lg shadow-lg transition-transform duration-500 hover:scale-105"
       />
