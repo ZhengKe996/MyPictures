@@ -128,6 +128,7 @@ export class PictureControllerService {
     });
   }
   /**
+   * @deprecated
    * listPictureVOByPage
    * @param pictureQueryRequest pictureQueryRequest
    * @returns BaseResponse_Page_PictureVO_ OK
@@ -149,6 +150,7 @@ export class PictureControllerService {
     });
   }
   /**
+   * @deprecated
    * listPictureVOByPageWithCache
    * @param pictureQueryRequest pictureQueryRequest
    * @returns BaseResponse_Page_PictureVO_ OK
@@ -170,6 +172,7 @@ export class PictureControllerService {
     });
   }
   /**
+   * @deprecated
    * listPictureVOByPageWithLocalCache
    * @param pictureQueryRequest pictureQueryRequest
    * @returns BaseResponse_Page_PictureVO_ OK
@@ -182,6 +185,27 @@ export class PictureControllerService {
     return __request(OpenAPI, {
       method: "POST",
       url: "/api/picture/list/page/vo/local_cache",
+      body: pictureQueryRequest,
+      errors: {
+        401: `Unauthorized`,
+        403: `Forbidden`,
+        404: `Not Found`,
+      },
+    });
+  }
+  /**
+   * listPictureVOByPageWithMultilevelCache
+   * @param pictureQueryRequest pictureQueryRequest
+   * @returns BaseResponse_Page_PictureVO_ OK
+   * @returns any Created
+   * @throws ApiError
+   */
+  public static listPictureVoByPageWithMultilevelCacheUsingPost(
+    pictureQueryRequest: PictureQueryRequest
+  ): CancelablePromise<BaseResponse_Page_PictureVO_ | any> {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/picture/list/page/vo/multilevel_cache",
       body: pictureQueryRequest,
       errors: {
         401: `Unauthorized`,
