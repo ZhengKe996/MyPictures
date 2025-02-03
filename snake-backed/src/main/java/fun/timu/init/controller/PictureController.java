@@ -13,6 +13,7 @@ import fun.timu.init.common.ResultUtils;
 import fun.timu.init.constant.UserConstant;
 import fun.timu.init.exception.BusinessException;
 import fun.timu.init.exception.ThrowUtils;
+import fun.timu.init.manager.CacheManager;
 import fun.timu.init.model.dto.picture.*;
 import fun.timu.init.model.entity.Picture;
 import fun.timu.init.model.entity.User;
@@ -50,11 +51,13 @@ public class PictureController {
     private final UserService userService;
     private final PictureService pictureService;
     private final StringRedisTemplate stringRedisTemplate;
+    private final CacheManager cacheManager;
 
-    public PictureController(UserService userService, PictureService pictureService, StringRedisTemplate stringRedisTemplate) {
+    public PictureController(UserService userService, PictureService pictureService, StringRedisTemplate stringRedisTemplate, CacheManager cacheManager) {
         this.userService = userService;
         this.pictureService = pictureService;
         this.stringRedisTemplate = stringRedisTemplate;
+        this.cacheManager = cacheManager;
     }
 
     /**
@@ -481,58 +484,28 @@ public class PictureController {
         String hashKey = DigestUtils.md5DigestAsHex(queryCondition.getBytes());
         String cacheKey = "SnakePictures:listPictureVOByPage:" + hashKey;
 
-        // 1. 查询本地缓存（Caffeine）
-        String cachedValue = LOCAL_CACHE.getIfPresent(cacheKey);
-        if (cachedValue != null) {
-            if ("NULL".equals(cachedValue)) {
-                // 如果缓存的是空对象标记，直接返回空结果
-                return ResultUtils.success(new Page<>());
-            }
-            Page<PictureVO> cachedPage = JSONUtil.toBean(cachedValue, Page.class);
-            return ResultUtils.success(cachedPage);
-        }
-
-        // 2. 查询分布式缓存（Redis）
-        ValueOperations<String, String> valueOps = stringRedisTemplate.opsForValue();
-        cachedValue = valueOps.get(cacheKey);
-        if (cachedValue != null) {
-            if ("NULL".equals(cachedValue)) {
-                return ResultUtils.success(new Page<>()); // 如果缓存的是空对象标记，直接返回空结果
-            }
-            // 如果命中 Redis，存入本地缓存并返回
-            LOCAL_CACHE.put(cacheKey, cachedValue);
-            Page<PictureVO> cachedPage = JSONUtil.toBean(cachedValue, Page.class);
+        // 从缓存中获取数据
+        Page<PictureVO> cachedPage = cacheManager.getFromCache(cacheKey, Page.class);
+        if (cachedPage != null) {
             return ResultUtils.success(cachedPage);
         }
 
         // 使用分布式锁防止缓存击穿
         String lockKey = "lock:" + cacheKey;
-        Boolean isLocked = stringRedisTemplate.opsForValue().setIfAbsent(lockKey, "1", 10, TimeUnit.SECONDS);
-        if (Boolean.TRUE.equals(isLocked)) {
+        if (cacheManager.acquireLock(lockKey)) {
             try {
-                // 3. 查询数据库
+                // 查询数据库
                 Page<Picture> picturePage = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
                 Page<PictureVO> pictureVOPage = pictureService.getPictureVOPage(picturePage, request);
 
-                // 4. 更新缓存
-                String cacheValue;
-                if (pictureVOPage == null || pictureVOPage.getRecords().isEmpty()) {
-                    // 如果查询结果为空，缓存一个空对象标记
-                    cacheValue = "NULL";
-                } else {
-                    cacheValue = JSONUtil.toJsonStr(pictureVOPage);
-                }
-                // 更新本地缓存
-                LOCAL_CACHE.put(cacheKey, cacheValue);
-                // 更新 Redis 缓存，设置过期时间为 5 分钟到 10 分钟之间
-                int cacheExpireTime = 300 + RandomUtil.randomInt(0, 300);
-                valueOps.set(cacheKey, cacheValue, cacheExpireTime, TimeUnit.SECONDS);
+                // 更新缓存
+                cacheManager.putToCache(cacheKey, pictureVOPage);
 
                 // 返回查询结果
                 return ResultUtils.success(pictureVOPage);
             } finally {
                 // 释放锁
-                stringRedisTemplate.delete(lockKey);
+                cacheManager.releaseLock(lockKey);
             }
         } else {
             // 其他线程等待一段时间后重试
