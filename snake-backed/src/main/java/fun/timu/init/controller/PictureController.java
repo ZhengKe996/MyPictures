@@ -484,6 +484,10 @@ public class PictureController {
         // 1. 查询本地缓存（Caffeine）
         String cachedValue = LOCAL_CACHE.getIfPresent(cacheKey);
         if (cachedValue != null) {
+            if ("NULL".equals(cachedValue)) {
+                // 如果缓存的是空对象标记，直接返回空结果
+                return ResultUtils.success(new Page<>());
+            }
             Page<PictureVO> cachedPage = JSONUtil.toBean(cachedValue, Page.class);
             return ResultUtils.success(cachedPage);
         }
@@ -492,6 +496,9 @@ public class PictureController {
         ValueOperations<String, String> valueOps = stringRedisTemplate.opsForValue();
         cachedValue = valueOps.get(cacheKey);
         if (cachedValue != null) {
+            if ("NULL".equals(cachedValue)) {
+                return ResultUtils.success(new Page<>());// 如果缓存的是空对象标记，直接返回空结果
+            }
             // 如果命中 Redis，存入本地缓存并返回
             LOCAL_CACHE.put(cacheKey, cachedValue);
             Page<PictureVO> cachedPage = JSONUtil.toBean(cachedValue, Page.class);
@@ -508,7 +515,13 @@ public class PictureController {
                 Page<PictureVO> pictureVOPage = pictureService.getPictureVOPage(picturePage, request);
 
                 // 4. 更新缓存
-                String cacheValue = JSONUtil.toJsonStr(pictureVOPage);
+                String cacheValue;
+                if (pictureVOPage == null || pictureVOPage.getRecords().isEmpty()) {
+                    // 如果查询结果为空，缓存一个空对象标记
+                    cacheValue = "NULL";
+                } else {
+                    cacheValue = JSONUtil.toJsonStr(pictureVOPage);
+                }
                 // 更新本地缓存
                 LOCAL_CACHE.put(cacheKey, cacheValue);
                 // 更新 Redis 缓存，设置过期时间为 5 分钟
