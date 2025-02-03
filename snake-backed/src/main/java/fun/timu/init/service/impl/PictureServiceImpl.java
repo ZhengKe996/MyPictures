@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import fun.timu.init.common.ErrorCode;
 import fun.timu.init.exception.BusinessException;
 import fun.timu.init.exception.ThrowUtils;
+import fun.timu.init.manager.CosManager;
 import fun.timu.init.manager.upload.FilePictureUpload;
 import fun.timu.init.manager.upload.PictureUploadTemplate;
 import fun.timu.init.manager.upload.UrlPictureUpload;
@@ -26,7 +27,9 @@ import fun.timu.init.model.vo.UserVO;
 import fun.timu.init.service.PictureService;
 import fun.timu.init.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -46,14 +49,16 @@ import java.util.stream.Collectors;
 public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> implements PictureService {
 
 
-    private FilePictureUpload filePictureUpload;
-    private UrlPictureUpload urlPictureUpload;
-    private UserService userService;
+    private final FilePictureUpload filePictureUpload;
+    private final UrlPictureUpload urlPictureUpload;
+    private final UserService userService;
+    private final CosManager cosManager;
 
-    PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService) {
+    PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService, CosManager cosManager) {
         this.filePictureUpload = filePictureUpload;
         this.urlPictureUpload = urlPictureUpload;
         this.userService = userService;
+        this.cosManager = cosManager;
     }
 
     /**
@@ -81,6 +86,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         if (pictureId != null) {
             Picture oldPicture = this.getById(pictureId);
             ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
+            clearPictureFile(oldPicture); // 先清空老图片的云存储文件
             // 仅本人或管理员可编辑
             if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
@@ -419,4 +425,24 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         // 返回成功上传的图片数量
         return uploadCount;
     }
+
+    @Async
+    @Override
+    public void clearPictureFile(Picture oldPicture) {
+        // 判断该图片是否被多条记录使用
+        String pictureUrl = oldPicture.getUrl();
+        long count = this.lambdaQuery().eq(Picture::getUrl, pictureUrl).count();
+        // 有不止一条记录用到了该图片，不清理
+        if (count > 1) {
+            return;
+        }
+        // FIXME 注意，这里的 url 包含了域名，实际上只要传 key 值（存储路径）就够了
+        cosManager.deleteObject(oldPicture.getUrl());
+        // 清理缩略图
+        String thumbnailUrl = oldPicture.getThumbnailUrl();
+        if (StrUtil.isNotBlank(thumbnailUrl)) {
+            cosManager.deleteObject(thumbnailUrl);
+        }
+    }
+
 }

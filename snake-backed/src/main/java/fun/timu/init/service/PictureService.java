@@ -84,4 +84,10 @@ public interface PictureService extends IService<Picture> {
      */
     int uploadPictureByBing(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser);
 
+    /**
+     * 图片清理
+     *
+     * @param oldPicture
+     */
+    public void clearPictureFile(Picture oldPicture);
 }

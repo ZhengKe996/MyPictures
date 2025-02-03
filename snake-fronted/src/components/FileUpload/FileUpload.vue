@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { type PictureType, DefaultImage } from "@/config";
-const emits = defineEmits(["Upload"]);
+const emits = defineEmits(["Upload", "Remove"]);
 const isDragging = ref(false);
 const uploadedFile = ref<File | null>(null);
 import { MAX_FILE_SIZE } from "./config";
@@ -107,6 +107,6 @@ const isImageFile = (file: File): boolean => {
 
 const removeImage = () => {
   uploadedFile.value = null;
-  emits("Upload", null);
+  emits("Remove");
 };
 </script>

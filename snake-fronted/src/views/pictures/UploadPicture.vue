@@ -14,7 +14,11 @@
       >
         <template #File>
           <a-spin :spinning="loadding" :delay="delayTime">
-            <FileUpload :file="picture" @upload="uploadFileHandle" />
+            <FileUpload
+              :file="picture"
+              @upload="uploadFileHandle"
+              @remove="removeFileHandle"
+            />
           </a-spin>
         </template>
         <template #URL>
@@ -185,6 +189,10 @@ const uploadFileHandle = async (file: File) => {
   } finally {
     loadding.value = false;
   }
+};
+
+const removeFileHandle = () => {
+  picture.value.url = "";
 };
 
 // 定义为对象数组类型

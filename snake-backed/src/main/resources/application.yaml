@@ -10,6 +10,7 @@ spring:
     { database: 1, host: localhost, port: 6379, timeout: 5000 }
   session:
     store-type: redis
+    timeout: 2592000
   profiles:
     active: local
   servlet:
@@ -20,6 +21,9 @@ server:
   port: 8080
   servlet:
     context-path: /api
+    session:
+      cookie:
+        max-age: 2592000
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
