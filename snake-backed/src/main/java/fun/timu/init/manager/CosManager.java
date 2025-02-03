@@ -17,11 +17,14 @@ import java.util.List;
 
 @Component
 public class CosManager {
-    @Resource
-    private CosClientConfig cosClientConfig;
+    private final CosClientConfig cosClientConfig;
 
-    @Resource
-    private COSClient cosClient;
+    private final COSClient cosClient;
+
+    public CosManager(CosClientConfig cosClientConfig, COSClient cosClient) {
+        this.cosClientConfig = cosClientConfig;
+        this.cosClient = cosClient;
+    }
 
     /**
      * 将文件上传到指定的存储桶中
@@ -59,13 +62,24 @@ public class CosManager {
      * @param file 文件
      */
     public PutObjectResult putPictureObject(String key, File file) {
-        // 创建上传请求对象
+        // 创建上传请求
         PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), key, file);
         // 对图片进行处理（获取基本信息也被视作为一种处理）
         PicOperations picOperations = new PicOperations();
         // 1 表示返回原图信息
         picOperations.setIsPicInfo(1);
-        // 设置上传请求的图片处理参数
+        // 创建一个规则列表来存储图片处理规则
+        List<PicOperations.Rule> rules = new ArrayList<>();
+        // 图片压缩（转成 webp 格式）
+        String webpKey = FileUtil.mainName(key) + ".webp";
+        PicOperations.Rule compressRule = new PicOperations.Rule();
+        compressRule.setRule("imageMogr2/format/webp");
+        compressRule.setBucket(cosClientConfig.getBucket());
+        compressRule.setFileId(webpKey);
+        rules.add(compressRule);
+        // 构造处理参数
+        picOperations.setRules(rules);
+        // 设置图片处理操作到请求中
         putObjectRequest.setPicOperations(picOperations);
         // 执行上传操作并返回结果
         return cosClient.putObject(putObjectRequest);
