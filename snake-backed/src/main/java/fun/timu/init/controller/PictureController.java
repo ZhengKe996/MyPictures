@@ -497,7 +497,7 @@ public class PictureController {
         cachedValue = valueOps.get(cacheKey);
         if (cachedValue != null) {
             if ("NULL".equals(cachedValue)) {
-                return ResultUtils.success(new Page<>());// 如果缓存的是空对象标记，直接返回空结果
+                return ResultUtils.success(new Page<>()); // 如果缓存的是空对象标记，直接返回空结果
             }
             // 如果命中 Redis，存入本地缓存并返回
             LOCAL_CACHE.put(cacheKey, cachedValue);
@@ -524,8 +524,9 @@ public class PictureController {
                 }
                 // 更新本地缓存
                 LOCAL_CACHE.put(cacheKey, cacheValue);
-                // 更新 Redis 缓存，设置过期时间为 5 分钟
-                valueOps.set(cacheKey, cacheValue, 5, TimeUnit.MINUTES);
+                // 更新 Redis 缓存，设置过期时间为 5 分钟到 10 分钟之间
+                int cacheExpireTime = 300 + RandomUtil.randomInt(0, 300);
+                valueOps.set(cacheKey, cacheValue, cacheExpireTime, TimeUnit.SECONDS);
 
                 // 返回查询结果
                 return ResultUtils.success(pictureVOPage);
