@@ -476,7 +476,6 @@ public class PictureController {
             pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
         }
 
-        // TODO: 新增多重缓存逻辑
         // 构建缓存 key
         String queryCondition = JSONUtil.toJsonStr(pictureQueryRequest);
         String hashKey = DigestUtils.md5DigestAsHex(queryCondition.getBytes());
@@ -499,20 +498,39 @@ public class PictureController {
             return ResultUtils.success(cachedPage);
         }
 
-        // 3. 查询数据库
-        Page<Picture> picturePage = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
-        Page<PictureVO> pictureVOPage = pictureService.getPictureVOPage(picturePage, request);
+        // 使用分布式锁防止缓存击穿
+        String lockKey = "lock:" + cacheKey;
+        Boolean isLocked = stringRedisTemplate.opsForValue().setIfAbsent(lockKey, "1", 10, TimeUnit.SECONDS);
+        if (Boolean.TRUE.equals(isLocked)) {
+            try {
+                // 3. 查询数据库
+                Page<Picture> picturePage = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
+                Page<PictureVO> pictureVOPage = pictureService.getPictureVOPage(picturePage, request);
 
-        // 4. 更新缓存
-        String cacheValue = JSONUtil.toJsonStr(pictureVOPage);
-        // 更新本地缓存
-        LOCAL_CACHE.put(cacheKey, cacheValue);
-        // 更新 Redis 缓存，设置过期时间为 5 分钟
-        valueOps.set(cacheKey, cacheValue, 5, TimeUnit.MINUTES);
+                // 4. 更新缓存
+                String cacheValue = JSONUtil.toJsonStr(pictureVOPage);
+                // 更新本地缓存
+                LOCAL_CACHE.put(cacheKey, cacheValue);
+                // 更新 Redis 缓存，设置过期时间为 5 分钟
+                valueOps.set(cacheKey, cacheValue, 5, TimeUnit.MINUTES);
 
-        // 返回查询结果
-        return ResultUtils.success(pictureVOPage);
+                // 返回查询结果
+                return ResultUtils.success(pictureVOPage);
+            } finally {
+                // 释放锁
+                stringRedisTemplate.delete(lockKey);
+            }
+        } else {
+            // 其他线程等待一段时间后重试
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            return listPictureVOByPageWithMultilevelCache(pictureQueryRequest, request);
+        }
     }
+
 
     /**
      * 编辑图片信息的接口
