@@ -131,6 +131,8 @@
 import { ref, computed } from "vue";
 import { AdminBatchByBing } from "@/services";
 import { Message } from "@/lib/Message";
+import { useThrottleFn } from "@vueuse/core";
+
 const searchText = ref("");
 const count = ref(10); // 修改默认值为10
 const namePrefix = ref("");
@@ -172,7 +174,7 @@ const numberOnly = (e: KeyboardEvent) => {
 };
 
 // 定义一个异步函数handleSubmit来处理表单提交事件
-const handleSubmit = async () => {
+const handleSubmit = useThrottleFn(async () => {
   if (isCountInvalid.value) {
     Message.error("Please enter a valid count between 1 and 30");
     return;
@@ -192,5 +194,5 @@ const handleSubmit = async () => {
     // 捕获到错误时，显示错误消息
     Message.error(`抓取图片失败, 原因: ${error}`);
   }
-};
+}, 3000);
 </script>
