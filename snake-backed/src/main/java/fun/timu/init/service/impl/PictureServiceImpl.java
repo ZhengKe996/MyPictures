@@ -27,7 +27,6 @@ import fun.timu.init.model.vo.UserVO;
 import fun.timu.init.service.PictureService;
 import fun.timu.init.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -77,9 +76,13 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     @Override
     public PictureVO uploadPicture(Object inputSource, PictureUploadRequest pictureUploadRequest, User loginUser) {
         // 检查用户是否已登录，未登录则抛出无权限错误
-        ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR, "用户未登录");
 
-        // 用于判断是新增还是更新图片
+        // 输入验证
+        if (inputSource == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "无效的输入参数");
+        }
+
         Long pictureId = pictureUploadRequest != null ? pictureUploadRequest.getId() : null;
 
         // 如果是更新图片，需要校验图片是否存在
@@ -87,57 +90,65 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             Picture oldPicture = this.getById(pictureId);
             ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
             clearPictureFile(oldPicture); // 先清空老图片的云存储文件
+
             // 仅本人或管理员可编辑
             if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
-                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+                throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无权限编辑此图片");
             }
         }
 
-        // 上传图片，得到信息
-        // 按照用户 id 划分目录
-        String uploadPathPrefix = String.format("public/%s", loginUser.getId());
+        // 构造上传路径前缀
+        String uploadPathPrefix = "public/" + loginUser.getId();
 
         // 根据 inputSource 的类型区分上传方式
         PictureUploadTemplate pictureUploadTemplate = filePictureUpload;
-        if (inputSource instanceof String) pictureUploadTemplate = urlPictureUpload;
-
-        UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
-
-        // 构造要入库的图片信息
-        Picture picture = new Picture();
-        picture.setUrl(uploadPictureResult.getUrl());
-        picture.setThumbnailUrl(uploadPictureResult.getThumbnailUrl());
-        String picName = uploadPictureResult.getPicName();
-        if (pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())) {
-            picName = pictureUploadRequest.getPicName();
-        }
-        picture.setName(picName);
-
-        picture.setPicSize(uploadPictureResult.getPicSize());
-        picture.setPicWidth(uploadPictureResult.getPicWidth());
-        picture.setPicHeight(uploadPictureResult.getPicHeight());
-        picture.setPicScale(uploadPictureResult.getPicScale());
-        picture.setPicFormat(uploadPictureResult.getPicFormat());
-        picture.setUserId(loginUser.getId());
-
-        // 补充审核参数
-        this.fillReviewParams(picture, loginUser);
-
-        // 如果 pictureId 不为空，表示更新，否则是新增
-        if (pictureId != null) {
-            // 如果是更新，需要补充 id 和编辑时间
-            picture.setId(pictureId);
-            picture.setEditTime(new Date());
+        if (inputSource instanceof String) {
+            pictureUploadTemplate = urlPictureUpload;
         }
 
-        // 保存或更新图片信息
-        boolean result = this.saveOrUpdate(picture);
-        // 如果保存失败，则抛出操作错误
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
+        try {
+            UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
 
-        // 将图片对象转换为视图对象并返回
-        return PictureVO.objToVo(picture);
+            // 构造要入库的图片信息
+            Picture picture = new Picture();
+            picture.setCategory("素材");
+            picture.setUrl(uploadPictureResult.getUrl());
+            picture.setThumbnailUrl(uploadPictureResult.getThumbnailUrl());
+            String picName = uploadPictureResult.getPicName();
+            if (pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())) {
+                picName = pictureUploadRequest.getPicName();
+            }
+            picture.setName(picName);
+
+            picture.setPicSize(uploadPictureResult.getPicSize());
+            picture.setPicWidth(uploadPictureResult.getPicWidth());
+            picture.setPicHeight(uploadPictureResult.getPicHeight());
+            picture.setPicScale(uploadPictureResult.getPicScale());
+            picture.setPicFormat(uploadPictureResult.getPicFormat());
+            picture.setUserId(loginUser.getId());
+
+            // 补充审核参数
+            this.fillReviewParams(picture, loginUser);
+
+            // 如果 pictureId 不为空，表示更新，否则是新增
+            if (pictureId != null) {
+                // 如果是更新，需要补充 id 和编辑时间
+                picture.setId(pictureId);
+                picture.setEditTime(new Date());
+            }
+
+            // 保存或更新图片信息
+            boolean result = this.saveOrUpdate(picture);
+            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
+
+            // 将图片对象转换为视图对象并返回
+            return PictureVO.objToVo(picture);
+        } catch (Exception e) {
+            log.error("图片上传失败: {}", e.getMessage(), e);
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "图片上传失败");
+        }
     }
+
 
     /**
      * 根据Picture对象获取封装的PictureVO对象
