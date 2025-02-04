@@ -26,6 +26,13 @@ public class CosManager {
         this.cosClient = cosClient;
     }
 
+
+    private static final int THUMBNAIL_WIDTH = 128;
+    private static final int THUMBNAIL_HEIGHT = 128;
+    private static final String COMPRESS_FORMAT = "webp";
+    private static final long THUMBNAIL_MIN_SIZE = 20 * 1024; // 20 KB
+
+
     /**
      * 将文件上传到指定的存储桶中
      *
@@ -64,33 +71,41 @@ public class CosManager {
      * @return 返回上传后的对象结果
      */
     public PutObjectResult putPictureObject(String key, File file) {
-        PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), key, file);
-        // 对图片进行处理（获取基本信息也被视作为一种处理）
-        PicOperations picOperations = new PicOperations();
-        // 1 表示返回原图信息
-        picOperations.setIsPicInfo(1);
-        List<PicOperations.Rule> rules = new ArrayList<>();
-        // 图片压缩（转成 webp 格式）
-        String webpKey = FileUtil.mainName(key) + ".webp";
-        PicOperations.Rule compressRule = new PicOperations.Rule();
-        compressRule.setRule("imageMogr2/format/webp");
-        compressRule.setBucket(cosClientConfig.getBucket());
-        compressRule.setFileId(webpKey);
-        rules.add(compressRule);
-        // 缩略图处理，仅对 > 20 KB 的图片生成缩略图
-        if (file.length() > 2 * 1024) {
-            PicOperations.Rule thumbnailRule = new PicOperations.Rule();
-            thumbnailRule.setBucket(cosClientConfig.getBucket());
-            String thumbnailKey = FileUtil.mainName(key) + "_thumbnail." + FileUtil.getSuffix(key);
-            thumbnailRule.setFileId(thumbnailKey);
-            // 缩放规则 /thumbnail/<Width>x<Height>>（如果大于原图宽高，则不处理）
-            thumbnailRule.setRule(String.format("imageMogr2/thumbnail/%sx%s>", 128, 128));
-            rules.add(thumbnailRule);
+        try {
+            PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), key, file);
+
+            // 对图片进行处理（获取基本信息也被视作为一种处理）
+            PicOperations picOperations = new PicOperations();
+            picOperations.setIsPicInfo(1);
+            List<PicOperations.Rule> rules = new ArrayList<>();
+
+            // 图片压缩（转成 webp 格式）
+            String webpKey = FileUtil.mainName(key) + "." + COMPRESS_FORMAT;
+            PicOperations.Rule compressRule = new PicOperations.Rule();
+            compressRule.setRule("imageMogr2/format/" + COMPRESS_FORMAT);
+            compressRule.setBucket(cosClientConfig.getBucket());
+            compressRule.setFileId(webpKey);
+            rules.add(compressRule);
+
+            // 缩略图处理，仅对 > 20 KB 的图片生成缩略图
+            if (file.length() > THUMBNAIL_MIN_SIZE) {
+                PicOperations.Rule thumbnailRule = new PicOperations.Rule();
+                thumbnailRule.setBucket(cosClientConfig.getBucket());
+                String thumbnailKey = FileUtil.mainName(key) + "_thumbnail." + FileUtil.getSuffix(key);
+                thumbnailRule.setFileId(thumbnailKey);
+                // 缩放规则 /thumbnail/<Width>x<Height>>（如果大于原图宽高，则不处理）
+                thumbnailRule.setRule(String.format("imageMogr2/thumbnail/%sx%s>", THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT));
+                rules.add(thumbnailRule);
+            }
+
+            // 构造处理参数
+            picOperations.setRules(rules);
+            putObjectRequest.setPicOperations(picOperations);
+
+            return cosClient.putObject(putObjectRequest);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload and process image", e);
         }
-        // 构造处理参数
-        picOperations.setRules(rules);
-        putObjectRequest.setPicOperations(picOperations);
-        return cosClient.putObject(putObjectRequest);
     }
 
 
