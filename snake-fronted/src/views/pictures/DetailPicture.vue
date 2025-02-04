@@ -95,7 +95,13 @@
           </div>
 
           <!-- 审核信息区域 -->
-          <div class="py-1" v-if="picture?.reviewMessage">
+          <div
+            class="py-1"
+            v-if="
+              picture?.reviewMessage &&
+              userStore.getUserRole === ACCESSENUM.ADMIN
+            "
+          >
             <h2 class="text-sm font-medium text-gray-500 mb-3">审核信息</h2>
             <div class="relative">
               <p

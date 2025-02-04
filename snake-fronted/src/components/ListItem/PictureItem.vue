@@ -71,6 +71,7 @@ import { useFullscreen } from "@vueuse/core";
 import { type PictureType } from "@/config";
 import Button from "@/lib/Button";
 import { randomRGB } from "@/utils/color";
+import router from "@/router";
 const { picture, width } = defineProps<{
   picture: PictureType;
   width?: number;
@@ -88,7 +89,10 @@ const calculateImageHeight = (): number => {
 /**
  * 进入详情点击事件
  */
-const onToPinsClick = () => {};
+const onToPinsClick = () => {
+  const id = picture.id;
+  router.push(`/detail/picture/${id}`);
+};
 
 /**
  * 下载按钮点击事件

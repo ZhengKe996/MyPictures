@@ -2,6 +2,7 @@ package fun.timu.init.manager;
 
 import cn.hutool.core.io.FileUtil;
 import com.qcloud.cos.COSClient;
+import com.qcloud.cos.exception.CosClientException;
 import com.qcloud.cos.model.COSObject;
 import com.qcloud.cos.model.GetObjectRequest;
 import com.qcloud.cos.model.PutObjectRequest;
@@ -56,10 +57,23 @@ public class CosManager {
      * @return 返回一个COSObject对象，该对象包含了从COS获取的与键关联的数据
      */
     public COSObject getObject(String key) {
-        // 创建一个GetObjectRequest对象，用于指定获取对象的请求参数
-        GetObjectRequest getObjectRequest = new GetObjectRequest(cosClientConfig.getBucket(), key);
-        // 通过cosClient发起获取对象的请求，并返回获取到的对象
-        return cosClient.getObject(getObjectRequest);
+        // 参数校验
+        if (key == null || key.trim().isEmpty()) {
+            throw new IllegalArgumentException("Key cannot be null or empty");
+        }
+
+        if (cosClient == null) {
+            throw new IllegalStateException("COS client is not initialized");
+        }
+
+        try {
+            // 创建一个GetObjectRequest对象，用于指定获取对象的请求参数
+            GetObjectRequest getObjectRequest = new GetObjectRequest(cosClientConfig.getBucket(), key);
+            // 通过cosClient发起获取对象的请求，并返回获取到的对象
+            return cosClient.getObject(getObjectRequest);
+        } catch (CosClientException e) {
+            throw new RuntimeException("Failed to get object from COS", e);
+        }
     }
 
 
