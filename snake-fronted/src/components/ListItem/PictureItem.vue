@@ -89,10 +89,7 @@ const calculateImageHeight = (): number => {
 /**
  * 进入详情点击事件
  */
-const onToPinsClick = () => {
-  const id = picture.id;
-  router.push(`/detail/picture/${id}`);
-};
+const onToPinsClick = () => router.push(`/detail/picture/${picture.id}`);
 
 /**
  * 下载按钮点击事件
