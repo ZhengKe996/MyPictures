@@ -15,7 +15,7 @@
           <h2
             class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-8"
           >
-            Batch By Bing
+            Batch By {{ isBatchMode ? "Pexels" : "Bing" }}
           </h2>
 
           <!-- Search Text -->
@@ -152,10 +152,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { AdminBatchByBing } from "@/services";
+import { ref, computed, watchEffect } from "vue";
+import { AdminBatchByBing, AdminBatchByPexels } from "@/services";
 import { Message } from "@/lib/Message";
 import { useThrottleFn } from "@vueuse/core";
+import { useRoute } from "vue-router";
 
 const searchText = ref("");
 const count = ref(10); // 修改默认值为10
@@ -208,20 +209,26 @@ const handleSubmit = useThrottleFn(async () => {
 
   try {
     isLoading.value = true;
-    // 调用AdminBatchByBing接口进行图片抓取，传递当前的count, namePrefix, searchText值
-    const { data, code, message } = await AdminBatchByBing({
+    const params = {
       count: count.value,
       namePrefix: namePrefix.value,
       searchText: searchText.value,
-    });
-    // 如果接口返回的code为0且有数据，则显示成功消息
-    if (code === 0 && data) Message.success(message); // 提示成功
-    else Message.error(`抓取图片失败, 原因: ${message}`); // 提示失败
+    };
+
+    // 根据模式选择不同的API
+    const apiCall = isBatchMode.value ? AdminBatchByPexels : AdminBatchByBing;
+    const { data, code, message } = await apiCall(params);
+
+    if (code === 0 && data) Message.success(message);
+    else Message.error(`抓取图片失败, 原因: ${message}`);
   } catch (error) {
-    // 捕获到错误时，显示错误消息
     Message.error(`抓取图片失败, 原因: ${error}`);
   } finally {
     isLoading.value = false;
   }
 }, 3000);
+
+const route = useRoute();
+const isBatchMode = ref(false);
+watchEffect(() => (isBatchMode.value = route.path.includes("pexels")));
 </script>

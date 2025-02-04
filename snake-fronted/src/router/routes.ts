@@ -90,9 +90,19 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/add/bybing",
+    path: "/add/bing",
     name: "ADD By Bing",
-    component: () => import("@/views/pictures/BatchByBing.vue"),
+    component: () => import("@/views/pictures/BatchByBatch.vue"),
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.ADMIN,
+      isHeader: true,
+    },
+  },
+  {
+    path: "/add/pexels",
+    name: "ADD By Pexels",
+    component: () => import("@/views/pictures/BatchByBatch.vue"),
     meta: {
       layout: LayoutMenu.BasicLayout,
       access: ACCESSENUM.ADMIN,

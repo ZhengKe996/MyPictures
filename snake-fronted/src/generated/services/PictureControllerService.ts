@@ -328,6 +328,27 @@ export class PictureControllerService {
     });
   }
   /**
+   * uploadPictureByPexels
+   * @param pictureUploadByBatchRequest pictureUploadByBatchRequest
+   * @returns BaseResponse_int_ OK
+   * @returns any Created
+   * @throws ApiError
+   */
+  public static uploadPictureByPexelsUsingPost(
+    pictureUploadByBatchRequest: PictureUploadByBatchRequest
+  ): CancelablePromise<BaseResponse_int_ | any> {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/picture/upload/pexels",
+      body: pictureUploadByBatchRequest,
+      errors: {
+        401: `Unauthorized`,
+        403: `Forbidden`,
+        404: `Not Found`,
+      },
+    });
+  }
+  /**
    * uploadPictureByUrl
    * @param pictureUploadRequest pictureUploadRequest
    * @returns BaseResponse_PictureVO_ OK

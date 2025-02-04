@@ -85,6 +85,15 @@ public interface PictureService extends IService<Picture> {
     int uploadPictureByBing(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser);
 
     /**
+     * 批量抓取和创建图片
+     *
+     * @param pictureUploadByBatchRequest
+     * @param loginUser
+     * @return
+     */
+    int uploadPictureByPexels(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser);
+
+    /**
      * 图片清理
      *
      * @param oldPicture

@@ -3,6 +3,9 @@ package fun.timu.init.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -10,6 +13,7 @@ import fun.timu.init.common.ErrorCode;
 import fun.timu.init.exception.BusinessException;
 import fun.timu.init.exception.ThrowUtils;
 import fun.timu.init.manager.CosManager;
+import fun.timu.init.manager.PexelsManager;
 import fun.timu.init.manager.upload.FilePictureUpload;
 import fun.timu.init.manager.upload.PictureUploadTemplate;
 import fun.timu.init.manager.upload.UrlPictureUpload;
@@ -27,6 +31,7 @@ import fun.timu.init.model.vo.UserVO;
 import fun.timu.init.service.PictureService;
 import fun.timu.init.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.HttpStatusException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -52,13 +57,15 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     private final UrlPictureUpload urlPictureUpload;
     private final UserService userService;
     private final CosManager cosManager;
+    private final PexelsManager pexelsManager;
     private String defaulCategory = "素材";
 
-    PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService, CosManager cosManager) {
+    PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService, CosManager cosManager, PexelsManager pexelsManager) {
         this.filePictureUpload = filePictureUpload;
         this.urlPictureUpload = urlPictureUpload;
         this.userService = userService;
         this.cosManager = cosManager;
+        this.pexelsManager = pexelsManager;
     }
 
     /**
@@ -438,6 +445,57 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         // 返回成功上传的图片数量
         return uploadCount;
     }
+
+    /**
+     * 通过Pexels API批量上传图片
+     *
+     * @param pictureUploadByBatchRequest 图片批量上传请求对象，包含搜索关键词、图片数量和名称前缀等信息
+     * @param loginUser                   登录用户信息，用于记录操作者
+     * @return 成功上传的图片数量
+     * <p>
+     * 本方法根据用户提供的搜索关键词和数量，从Pexels获取图片并上传到系统中
+     * 它还允许用户指定图片名称的前缀，并且一次最多可以上传30张图片
+     */
+    @Override
+    public int uploadPictureByPexels(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser) {
+        // 获取搜索关键词
+        String searchText = pictureUploadByBatchRequest.getSearchText();
+        // 格式化数量
+        Integer count = pictureUploadByBatchRequest.getCount();
+        // 校验一次最多上传的图片数量
+        ThrowUtils.throwIf(count > 30, ErrorCode.PARAMS_ERROR, "最多 30 条");
+
+        String namePrefix = pictureUploadByBatchRequest.getNamePrefix();
+        // 如果名称前缀为空，则使用搜索文本作为前缀
+        if (StrUtil.isBlank(namePrefix)) namePrefix = searchText;
+
+        // 根据搜索关键词、数量和名称前缀获取图片列表
+        List<PictureUploadRequest> pictures = pexelsManager.getPictureByPexels(searchText, count, namePrefix);
+
+        int uploadCount = 0;
+        defaulCategory = "素材";
+        // 遍历图片列表，尝试上传每一张图片
+        for (PictureUploadRequest pictureUploadRequest : pictures) {
+
+            try {
+                // 调用上传图片的方法，并获取上传后的图片信息
+                PictureVO pictureVO = this.uploadPicture(pictureUploadRequest.getFileUrl(), pictureUploadRequest, loginUser);
+                // 记录成功上传图片的日志
+                log.info("图片上传成功, id = {}", pictureVO.getId());
+                // 更新上传成功图片的数量
+                uploadCount++;
+            } catch (Exception e) {
+                // 如果上传图片失败，则记录错误日志并继续上传下一张图片
+                log.error("图片上传失败", e);
+                continue;
+            }
+            // 如果上传成功的图片数量达到预期数量，则停止上传
+            if (uploadCount >= count) break;
+        }
+        // 返回成功上传的图片数量
+        return uploadCount;
+    }
+
 
     @Async
     @Override
