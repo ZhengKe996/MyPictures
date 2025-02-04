@@ -52,6 +52,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     private final UrlPictureUpload urlPictureUpload;
     private final UserService userService;
     private final CosManager cosManager;
+    private String defaulCategory = "素材";
 
     PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService, CosManager cosManager) {
         this.filePictureUpload = filePictureUpload;
@@ -111,7 +112,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
 
             // 构造要入库的图片信息
             Picture picture = new Picture();
-            picture.setCategory("素材");
+            picture.setCategory(defaulCategory);
             picture.setUrl(uploadPictureResult.getUrl());
             picture.setThumbnailUrl(uploadPictureResult.getThumbnailUrl());
             String picName = uploadPictureResult.getPicName();
@@ -402,6 +403,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         // 初始化上传成功的图片计数器
         int uploadCount = 0;
         // 遍历所有图片元素
+        defaulCategory = "素材";
         for (Element imgElement : imgElementList) {
             // 获取图片的URL
             String fileUrl = imgElement.attr("src");
@@ -455,5 +457,4 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             cosManager.deleteObject(thumbnailUrl);
         }
     }
-
 }
