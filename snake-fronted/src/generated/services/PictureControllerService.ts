@@ -128,7 +128,6 @@ export class PictureControllerService {
     });
   }
   /**
-   * @deprecated
    * listPictureVOByPage
    * @param pictureQueryRequest pictureQueryRequest
    * @returns BaseResponse_Page_PictureVO_ OK
@@ -194,6 +193,7 @@ export class PictureControllerService {
     });
   }
   /**
+   * @deprecated
    * listPictureVOByPageWithMultilevelCache
    * @param pictureQueryRequest pictureQueryRequest
    * @returns BaseResponse_Page_PictureVO_ OK
@@ -278,6 +278,7 @@ export class PictureControllerService {
    * @param fileUrl
    * @param id
    * @param picName
+   * @param spaceId
    * @returns BaseResponse_PictureVO_ OK
    * @returns any Created
    * @throws ApiError
@@ -286,7 +287,8 @@ export class PictureControllerService {
     file: Blob,
     fileUrl?: string,
     id?: string,
-    picName?: string
+    picName?: string,
+    spaceId?: number
   ): CancelablePromise<BaseResponse_PictureVO_ | any> {
     return __request(OpenAPI, {
       method: "POST",
@@ -295,6 +297,7 @@ export class PictureControllerService {
         fileUrl: fileUrl,
         id: id,
         picName: picName,
+        spaceId: spaceId,
       },
       formData: {
         file: file,

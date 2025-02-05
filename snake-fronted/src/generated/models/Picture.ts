@@ -19,6 +19,7 @@ export type Picture = {
     reviewStatus?: number;
     reviewTime?: string;
     reviewerId?: number;
+    spaceId?: number;
     tags?: string;
     thumbnailUrl?: string;
     updateTime?: string;

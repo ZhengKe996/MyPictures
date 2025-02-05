@@ -2,15 +2,17 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type Post = {
-    content?: string;
+export type Space = {
     createTime?: string;
-    favourNum?: number;
+    editTime?: string;
     id?: number;
     isDelete?: number;
-    tags?: string;
-    thumbNum?: number;
-    title?: string;
+    maxCount?: number;
+    maxSize?: number;
+    spaceLevel?: number;
+    spaceName?: string;
+    totalCount?: number;
+    totalSize?: number;
     updateTime?: string;
     userId?: number;
 };

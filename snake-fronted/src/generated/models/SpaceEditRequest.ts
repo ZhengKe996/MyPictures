@@ -2,9 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type PostAddRequest = {
-    content?: string;
-    tags?: Array<string>;
-    title?: string;
+export type SpaceEditRequest = {
+    id?: number;
+    spaceName?: string;
 };
 

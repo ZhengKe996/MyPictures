@@ -3,16 +3,16 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { UserVO } from './UserVO';
-export type PostVO = {
-    content?: string;
+export type SpaceVO = {
     createTime?: string;
-    favourNum?: number;
-    hasFavour?: boolean;
-    hasThumb?: boolean;
+    editTime?: string;
     id?: number;
-    tagList?: Array<string>;
-    thumbNum?: number;
-    title?: string;
+    maxCount?: number;
+    maxSize?: number;
+    spaceLevel?: number;
+    spaceName?: string;
+    totalCount?: number;
+    totalSize?: number;
     updateTime?: string;
     user?: UserVO;
     userId?: number;

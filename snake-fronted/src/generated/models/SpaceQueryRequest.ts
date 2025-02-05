@@ -2,13 +2,14 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { PostQueryRequest } from './PostQueryRequest';
-export type PostFavourQueryRequest = {
+export type SpaceQueryRequest = {
     current?: number;
+    id?: number;
     pageSize?: number;
-    postQueryRequest?: PostQueryRequest;
     sortField?: string;
     sortOrder?: string;
+    spaceLevel?: number;
+    spaceName?: string;
     userId?: number;
 };
 

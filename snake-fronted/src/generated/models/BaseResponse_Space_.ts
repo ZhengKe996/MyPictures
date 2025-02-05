@@ -2,10 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type PostEditRequest = {
-    content?: string;
-    id?: number;
-    tags?: Array<string>;
-    title?: string;
+import type { Space } from './Space';
+export type BaseResponse_Space_ = {
+    code?: number;
+    data?: Space;
+    message?: string;
 };
 

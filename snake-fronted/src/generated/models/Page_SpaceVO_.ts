@@ -2,11 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Post } from './Post';
-export type Page_Post_ = {
+import type { SpaceVO } from './SpaceVO';
+export type Page_SpaceVO_ = {
     current?: number;
     pages?: number;
-    records?: Array<Post>;
+    records?: Array<SpaceVO>;
     size?: number;
     total?: number;
 };

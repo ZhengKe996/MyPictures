@@ -2,10 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type PostUpdateRequest = {
-    content?: string;
-    id?: number;
-    tags?: Array<string>;
-    title?: string;
+export type SpaceLevel = {
+    maxCount?: number;
+    maxSize?: number;
+    text?: string;
+    value?: number;
 };
 

@@ -3,33 +3,35 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BaseResponse_boolean_ } from '../models/BaseResponse_boolean_';
+import type { BaseResponse_List_SpaceLevel_ } from '../models/BaseResponse_List_SpaceLevel_';
 import type { BaseResponse_long_ } from '../models/BaseResponse_long_';
-import type { BaseResponse_Page_Post_ } from '../models/BaseResponse_Page_Post_';
-import type { BaseResponse_Page_PostVO_ } from '../models/BaseResponse_Page_PostVO_';
-import type { BaseResponse_PostVO_ } from '../models/BaseResponse_PostVO_';
+import type { BaseResponse_Page_Space_ } from '../models/BaseResponse_Page_Space_';
+import type { BaseResponse_Page_SpaceVO_ } from '../models/BaseResponse_Page_SpaceVO_';
+import type { BaseResponse_Space_ } from '../models/BaseResponse_Space_';
+import type { BaseResponse_SpaceVO_ } from '../models/BaseResponse_SpaceVO_';
 import type { DeleteRequest } from '../models/DeleteRequest';
-import type { PostAddRequest } from '../models/PostAddRequest';
-import type { PostEditRequest } from '../models/PostEditRequest';
-import type { PostQueryRequest } from '../models/PostQueryRequest';
-import type { PostUpdateRequest } from '../models/PostUpdateRequest';
+import type { SpaceAddRequest } from '../models/SpaceAddRequest';
+import type { SpaceEditRequest } from '../models/SpaceEditRequest';
+import type { SpaceQueryRequest } from '../models/SpaceQueryRequest';
+import type { SpaceUpdateRequest } from '../models/SpaceUpdateRequest';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-export class PostControllerService {
+export class SpaceControllerService {
     /**
-     * addPost
-     * @param postAddRequest postAddRequest
+     * addSpace
+     * @param spaceAddRequest spaceAddRequest
      * @returns BaseResponse_long_ OK
      * @returns any Created
      * @throws ApiError
      */
-    public static addPostUsingPost(
-        postAddRequest: PostAddRequest,
+    public static addSpaceUsingPost(
+        spaceAddRequest: SpaceAddRequest,
     ): CancelablePromise<BaseResponse_long_ | any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/post/add',
-            body: postAddRequest,
+            url: '/api/space/add',
+            body: spaceAddRequest,
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,
@@ -38,18 +40,18 @@ export class PostControllerService {
         });
     }
     /**
-     * deletePost
+     * deleteSpace
      * @param deleteRequest deleteRequest
      * @returns BaseResponse_boolean_ OK
      * @returns any Created
      * @throws ApiError
      */
-    public static deletePostUsingPost(
+    public static deleteSpaceUsingPost(
         deleteRequest: DeleteRequest,
     ): CancelablePromise<BaseResponse_boolean_ | any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/post/delete',
+            url: '/api/space/delete',
             body: deleteRequest,
             errors: {
                 401: `Unauthorized`,
@@ -59,19 +61,19 @@ export class PostControllerService {
         });
     }
     /**
-     * editPost
-     * @param postEditRequest postEditRequest
+     * editSpace
+     * @param spaceEditRequest spaceEditRequest
      * @returns BaseResponse_boolean_ OK
      * @returns any Created
      * @throws ApiError
      */
-    public static editPostUsingPost(
-        postEditRequest: PostEditRequest,
+    public static editSpaceUsingPost(
+        spaceEditRequest: SpaceEditRequest,
     ): CancelablePromise<BaseResponse_boolean_ | any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/post/edit',
-            body: postEditRequest,
+            url: '/api/space/edit',
+            body: spaceEditRequest,
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,
@@ -80,17 +82,17 @@ export class PostControllerService {
         });
     }
     /**
-     * getPostVOById
+     * getSpaceById
      * @param id id
-     * @returns BaseResponse_PostVO_ OK
+     * @returns BaseResponse_Space_ OK
      * @throws ApiError
      */
-    public static getPostVoByIdUsingGet(
+    public static getSpaceByIdUsingGet(
         id?: number,
-    ): CancelablePromise<BaseResponse_PostVO_> {
+    ): CancelablePromise<BaseResponse_Space_> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/post/get/vo',
+            url: '/api/space/get',
             query: {
                 'id': id,
             },
@@ -102,19 +104,20 @@ export class PostControllerService {
         });
     }
     /**
-     * listPostByPage
-     * @param postQueryRequest postQueryRequest
-     * @returns BaseResponse_Page_Post_ OK
-     * @returns any Created
+     * getSpaceVOById
+     * @param id id
+     * @returns BaseResponse_SpaceVO_ OK
      * @throws ApiError
      */
-    public static listPostByPageUsingPost(
-        postQueryRequest: PostQueryRequest,
-    ): CancelablePromise<BaseResponse_Page_Post_ | any> {
+    public static getSpaceVoByIdUsingGet(
+        id?: number,
+    ): CancelablePromise<BaseResponse_SpaceVO_> {
         return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/post/list/page',
-            body: postQueryRequest,
+            method: 'GET',
+            url: '/api/space/get/vo',
+            query: {
+                'id': id,
+            },
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,
@@ -123,19 +126,14 @@ export class PostControllerService {
         });
     }
     /**
-     * listPostVOByPage
-     * @param postQueryRequest postQueryRequest
-     * @returns BaseResponse_Page_PostVO_ OK
-     * @returns any Created
+     * listSpaceLevel
+     * @returns BaseResponse_List_SpaceLevel_ OK
      * @throws ApiError
      */
-    public static listPostVoByPageUsingPost(
-        postQueryRequest: PostQueryRequest,
-    ): CancelablePromise<BaseResponse_Page_PostVO_ | any> {
+    public static listSpaceLevelUsingGet(): CancelablePromise<BaseResponse_List_SpaceLevel_> {
         return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/post/list/page/vo',
-            body: postQueryRequest,
+            method: 'GET',
+            url: '/api/space/list/level',
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,
@@ -144,19 +142,19 @@ export class PostControllerService {
         });
     }
     /**
-     * listMyPostVOByPage
-     * @param postQueryRequest postQueryRequest
-     * @returns BaseResponse_Page_PostVO_ OK
+     * listSpaceByPage
+     * @param spaceQueryRequest spaceQueryRequest
+     * @returns BaseResponse_Page_Space_ OK
      * @returns any Created
      * @throws ApiError
      */
-    public static listMyPostVoByPageUsingPost(
-        postQueryRequest: PostQueryRequest,
-    ): CancelablePromise<BaseResponse_Page_PostVO_ | any> {
+    public static listSpaceByPageUsingPost(
+        spaceQueryRequest: SpaceQueryRequest,
+    ): CancelablePromise<BaseResponse_Page_Space_ | any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/post/my/list/page/vo',
-            body: postQueryRequest,
+            url: '/api/space/list/page',
+            body: spaceQueryRequest,
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,
@@ -165,19 +163,19 @@ export class PostControllerService {
         });
     }
     /**
-     * searchPostVOByPage
-     * @param postQueryRequest postQueryRequest
-     * @returns BaseResponse_Page_PostVO_ OK
+     * listSpaceVOByPage
+     * @param spaceQueryRequest spaceQueryRequest
+     * @returns BaseResponse_Page_SpaceVO_ OK
      * @returns any Created
      * @throws ApiError
      */
-    public static searchPostVoByPageUsingPost(
-        postQueryRequest: PostQueryRequest,
-    ): CancelablePromise<BaseResponse_Page_PostVO_ | any> {
+    public static listSpaceVoByPageUsingPost(
+        spaceQueryRequest: SpaceQueryRequest,
+    ): CancelablePromise<BaseResponse_Page_SpaceVO_ | any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/post/search/page/vo',
-            body: postQueryRequest,
+            url: '/api/space/list/page/vo',
+            body: spaceQueryRequest,
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,
@@ -186,19 +184,19 @@ export class PostControllerService {
         });
     }
     /**
-     * updatePost
-     * @param postUpdateRequest postUpdateRequest
+     * updateSpace
+     * @param spaceUpdateRequest spaceUpdateRequest
      * @returns BaseResponse_boolean_ OK
      * @returns any Created
      * @throws ApiError
      */
-    public static updatePostUsingPost(
-        postUpdateRequest: PostUpdateRequest,
+    public static updateSpaceUsingPost(
+        spaceUpdateRequest: SpaceUpdateRequest,
     ): CancelablePromise<BaseResponse_boolean_ | any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/post/update',
-            body: postUpdateRequest,
+            url: '/api/space/update',
+            body: spaceUpdateRequest,
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,
