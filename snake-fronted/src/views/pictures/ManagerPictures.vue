@@ -337,8 +337,10 @@ interface PictureInfoInterface {
   category?: string;
   id?: number;
   name?: string;
+  userId?: string;
   picFormat?: string;
-  userId?: number;
+  tags?: Array<string>;
+  spaceId?: string;
 }
 
 // 分页请求数据

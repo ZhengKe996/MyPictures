@@ -40,6 +40,12 @@
             class="bg-white rounded-xl shadow-sm p-6 animate-fade-in-up animate-delay-200"
           ></div> -->
         </div>
+        <Pagination
+          :total="total"
+          :current="PageInfo.current"
+          :page-size="PageInfo.pageSize"
+          @change="ChangeCurrentPageHandle"
+        />
       </div>
       <div
         v-else
@@ -74,17 +80,23 @@
 </template>
 
 <script setup lang="ts">
-import { GetSpaceByUserId } from "@/services";
+import { GetPictureList, GetSpaceByUserId } from "@/services";
 import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
 import { onMounted, ref, computed } from "vue";
 import Button from "@/lib/Button/Button.vue";
+import { Message } from "@/lib/Message";
+import type { PictureType } from "@/config";
+import { useThrottleFn } from "@vueuse/core";
+import dayjs from "dayjs";
+import Pagination from "@/lib/Pagination";
 
 const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
 const isExit = ref(false);
 const spaceId = ref<string>("");
+const total = ref<number>(0); // 题目总数
 
 // 获取用户名
 const username = computed(() => userStore.getUserName || "未知用户");
@@ -92,10 +104,18 @@ const username = computed(() => userStore.getUserName || "未知用户");
 const CheckSpace = async () => {
   const userId = userStore.getUserID;
   const { data, code } = await GetSpaceByUserId(userId);
-  console.log("CheckSpace", data);
-  if (code !== 0 && data === null) isExit.value = false;
-  else isExit.value = true;
-  if (data && data.id) spaceId.value = data.id;
+  if (code !== 0 && data === null) {
+    isExit.value = false;
+  } else {
+    isExit.value = true;
+    if (data && data.id) {
+      spaceId.value = data.id;
+      // 更新 PageInfo 中的 spaceId
+      PageInfo.value.spaceId = data.id;
+      // 在确认空间存在后加载列表
+      await LoadList();
+    }
+  }
 };
 onMounted(() => CheckSpace());
 
@@ -103,4 +123,52 @@ const handleCreateSpace = () => router.push("/add/space");
 
 const handleCreatePhoto = () =>
   router.push(`/add/picture?spaceId=${spaceId.value}`);
+
+interface SpaceInfoInterface {
+  current: number;
+  pageSize: number;
+  category?: string;
+  id?: number;
+  name?: string;
+  userId?: string;
+  picFormat?: string;
+  tags?: Array<string>;
+  spaceId?: string;
+}
+const PageInfo = ref<SpaceInfoInterface>({
+  current: 1,
+  pageSize: 20,
+  spaceId: spaceId.value,
+  userId: userStore.getUserID,
+});
+const ChangeCurrentPageHandle = (current: number) =>
+  (PageInfo.value = { ...PageInfo.value, current: current });
+const PictureListInfo = ref<PictureType[]>([]);
+
+const LoadList = useThrottleFn(async () => {
+  console.log("LoadList", PageInfo.value);
+  const { data, message, code } = await GetPictureList(PageInfo.value);
+  if (code === 0 && data) {
+    console.log(data);
+    total.value = Number(data.total) ?? 0;
+
+    const formattedRecords = Array.isArray(data.records)
+      ? formatRecords(data.records)
+      : [];
+
+    if (Number(PageInfo.value.current) === 1) {
+      PictureListInfo.value = formattedRecords;
+    } else {
+      PictureListInfo.value.push(...formattedRecords);
+    }
+  } else Message.error(`获取失败, 原因: ${message}`);
+}, 3000);
+
+const formatRecords = (records: PictureType[]) => {
+  return records.map((item: PictureType) => ({
+    ...item,
+    createTime: dayjs(item.createTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
+    editTime: dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
+  }));
+};
 </script>

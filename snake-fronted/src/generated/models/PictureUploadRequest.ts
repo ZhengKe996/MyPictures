@@ -6,5 +6,5 @@ export type PictureUploadRequest = {
   fileUrl?: string;
   id?: string;
   picName?: string;
-  spaceId?: number;
+  spaceId?: string;
 };

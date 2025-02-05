@@ -143,8 +143,8 @@ interface PictureInfoInterface {
   category?: string;
   id?: number;
   name?: string;
+  userId?: string;
   picFormat?: string;
-  userId?: number;
   tags?: Array<string>;
 }
 const PageInfo = ref<PictureInfoInterface>({

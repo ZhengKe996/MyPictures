@@ -161,28 +161,31 @@ const handleTabChange = (tab: TabItem) => (activeTab.value = tab.name);
  * @param {string} url - 要上传的图片的 URL。
  */
 const handleUpload = async (url: string) => {
-  // 开始上传前设置加载状态为 true
   loadding.value = true;
   try {
-    // 调用 UploadImageFileByUrl 函数上传图片
-    const { data, code, message } = await UploadImageFileByUrl({
-      fileUrl: url,
+    const id = picture.value.id ? String(picture.value.id) : undefined;
+    const { data, code, message } = await UploadImageFileByUrl(url, {
+      id: id,
+      spaceId: spaceID.value,
     });
-    // 如果上传成功且返回了数据
     if (code === 0 && data) {
-      // 更新图片信息
-      picture.value = pictureForm.value = data;
-      // 更新图片 URL
+      let temp = data;
+      if (id)
+        temp = {
+          ...data,
+          name: picture.value.name,
+          introduction: picture.value.introduction,
+          category: picture.value.category,
+          tags: picture.value.tags,
+        };
+      picture.value = pictureForm.value = temp;
       imageUrl.value = data.url;
     } else {
-      // 如果上传失败，抛出错误
       throw new Error(message || "上传失败");
     }
   } catch (error) {
-    // 显示错误消息
     Message.error(`上传失败, ${error}`);
   } finally {
-    // 无论成功或失败，上传完成后设置加载状态为 false
     loadding.value = false;
   }
 };
@@ -207,7 +210,14 @@ const uploadFileHandle = async (file: File) => {
     });
     if (code === 0 && data) {
       let temp = data;
-      if (id) temp = { ...data, name: picture.value.name };
+      if (id)
+        temp = {
+          ...data,
+          name: picture.value.name,
+          introduction: picture.value.introduction,
+          category: picture.value.category,
+          tags: picture.value.tags,
+        };
       picture.value = pictureForm.value = temp;
       Message.success("上传成功");
     } else {

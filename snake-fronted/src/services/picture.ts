@@ -10,6 +10,14 @@ interface UploadImageParams {
   spaceId?: string;
 }
 
+// Add new interface for URL upload
+interface UploadImageUrlParams {
+  fileUrl: string;
+  id?: string;
+  picName?: string;
+  spaceId?: string;
+}
+
 /**
  * 异步上传图像文件。
  *
@@ -71,21 +79,22 @@ export const EditPictureInfo = async (pictureEditRequest: PictureEditType) => {
 };
 
 /**
- * 获取图片列表(缓存)
+ * 获取图片列表
  *
- * 此函数通过调用Service的listPictureVoByPageUsingPost方法来获取图片列表
- * 它接受一个包含多种可选参数的对象，以满足不同条件下的图片查询需求
+ * 此函数通过POST请求从服务端获取图片列表支持分页查询和多种缓存策略
+ * 当前实现的是不使用缓存的版本，可以根据需要启用不同的缓存策略
  *
- * @param form 包含分页和查询条件的表单对象
- * @param form.current 当前页码，用于分页查询
- * @param form.pageSize 每页记录数，与current一起使用进行分页
- * @param form.category 可选参数，图片类别，用于筛选特定类别的图片
- * @param form.id 可选参数，图片ID，用于查询特定的图片
- * @param form.name 可选参数，图片名称，用于模糊匹配图片名称
- * @param form.userId 可选参数，用户ID，用于查询特定用户相关的图片
- * @param form.picFormat 可选参数，图片格式，用于筛选特定格式的图片
- * @param form.tags 可选参数，标签数组，用于筛选包含特定标签的图片
- * @returns 返回一个Promise，解析为图片列表
+ * @param form 包含查询参数的对象
+ * @param form.current 当前页码
+ * @param form.pageSize 每页记录数
+ * @param form.category 图片类别（可选）
+ * @param form.id 图片ID（可选）
+ * @param form.name 图片名称（可选）
+ * @param form.userId 用户ID（可选）
+ * @param form.picFormat 图片格式（可选）
+ * @param form.tags 图片标签数组（可选）
+ * @param form.spaceId 空间ID（可选）
+ * @returns 返回一个Promise对象，解析为图片列表
  */
 export const GetPictureList = async (form: {
   current: number;
@@ -93,14 +102,19 @@ export const GetPictureList = async (form: {
   category?: string;
   id?: number;
   name?: string;
-  userId?: number;
+  userId?: string;
   picFormat?: string;
   tags?: Array<string>;
+  spaceId?: string;
 }) => {
-  return await Service.listPictureVoByPageUsingPost(form); // 不使用缓存
-  // return await Service.listPictureVoByPageWithCacheUsingPost(form); // 使用分布式缓存
-  // return await Service.listPictureVoByPageWithLocalCacheUsingPost(form); // 使用本地缓存
-  // return await Service.listPictureVoByPageWithMultilevelCacheUsingPost(form); // 使用多级缓存
+  // 不使用缓存
+  return await Service.listPictureVoByPageUsingPost(form);
+  // 使用分布式缓存
+  // return await Service.listPictureVoByPageWithCacheUsingPost(form);
+  // 使用本地缓存
+  // return await Service.listPictureVoByPageWithLocalCacheUsingPost(form);
+  // 使用多级缓存
+  // return await Service.listPictureVoByPageWithMultilevelCacheUsingPost(form);
 };
 
 /**
@@ -139,19 +153,24 @@ export const AdminReviewPicture = async (form: {
 /**
  * 通过URL上传图片文件
  *
- * 此函数用于通过URL地址上传图片到服务器它接受一个包含图片URL的对象作为参数，
- * 并可选地接受一个ID参数，用于指定与上传图片相关的实体ID
- *
- * @param form - 包含上传图片所需信息的对象
- * @param form.fileUrl - 图片的URL地址，这是上传图片的来源
- * @param form.id - （可选）与上传图片相关的实体ID，用于在服务器端关联图片和实体
- * @returns 返回一个Promise，表示上传图片的异步操作
+ * @param file 图片URL地址
+ * @param params 上传参数配置
+ * @param params.id 可选，图片ID，用于更新现有图片
+ * @param params.picName 可选，图片名称
+ * @param params.spaceId 可选，空间ID
+ * @returns Promise 包含上传响应结果
  */
-export const UploadImageFileByUrl = async (form: {
-  fileUrl: string;
-  id?: string;
-}) => {
-  return await Service.uploadPictureByUrlUsingPost(form);
+export const UploadImageFileByUrl = async (
+  fileUrl: string,
+  params: Partial<Omit<UploadImageUrlParams, "fileUrl">> = {}
+) => {
+  const { id, picName, spaceId } = params;
+  return await Service.uploadPictureByUrlUsingPost({
+    fileUrl,
+    id,
+    picName,
+    spaceId,
+  });
 };
 
 /**
