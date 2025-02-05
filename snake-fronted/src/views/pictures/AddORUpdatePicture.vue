@@ -150,6 +150,7 @@ const delayTime = 500;
 
 const picture = ref<PictureType>(DefaultPictureInfo);
 const pictureForm = ref<PictureEditType>(DefaultPictureEditInfo);
+const spaceID = ref<string>("");
 
 const handleTabChange = (tab: TabItem) => (activeTab.value = tab.name);
 
@@ -198,9 +199,16 @@ const { id } = defineProps<{
 const uploadFileHandle = async (file: File) => {
   loadding.value = true;
   try {
-    const { data, code, message } = await UploadImageFile(file);
+    console.log("uploadFileHandle", spaceID.value);
+    const id = picture.value.id ? String(picture.value.id) : undefined;
+    const { data, code, message } = await UploadImageFile(file, {
+      id: id,
+      spaceId: spaceID.value,
+    });
     if (code === 0 && data) {
-      picture.value = pictureForm.value = data;
+      let temp = data;
+      if (id) temp = { ...data, name: picture.value.name };
+      picture.value = pictureForm.value = temp;
       Message.success("上传成功");
     } else {
       Message.error(`上传失败, ${message}`);
@@ -300,5 +308,4 @@ const handleSubmit = async () => {
     router.push(`/detail/picture/${pictureId}`);
   } else Message.error(`失败, ${message}`);
 };
-const spaceID = ref<string>("");
 </script>

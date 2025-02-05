@@ -3,7 +3,7 @@ export const DefaultPictureInfo = {
   category: "",
   createTime: "",
   editTime: "",
-  id: -1,
+  id: undefined,
   introduction: "",
   name: "",
   permissionList: [],
@@ -22,7 +22,7 @@ export const DefaultPictureInfo = {
 };
 
 export const DefaultPictureEditInfo = {
-  id: -1,
+  id: undefined,
   name: "",
   introduction: "",
   category: "",

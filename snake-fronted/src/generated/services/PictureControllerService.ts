@@ -288,7 +288,7 @@ export class PictureControllerService {
     fileUrl?: string,
     id?: string,
     picName?: string,
-    spaceId?: number
+    spaceId?: string
   ): CancelablePromise<BaseResponse_PictureVO_ | any> {
     return __request(OpenAPI, {
       method: "POST",

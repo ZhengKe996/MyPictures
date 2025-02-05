@@ -1,18 +1,38 @@
 import { PictureControllerService as Service } from "@/generated";
 import { type PictureEditType } from "@/config";
 
+// Add this interface near the top of the file
+interface UploadImageParams {
+  file: Blob;
+  fileUrl?: string;
+  id?: string;
+  picName?: string;
+  spaceId?: string;
+}
+
 /**
  * 异步上传图像文件。
  *
- * 该函数使用 `Service.uploadPictureUsingPost` 方法来上传图像。注释描述了函数的目的、参数和返回值类型，
- * 而不涉及底层实现细节。
- *
- * @param file 要上传的图像文件。必须是 File 对象的实例。
- * @param id 可选。当id不为空时，为更新图片信息，否则为上传图片。
- * @returns 返回一个 Promise，在图像成功上传后解析。具体的返回类型取决于 `Service.uploadPictureUsingPost` 方法的实现。
+ * @param file 要上传的图像文件
+ * @param params 上传参数配置
+ * @param params.fileUrl 可选，文件URL
+ * @param params.id 可选，图片ID，用于更新现有图片
+ * @param params.picName 可选，图片名称
+ * @param params.spaceId 可选，空间ID
+ * @returns Promise 包含上传响应结果
  */
-export const UploadImageFile = async (file: File, id?: string) => {
-  return await Service.uploadPictureUsingPost(file, id);
+export const UploadImageFile = async (
+  file: File,
+  params: Partial<Omit<UploadImageParams, "file">> = {}
+) => {
+  const { fileUrl, id, picName, spaceId } = params;
+  return await Service.uploadPictureUsingPost(
+    file,
+    fileUrl,
+    id,
+    picName,
+    spaceId
+  );
 };
 
 /**
