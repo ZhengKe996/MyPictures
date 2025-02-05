@@ -127,7 +127,7 @@
               <button
                 type="button"
                 class="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-                @click=""
+                @click="item.id && handleDelete(item.id)"
               >
                 删除
                 <i class="i-tabler:layout-grid-remove" size-5 />
@@ -174,6 +174,51 @@
       :page-size="PageInfo.pageSize"
       @change="ChangeCurrentPageHandle"
     />
+
+    <!-- 删除确认对话框 -->
+    <Dialog
+      v-model="showDeleteDialog"
+      title="删除确认"
+      :confirmText="'删除'"
+      :cancelText="'取消删除'"
+      :confirmButtonColor="'red'"
+      :cancelButtonColor="'gray'"
+      :confirmHandler="confirmDelete"
+      :cancelHandler="handleCancelDelete"
+    >
+      <div class="space-y-4">
+        <p class="text-gray-600 dark:text-gray-300">
+          确定要删除此用户吗？删除后该用户的所有数据都将被删除，此操作不可恢复。
+        </p>
+        <div
+          v-if="currentItem"
+          class="bg-gray-50 dark:bg-zinc-700 p-4 rounded-lg space-y-2"
+        >
+          <div class="flex items-center space-x-4">
+            <img
+              :src="currentItem.userAvatar"
+              class="w-12 h-12 rounded-full"
+              alt="用户头像"
+            />
+            <div>
+              <p class="font-medium text-gray-900 dark:text-gray-100">
+                {{ currentItem.userName }}
+              </p>
+              <p class="text-sm text-gray-500">
+                账号：{{ currentItem.userAccount }}
+              </p>
+            </div>
+          </div>
+          <div class="text-sm text-gray-500">
+            <p>
+              用户角色：{{
+                currentItem.userRole === ACCESSENUM.ADMIN ? "ADMIN" : "普通用户"
+              }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </Dialog>
   </div>
 </template>
 
@@ -189,6 +234,8 @@ import Badges from "@/lib/Badges";
 import Pagination from "@/lib/Pagination";
 import { ACCESSENUM } from "@/access";
 import Button from "@/lib/Button";
+import Dialog from "@/lib/Dialog/Dialog.vue";
+import { DeleteUserById } from "@/services";
 
 const total = ref<number>(0); // 题目总数
 interface UserInfoInterface {
@@ -238,6 +285,45 @@ watchEffect(() => LoadList());
 
 const handleAdd = () => {
   console.log("添加新空间");
+};
+
+const showDeleteDialog = ref(false);
+const currentItem = ref<UserType | null>(null);
+
+// Update handleDelete method
+const handleDelete = (id: string) => {
+  const item = ListInfo.value.find((item) => item.id === id);
+  if (item) {
+    currentItem.value = item;
+    showDeleteDialog.value = true;
+  }
+};
+
+// Add confirm delete method
+const confirmDelete = async () => {
+  if (!currentItem.value?.id) return;
+
+  try {
+    const { code } = await DeleteUserById(currentItem.value.id);
+    if (code === 0) {
+      Message.success("删除成功");
+      await LoadList();
+    } else {
+      Message.error("删除失败");
+    }
+  } catch (error) {
+    Message.error("删除操作发生错误");
+  } finally {
+    currentItem.value = null;
+    showDeleteDialog.value = false;
+  }
+};
+
+// Add cancel delete method
+const handleCancelDelete = () => {
+  showDeleteDialog.value = false;
+  currentItem.value = null;
+  Message.warning("已取消删除操作");
 };
 </script>
 

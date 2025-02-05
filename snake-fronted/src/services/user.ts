@@ -95,3 +95,17 @@ export const AdminGetUserList = async (form: {
 }) => {
   return await UserControllerService.listUserVoByPageUsingPost(form);
 };
+
+/**
+ * 异步删除指定ID的用户。
+ *
+ * 该函数调用 `UserControllerService` 类中的 `deleteUserUsingPost` 方法，
+ * 通过传递用户ID作为参数来执行删除操作。此函数的设计旨在提供一种简单且异步的方式删除用户，
+ * 强调易用性和代码可读性。
+ *
+ * @param id 要删除用户的唯一标识符，格式为字符串。
+ * @returns 返回一个 Promise，解析为删除操作的结果。
+ */
+export const DeleteUserById = async (id: string) => {
+  return await UserControllerService.deleteUserUsingPost({ id });
+};

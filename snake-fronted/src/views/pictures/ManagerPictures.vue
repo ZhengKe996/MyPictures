@@ -271,6 +271,42 @@
       :page-size="PageInfo.pageSize"
       @change="ChangeCurrentPageHandle"
     />
+
+    <!-- 删除确认对话框 -->
+    <Dialog
+      v-model="showDeleteDialog"
+      title="删除确认"
+      :confirmText="'删除'"
+      :cancelText="'取消删除'"
+      :confirmButtonColor="'red'"
+      :cancelButtonColor="'gray'"
+      :confirmHandler="confirmDelete"
+      :cancelHandler="handleCancelDelete"
+    >
+      <div class="space-y-4">
+        <p class="text-gray-600 dark:text-gray-300">
+          确定要删除这张图片吗？此操作不可恢复。
+        </p>
+        <div
+          v-if="currentItem"
+          class="flex items-center space-x-4 bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg"
+        >
+          <img
+            :src="currentItem.thumbnailUrl ?? currentItem.url"
+            class="w-16 h-16 object-cover rounded"
+            alt="预览图"
+          />
+          <div>
+            <p class="font-medium text-gray-900 dark:text-gray-100">
+              {{ currentItem.name }}
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              创建于 {{ currentItem.createTime }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </Dialog>
   </div>
 </template>
 
@@ -280,7 +316,7 @@ import Pagination from "@/lib/Pagination";
 import { PictureManagerColumns, type PictureType } from "@/config";
 import { ref, watchEffect, onMounted } from "vue";
 import { useThrottleFn } from "@vueuse/core";
-import { GetPictureList } from "@/services";
+import { GetPictureList, DeletePictureById } from "@/services";
 import { Message } from "@/lib/Message";
 import { useFullscreen } from "@vueuse/core";
 import dayjs from "dayjs";
@@ -288,6 +324,7 @@ import Button from "@/lib/Button";
 import GenericTooltip from "@/lib/Tooltip";
 import router from "@/router";
 import { DefaultPictureTexts } from "@/config";
+import Dialog from "@/lib/Dialog/Dialog.vue";
 
 const total = ref<number>(0); // 题目总数
 
@@ -402,10 +439,44 @@ const DetailPicture = (id: number | string) =>
 
 // 添加删除处理函数
 const handleDelete = (id: number | string) => {
-  // TODO: 实现删除逻辑
-  console.log("Delete item:", id);
+  const item = ListInfo.value.find((item) => item.id === id);
+  if (item) {
+    currentItem.value = item;
+    showDeleteDialog.value = true;
+  }
 };
 const handleAdd = () => router.push(`/add/picture`);
+
+// Add dialog control states
+const showDeleteDialog = ref(false);
+const currentItem = ref<PictureType | null>(null);
+
+// Add confirm delete method
+const confirmDelete = async () => {
+  if (!currentItem.value?.id) return;
+
+  try {
+    const { code } = await DeletePictureById(currentItem.value.id.toString());
+    if (code === 0) {
+      Message.success("删除成功");
+      await LoadList();
+    } else {
+      Message.error("删除失败");
+    }
+  } catch (error) {
+    Message.error("删除操作发生错误");
+  } finally {
+    currentItem.value = null;
+    showDeleteDialog.value = false;
+  }
+};
+
+// Add cancel delete method
+const handleCancelDelete = () => {
+  showDeleteDialog.value = false;
+  currentItem.value = null;
+  Message.warning("已取消删除操作");
+};
 </script>
 
 <style scoped>
