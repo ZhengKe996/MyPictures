@@ -1,5 +1,7 @@
 <template>
-  <div class="w-full h-full animated animated-duration-500 animated-fade-in">
+  <div
+    class="w-full h-full animate-fade-in animate-duration-500 animate-ease-out"
+  >
     <div class="flex w-full mb-4 flex-1 justify-center items-center">
       <div class="mx-auto w-full max-w-xl flex justify-start items-center">
         <div class="flex w-full justify-start items-center">
@@ -58,18 +60,39 @@
       finished-text="我是有底线的"
     >
       <waterfall
-        class="px-1 w-full"
+        class="px-1 w-full animate-fade-in animate-duration-300 animate-ease-out"
         :data="PictureListInfo"
         nodeKey="id"
         :column="4"
         :picturePreReading="false"
       >
         <template v-slot="{ item, width }">
-          <div class="overflow-hidden rounded-lg bg-white shadow-sm">
+          <div
+            class="overflow-hidden rounded-lg bg-white shadow-sm animate-fade-in-up animate-duration-500"
+          >
             <Item :picture="(item as PictureType)" :width="width"></Item>
           </div>
         </template>
       </waterfall>
+
+      <!-- 添加空状态展示 -->
+      <template v-if="!loading && PictureListInfo.length === 0">
+        <div
+          class="flex flex-col items-center justify-center py-16 space-y-4 animate-fade-in"
+        >
+          <div
+            class="rounded-full bg-gray-50 p-4 animate-hover-scale animate-duration-300"
+          >
+            <i class="i-tabler:photo-off size-8 text-gray-400"></i>
+          </div>
+          <div class="text-center">
+            <h3 class="text-base font-semibold text-gray-900 mb-1">
+              暂无图片数据
+            </h3>
+            <p class="text-sm text-gray-500 mb-4">请尝试更换搜索条件</p>
+          </div>
+        </div>
+      </template>
     </infinite>
   </div>
 </template>

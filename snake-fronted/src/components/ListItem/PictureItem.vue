@@ -71,7 +71,8 @@ import { useFullscreen } from "@vueuse/core";
 import { type PictureType } from "@/config";
 import Button from "@/lib/Button";
 import { randomRGB } from "@/utils/color";
-import router from "@/router";
+import { useRouter } from "vue-router";
+const router = useRouter();
 const { picture, width } = defineProps<{
   picture: PictureType;
   width?: number;

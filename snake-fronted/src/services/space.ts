@@ -60,3 +60,18 @@ export const AddORUpdateSpace = async (form: {
 export const GetSpaceInfoById = async (spaceId: string) => {
   return await Service.getSpaceVoByIdUsingGet(spaceId);
 };
+
+/**
+ * 根据空间ID异步删除空间。
+ *
+ * 该函数通过调用服务层的deleteSpaceUsingPost方法，使用POST请求方式删除指定ID的空间。
+ * 封装了删除操作，使代码更具可读性和可维护性。
+ *
+ * @param spaceId 要删除的空间的唯一标识符。
+ *        这是一个字符串，唯一标识了要删除的空间。
+ * @returns 返回一个Promise对象，表示异步操作已完成。
+ *          该操作没有直接的返回结果。
+ */
+export const DeleteSpaceById = async (spaceId: string) => {
+  return await Service.deleteSpaceUsingPost({ id: spaceId });
+};

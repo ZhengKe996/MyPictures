@@ -80,9 +80,11 @@ import { ref, reactive, computed, onMounted, nextTick } from "vue";
 import Button from "@/lib/Button";
 import { AddORUpdateSpace } from "@/services";
 import { Message } from "@/lib/Message";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { GetSpaceInfoById } from "@/services";
+
 const route = useRoute();
+const router = useRouter();
 const { id } = defineProps<{
   id?: string;
 }>();
@@ -170,7 +172,6 @@ const handleSubmit = async () => {
   const routeId = Array.isArray(route.params.id)
     ? route.params.id[0]
     : route.params.id;
-  console.log("handleSubmit", routeId);
 
   // 如果表单验证通过，则执行添加或更新空间的操作
   if (validateForm()) {
@@ -186,6 +187,7 @@ const handleSubmit = async () => {
     // 根据返回的code和data，显示相应的成功或错误消息
     if (code === 0 && data) Message.success("Space created successfully");
     else Message.error(message || "Failed to create space");
+    router.push("/mamager/space");
   }
 };
 

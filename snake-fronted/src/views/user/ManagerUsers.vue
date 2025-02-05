@@ -68,67 +68,101 @@
     </div>
     <TableList :columns="UserManagerColumns">
       <template #tr>
-        <tr v-for="item in ListInfo" :key="item.id" class="even:bg-gray-50">
-          <td
-            class="whitespace-nowrap py-4 pl-4 px-3 text-sm font-medium text-gray-900 sm:pl-3 text-center"
-          >
-            {{ item.id }}
-          </td>
-          <td
-            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
-          >
-            {{ item.userAccount }}
-          </td>
-          <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 max-w-12 overflow-hidden text-center"
-          >
-            {{ item.userName }}
-          </td>
-          <td
-            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
-          >
-            <Badges
-              :text="item.userRole === ACCESSENUM.ADMIN ? 'ADMIN' : '普通用户'"
-              :color="item.userRole === ACCESSENUM.ADMIN ? 'red' : 'blue'"
-            ></Badges>
-          </td>
-          <td
-            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
-          >
-            <img
-              class="inline-block size-14 rounded-md max-w-8 max-h-8"
-              :src="item.userAvatar ? item.userAvatar : DefaultUserAvatar"
-              alt=""
-            />
-          </td>
-          <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
-          >
-            {{ item.userProfile ? item.userProfile : "NULL" }}
-          </td>
-          <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
-          >
-            <button
-              type="button"
-              class="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
-              @click=""
+        <template v-if="ListInfo.length">
+          <tr v-for="item in ListInfo" :key="item.id" class="even:bg-gray-50">
+            <td
+              class="whitespace-nowrap py-4 pl-4 px-3 text-sm font-medium text-gray-900 sm:pl-3 text-center"
             >
-              编辑
-              <i class="i-tabler:edit size-5" />
-            </button>
-          </td>
-          <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
-          >
-            <button
-              type="button"
-              class="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-              @click=""
+              {{ item.id }}
+            </td>
+            <td
+              class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
             >
-              删除
-              <i class="i-tabler:layout-grid-remove" size-5 />
-            </button>
+              {{ item.userAccount }}
+            </td>
+            <td
+              class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 max-w-12 overflow-hidden text-center"
+            >
+              {{ item.userName }}
+            </td>
+            <td
+              class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
+            >
+              <Badges
+                :text="
+                  item.userRole === ACCESSENUM.ADMIN ? 'ADMIN' : '普通用户'
+                "
+                :color="item.userRole === ACCESSENUM.ADMIN ? 'red' : 'blue'"
+              ></Badges>
+            </td>
+            <td
+              class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
+            >
+              <img
+                class="inline-block size-14 rounded-md max-w-8 max-h-8"
+                :src="item.userAvatar ? item.userAvatar : DefaultUserAvatar"
+                alt=""
+              />
+            </td>
+            <td
+              class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
+            >
+              {{ item.userProfile ? item.userProfile : "NULL" }}
+            </td>
+            <td
+              class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
+            >
+              <button
+                type="button"
+                class="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                @click=""
+              >
+                编辑
+                <i class="i-tabler:edit size-5" />
+              </button>
+            </td>
+            <td
+              class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
+            >
+              <button
+                type="button"
+                class="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                @click=""
+              >
+                删除
+                <i class="i-tabler:layout-grid-remove" size-5 />
+              </button>
+            </td>
+          </tr>
+        </template>
+        <tr v-else>
+          <td :colspan="UserManagerColumns.length" class="py-16">
+            <div
+              class="flex flex-col items-center justify-center space-y-4 animate-fade-in animate-duration-500 animate-ease-out"
+            >
+              <div
+                class="rounded-full bg-gray-50 p-4 animate-hover-scale animate-duration-300"
+              >
+                <i class="i-tabler:users-off size-8 text-gray-400"></i>
+              </div>
+              <div class="text-center">
+                <h3 class="text-base font-semibold text-gray-900 mb-1">
+                  暂无用户数据
+                </h3>
+                <p class="text-sm text-gray-500 mb-4">
+                  点击下方按钮添加新的用户
+                </p>
+                <Button
+                  type="primary"
+                  size="sm"
+                  :icon="'i-tabler:plus'"
+                  class="animate-hover-scale animate-duration-300"
+                  @click="handleAdd"
+                >
+                  添加新用户
+                </Button>
+              </div>
+            </div>
           </td>
         </tr>
       </template>
@@ -206,3 +240,20 @@ const handleAdd = () => {
   console.log("添加新空间");
 };
 </script>
+
+<style scoped>
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>

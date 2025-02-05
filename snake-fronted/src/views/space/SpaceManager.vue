@@ -110,67 +110,99 @@
     </div>
     <TableList :columns="SpaceManagerColumns">
       <template #tr>
-        <tr v-for="item in ListInfo" :key="item.id" class="even:bg-gray-50">
-          <td
-            class="whitespace-nowrap py-4 pl-4 px-3 text-sm font-medium text-gray-900 sm:pl-3 text-center"
-          >
-            {{ item.id }}
-          </td>
-          <td
-            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
-          >
-            {{ item.spaceName }}
-          </td>
-          <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 max-w-12 overflow-hidden text-center"
-          >
-            {{ item.spaceLevel }}
-          </td>
-          <td
-            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
-          >
-            <div class="flex flex-col items-center justify-center">
-              <div>
-                大小：{{ formatSize(item.totalSize) }} /
-                {{ formatSize(item.maxSize) }}
+        <template v-if="ListInfo.length">
+          <tr v-for="item in ListInfo" :key="item.id" class="even:bg-gray-50">
+            <td
+              class="whitespace-nowrap py-4 pl-4 px-3 text-sm font-medium text-gray-900 sm:pl-3 text-center"
+            >
+              {{ item.id }}
+            </td>
+            <td
+              class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
+            >
+              {{ item.spaceName }}
+            </td>
+            <td
+              class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 max-w-12 overflow-hidden text-center"
+            >
+              {{ item.spaceLevel }}
+            </td>
+            <td
+              class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
+            >
+              <div class="flex flex-col items-center justify-center">
+                <div>
+                  大小：{{ formatSize(item.totalSize) }} /
+                  {{ formatSize(item.maxSize) }}
+                </div>
+                <div>数量：{{ item.totalCount }} / {{ item.maxCount }}</div>
               </div>
-              <div>数量：{{ item.totalCount }} / {{ item.maxCount }}</div>
+            </td>
+            <td
+              class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
+            >
+              {{ item.user?.userName }}
+            </td>
+            <td
+              class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
+            >
+              {{ item.createTime }}
+            </td>
+            <td
+              class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
+            >
+              {{ item.editTime }}
+            </td>
+            <td
+              class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
+            >
+              <span
+                class="text-emerald-600 hover:text-emerald-700 cursor-pointer transition-colors hover:underline"
+                @click="item.id && EditSpace(item.id)"
+              >
+                Edit
+              </span>
+            </td>
+            <td
+              class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
+            >
+              <span
+                class="text-red-600 hover:text-red-700 cursor-pointer transition-colors hover:underline"
+                @click="item.id && handleDelete(item.id)"
+              >
+                Delete
+              </span>
+            </td>
+          </tr>
+        </template>
+        <tr v-else>
+          <td :colspan="SpaceManagerColumns.length" class="py-16">
+            <div
+              class="flex flex-col items-center justify-center space-y-4 animate-fade-in animate-duration-500 animate-ease-out"
+            >
+              <div
+                class="rounded-full bg-gray-50 p-4 animate-hover-scale animate-duration-300"
+              >
+                <i class="i-tabler:database-off size-8 text-gray-400"></i>
+              </div>
+              <div class="text-center">
+                <h3 class="text-base font-semibold text-gray-900 mb-1">
+                  暂无数据
+                </h3>
+                <p class="text-sm text-gray-500 mb-4">
+                  点击下方按钮添加新的空间
+                </p>
+                <Button
+                  type="primary"
+                  size="sm"
+                  :icon="'i-tabler:plus'"
+                  class="animate-hover-scale animate-duration-300"
+                  @click="handleAdd"
+                >
+                  创建新空间
+                </Button>
+              </div>
             </div>
-          </td>
-          <td
-            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
-          >
-            {{ item.user?.userName }}
-          </td>
-          <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
-          >
-            {{ item.createTime }}
-          </td>
-          <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
-          >
-            {{ item.editTime }}
-          </td>
-          <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
-          >
-            <span
-              class="text-emerald-600 hover:text-emerald-700 cursor-pointer transition-colors hover:underline"
-              @click="item.id && EditSpace(item.id)"
-            >
-              Edit
-            </span>
-          </td>
-          <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
-          >
-            <span
-              class="text-red-600 hover:text-red-700 cursor-pointer transition-colors hover:underline"
-              @click="item.id && handleDelete(item.id)"
-            >
-              Delete
-            </span>
           </td>
         </tr>
       </template>
@@ -197,7 +229,7 @@ import {
 } from "@/config";
 import { formatSize } from "@/utils";
 import { onMounted, ref } from "vue";
-import { GetSpaceList } from "@/services";
+import { GetSpaceList, DeleteSpaceById } from "@/services";
 import { Message } from "@/lib/Message";
 import router from "@/router";
 import dayjs from "dayjs";
@@ -248,9 +280,12 @@ onMounted(() => LoadList());
 const handleAdd = () => router.push(`/add/space`);
 
 // 添加删除处理函数
-const handleDelete = (id: number | string) => {
-  // TODO: 实现删除逻辑
-  console.log("Delete item:", id);
+const handleDelete = async (id: string) => {
+  const { data, code, message } = await DeleteSpaceById(id);
+  if (code === 0 && data) {
+    Message.success("删除成功");
+    LoadList();
+  } else Message.error(`删除失败, 原因: ${message}`);
 };
 const EditSpace = (id: number | string) => router.push(`/update/space/${id}`);
 </script>

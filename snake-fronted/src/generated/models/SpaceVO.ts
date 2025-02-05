@@ -6,7 +6,7 @@ import type { UserVO } from "./UserVO";
 export type SpaceVO = {
   createTime?: string;
   editTime?: string;
-  id?: number;
+  id?: string;
   maxCount?: number;
   maxSize?: number;
   spaceLevel?: number;

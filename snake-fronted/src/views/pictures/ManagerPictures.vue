@@ -42,178 +42,224 @@
     </div>
     <TableList :columns="PictureManagerColumns">
       <template #tr>
-        <tr
-          v-for="item in ListInfo"
-          :key="item.id"
-          class="even:bg-gray-50 border-b border-gray-100 hover:bg-gray-50/60 transition-colors duration-200"
-        >
-          <!-- ID列 -->
-          <td
-            class="whitespace-nowrap py-2 pl-6 pr-4 text-sm font-medium text-gray-900 border-r border-gray-100/50 text-center max-w-[80px] truncate"
+        <template v-if="ListInfo.length">
+          <tr
+            v-for="item in ListInfo"
+            :key="item.id"
+            class="even:bg-gray-50 border-b border-gray-100 hover:bg-gray-50/60 transition-colors duration-200"
           >
-            <GenericTooltip :content="String(item.id) || '-'">
-              <template #trigger>
-                <span :class="{ 'text-gray-400 italic': !item.user?.userName }">
-                  {{ item.id || "-" }}
-                </span>
-              </template>
-            </GenericTooltip>
-          </td>
+            <!-- ID列 -->
+            <td
+              class="whitespace-nowrap py-2 pl-6 pr-4 text-sm font-medium text-gray-900 border-r border-gray-100/50 text-center max-w-[80px] truncate"
+            >
+              <GenericTooltip :content="String(item.id) || '-'">
+                <template #trigger>
+                  <span
+                    :class="{ 'text-gray-400 italic': !item.user?.userName }"
+                  >
+                    {{ item.id || "-" }}
+                  </span>
+                </template>
+              </GenericTooltip>
+            </td>
 
-          <!-- 图片列 -->
-          <td
-            class="whitespace-nowrap p-4 text-sm text-gray-500 border-r border-gray-100/50 text-center"
-          >
-            <img
-              v-if="item.url || item.thumbnailUrl"
-              ref="imageRefs"
-              class="inline-block size-14 rounded-md object-cover cursor-pointer hover:opacity-90 transition-opacity shadow-sm hover:shadow-md"
-              :src="item.thumbnailUrl ?? item.url"
-              :alt="item.name || DefaultPictureTexts.UNNAMED_PICTURE"
-              @click="toggleFullscreen(item.id)"
-            />
+            <!-- 图片列 -->
+            <td
+              class="whitespace-nowrap p-4 text-sm text-gray-500 border-r border-gray-100/50 text-center"
+            >
+              <img
+                v-if="item.url || item.thumbnailUrl"
+                ref="imageRefs"
+                class="inline-block size-14 rounded-md object-cover cursor-pointer hover:opacity-90 transition-opacity shadow-sm hover:shadow-md"
+                :src="item.thumbnailUrl ?? item.url"
+                :alt="item.name || DefaultPictureTexts.UNNAMED_PICTURE"
+                @click="toggleFullscreen(item.id)"
+              />
+              <div
+                v-else
+                class="inline-flex size-14 rounded-md bg-gray-100 items-center justify-center text-gray-400"
+              >
+                <i class="i-tabler:photo-off size-6"></i>
+              </div>
+            </td>
+
+            <!-- 名称列 -->
+            <td
+              class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px]"
+            >
+              <GenericTooltip
+                :content="item.name || DefaultPictureTexts.UNNAMED_PICTURE"
+              >
+                <template #trigger>
+                  <div class="w-full truncate">
+                    {{ item.name || DefaultPictureTexts.UNNAMED_PICTURE }}
+                  </div>
+                </template>
+              </GenericTooltip>
+            </td>
+
+            <!-- 描述列 -->
+            <td
+              class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px]"
+            >
+              <GenericTooltip
+                :content="
+                  item.introduction || DefaultPictureTexts.NO_DESCRIPTION
+                "
+              >
+                <template #trigger>
+                  <div
+                    class="w-full truncate"
+                    :class="{ 'text-gray-400 italic': !item.introduction }"
+                  >
+                    {{
+                      item.introduction || DefaultPictureTexts.NO_DESCRIPTION
+                    }}
+                  </div>
+                </template>
+              </GenericTooltip>
+            </td>
+
+            <!-- 分类列 -->
+            <td
+              class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px] truncate"
+            >
+              <span :class="{ 'text-gray-400 italic': !item.category }">
+                {{ item.category || DefaultPictureTexts.UNCLASSIFIED }}
+              </span>
+            </td>
+
+            <!-- 标签列 -->
+            <td
+              class="whitespace-nowrap truncate px-2 py-2 text-sm text-gray-500 max-w-[80px] overflow-hidden border-r border-gray-100/50 text-center"
+            >
+              <GenericTooltip
+                :content="
+                  item.tags?.length
+                    ? item.tags.join(', ')
+                    : DefaultPictureTexts.NO_TAGS
+                "
+              >
+                <template #trigger>
+                  <span :class="{ 'text-gray-400 italic': !item.tags?.length }">
+                    {{
+                      item.tags?.length
+                        ? item.tags.join(", ")
+                        : DefaultPictureTexts.NO_TAGS
+                    }}
+                  </span>
+                </template>
+              </GenericTooltip>
+            </td>
+
+            <!-- 用户列 -->
+            <td
+              class="whitespace-nowrap truncate px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px]"
+            >
+              <GenericTooltip
+                :content="
+                  item.user?.userName || DefaultPictureTexts.UNKNOWN_USER
+                "
+              >
+                <template #trigger>
+                  <span
+                    :class="{ 'text-gray-400 italic': !item.user?.userName }"
+                  >
+                    {{
+                      item.user?.userName || DefaultPictureTexts.UNKNOWN_USER
+                    }}
+                  </span>
+                </template>
+              </GenericTooltip>
+            </td>
+
+            <!-- 时间列 -->
+            <td
+              class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px] truncate"
+            >
+              <GenericTooltip
+                :content="item.editTime || DefaultPictureTexts.NO_TIME"
+              >
+                <template #trigger>
+                  <span
+                    :class="{ 'text-gray-400 italic': !item.user?.userName }"
+                  >
+                    {{ item.editTime || DefaultPictureTexts.NO_TIME }}
+                  </span>
+                </template>
+              </GenericTooltip>
+            </td>
+
+            <!--  审核信息列 -->
+            <td
+              class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[100px] truncate"
+            >
+              <span :class="{ 'text-gray-400 italic': !item.editTime }">
+                {{ item.reviewMessage || DefaultPictureTexts.NO_REVIEW }}
+              </span>
+            </td>
+
+            <!-- 操作按钮列 -->
+            <td
+              class="whitespace-nowrap px-2 py-2 text-sm font-medium text-center max-w-[50px]"
+            >
+              <span
+                class="text-blue-600 hover:text-blue-700 cursor-pointer transition-colors hover:underline"
+                @click="item.id && DetailPicture(item.id)"
+              >
+                Detail
+              </span>
+            </td>
+            <td
+              class="whitespace-nowrap px-2 py-2 text-sm font-medium text-center max-w-[50px]"
+            >
+              <span
+                class="text-emerald-600 hover:text-emerald-700 cursor-pointer transition-colors hover:underline"
+                @click="item.id && EditPicture(item.id)"
+              >
+                Edit
+              </span>
+            </td>
+            <td
+              class="whitespace-nowrap px-2 py-2 text-sm font-medium text-center max-w-[50px]"
+            >
+              <span
+                class="text-red-600 hover:text-red-700 cursor-pointer transition-colors hover:underline"
+                @click="item.id && handleDelete(item.id)"
+              >
+                Delete
+              </span>
+            </td>
+          </tr>
+        </template>
+        <tr v-else>
+          <td :colspan="PictureManagerColumns.length" class="py-16">
             <div
-              v-else
-              class="inline-flex size-14 rounded-md bg-gray-100 items-center justify-center text-gray-400"
+              class="flex flex-col items-center justify-center space-y-4 animate-fade-in animate-duration-500 animate-ease-out"
             >
-              <i class="i-tabler:photo-off size-6"></i>
-            </div>
-          </td>
-
-          <!-- 名称列 -->
-          <td
-            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px]"
-          >
-            <GenericTooltip
-              :content="item.name || DefaultPictureTexts.UNNAMED_PICTURE"
-            >
-              <template #trigger>
-                <div class="w-full truncate">
-                  {{ item.name || DefaultPictureTexts.UNNAMED_PICTURE }}
-                </div>
-              </template>
-            </GenericTooltip>
-          </td>
-
-          <!-- 描述列 -->
-          <td
-            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px]"
-          >
-            <GenericTooltip
-              :content="item.introduction || DefaultPictureTexts.NO_DESCRIPTION"
-            >
-              <template #trigger>
-                <div
-                  class="w-full truncate"
-                  :class="{ 'text-gray-400 italic': !item.introduction }"
+              <div
+                class="rounded-full bg-gray-50 p-4 animate-hover-scale animate-duration-300"
+              >
+                <i class="i-tabler:photo-off size-8 text-gray-400"></i>
+              </div>
+              <div class="text-center">
+                <h3 class="text-base font-semibold text-gray-900 mb-1">
+                  暂无图片数据
+                </h3>
+                <p class="text-sm text-gray-500 mb-4">
+                  点击下方按钮上传新的图片
+                </p>
+                <Button
+                  type="primary"
+                  size="sm"
+                  :icon="'i-tabler:plus'"
+                  class="animate-hover-scale animate-duration-300"
+                  @click="handleAdd"
                 >
-                  {{ item.introduction || DefaultPictureTexts.NO_DESCRIPTION }}
-                </div>
-              </template>
-            </GenericTooltip>
-          </td>
-
-          <!-- 分类列 -->
-          <td
-            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px] truncate"
-          >
-            <span :class="{ 'text-gray-400 italic': !item.category }">
-              {{ item.category || DefaultPictureTexts.UNCLASSIFIED }}
-            </span>
-          </td>
-
-          <!-- 标签列 -->
-          <td
-            class="whitespace-nowrap truncate px-2 py-2 text-sm text-gray-500 max-w-[80px] overflow-hidden border-r border-gray-100/50 text-center"
-          >
-            <GenericTooltip
-              :content="
-                item.tags?.length
-                  ? item.tags.join(', ')
-                  : DefaultPictureTexts.NO_TAGS
-              "
-            >
-              <template #trigger>
-                <span :class="{ 'text-gray-400 italic': !item.tags?.length }">
-                  {{
-                    item.tags?.length
-                      ? item.tags.join(", ")
-                      : DefaultPictureTexts.NO_TAGS
-                  }}
-                </span>
-              </template>
-            </GenericTooltip>
-          </td>
-
-          <!-- 用户列 -->
-          <td
-            class="whitespace-nowrap truncate px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px]"
-          >
-            <GenericTooltip
-              :content="item.user?.userName || DefaultPictureTexts.UNKNOWN_USER"
-            >
-              <template #trigger>
-                <span :class="{ 'text-gray-400 italic': !item.user?.userName }">
-                  {{ item.user?.userName || DefaultPictureTexts.UNKNOWN_USER }}
-                </span>
-              </template>
-            </GenericTooltip>
-          </td>
-
-          <!-- 时间列 -->
-          <td
-            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px] truncate"
-          >
-            <GenericTooltip
-              :content="item.editTime || DefaultPictureTexts.NO_TIME"
-            >
-              <template #trigger>
-                <span :class="{ 'text-gray-400 italic': !item.user?.userName }">
-                  {{ item.editTime || DefaultPictureTexts.NO_TIME }}
-                </span>
-              </template>
-            </GenericTooltip>
-          </td>
-
-          <!--  审核信息列 -->
-          <td
-            class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[100px] truncate"
-          >
-            <span :class="{ 'text-gray-400 italic': !item.editTime }">
-              {{ item.reviewMessage || DefaultPictureTexts.NO_REVIEW }}
-            </span>
-          </td>
-
-          <!-- 操作按钮列 -->
-          <td
-            class="whitespace-nowrap px-2 py-2 text-sm font-medium text-center max-w-[50px]"
-          >
-            <span
-              class="text-blue-600 hover:text-blue-700 cursor-pointer transition-colors hover:underline"
-              @click="item.id && DetailPicture(item.id)"
-            >
-              Detail
-            </span>
-          </td>
-          <td
-            class="whitespace-nowrap px-2 py-2 text-sm font-medium text-center max-w-[50px]"
-          >
-            <span
-              class="text-emerald-600 hover:text-emerald-700 cursor-pointer transition-colors hover:underline"
-              @click="item.id && EditPicture(item.id)"
-            >
-              Edit
-            </span>
-          </td>
-          <td
-            class="whitespace-nowrap px-2 py-2 text-sm font-medium text-center max-w-[50px]"
-          >
-            <span
-              class="text-red-600 hover:text-red-700 cursor-pointer transition-colors hover:underline"
-              @click="item.id && handleDelete(item.id)"
-            >
-              Delete
-            </span>
+                  上传新图片
+                </Button>
+              </div>
+            </div>
           </td>
         </tr>
       </template>
@@ -359,3 +405,28 @@ const handleDelete = (id: number | string) => {
 };
 const handleAdd = () => router.push(`/add/picture`);
 </script>
+
+<style scoped>
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-hover-scale {
+  transition: transform 0.3s;
+}
+
+.animate-hover-scale:hover {
+  transform: scale(1.05);
+}
+</style>
