@@ -32,9 +32,10 @@
 
         <!-- 下载 -->
         <Button
-          class="absolute bottom-1.5 left-1.5 bg-zinc-100/70"
+          class="absolute bottom-1.5 left-1.5 bg-zinc-100/70 hover:bg-zinc-200/70 transition-all duration-300"
           :icon="'i-tabler:download'"
-          @click="onDownload"
+          :loading="isDownloading"
+          @click.stop="onDownload"
           size="lg"
         >
         </Button>
@@ -72,6 +73,8 @@ import { type PictureType } from "@/config";
 import Button from "@/lib/Button";
 import { randomRGB } from "@/utils/color";
 import { useRouter } from "vue-router";
+import { saveAs } from "file-saver";
+import { Message } from "@/lib/Message";
 const router = useRouter();
 const { picture, width } = defineProps<{
   picture: PictureType;
@@ -95,15 +98,33 @@ const onToPinsClick = () => router.push(`/detail/picture/${picture.id}`);
 /**
  * 下载按钮点击事件
  */
-const onDownload = () => {
-  // 提示消息
+const isDownloading = ref(false);
 
-  /**
-   * 接收两个参数：
-   * 1. 下载的图片链接
-   * 2. 下载的文件名称
-   */
-  setTimeout(() => {}, 300);
+const onDownload = async (event: Event) => {
+  event.stopPropagation();
+  if (!picture?.url) {
+    Message.warning("暂无可下载的图片");
+    return;
+  }
+
+  const { url, name, user, picFormat } = picture;
+
+  if (!url || !name || !user?.userName || !picFormat) {
+    Message.warning("图片信息不完整，无法下载");
+    return;
+  }
+
+  try {
+    isDownloading.value = true;
+    const fileName = `${name}-作者:${user.userName}.${picFormat}`;
+    await saveAs(url, fileName);
+    Message.success("下载成功");
+  } catch (error) {
+    console.error("下载失败:", error);
+    Message.error("下载失败，请稍后再试");
+  } finally {
+    isDownloading.value = false;
+  }
 };
 
 // 追踪全屏状态

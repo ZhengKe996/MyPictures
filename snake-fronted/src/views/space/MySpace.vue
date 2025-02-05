@@ -166,6 +166,7 @@
 </template>
 
 <script setup lang="ts">
+import { saveAs } from "file-saver";
 import {
   GetPictureList,
   GetSpaceByUserId,
@@ -233,7 +234,29 @@ const handleCancelDelete = () => {
   Message.warning("已取消删除操作");
 };
 
-const handleDownload = async () => {};
+const handleDownload = async (picture: PictureType) => {
+  if (!picture?.url) {
+    Message.warning("暂无可下载的图片");
+    return;
+  }
+
+  const { url, name, user, picFormat } = picture;
+
+  if (!url || !name || !user?.userName || !picFormat) {
+    Message.warning("图片信息不完整，无法下载");
+    return;
+  }
+
+  try {
+    const fileName = `${name}-作者:${user.userName}.${picFormat}`;
+    await saveAs(url, fileName);
+    Message.success("下载成功");
+  } catch (error) {
+    console.error("下载失败:", error);
+    Message.error("下载失败，请稍后再试");
+  }
+};
+
 const handlePreview = (picture: PictureType) =>
   router.push(`/detail/picture/${picture.id}`);
 // Loading
