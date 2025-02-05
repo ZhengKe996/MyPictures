@@ -1,6 +1,6 @@
 <template>
   <div class="w-full animated animated-duration-500 animated-fade-in">
-    <div class="flex flex-1 justify-start px-2">
+    <div class="flex flex-1 justify-between items-center px-2">
       <div
         class="grid w-full max-w-lg lg:max-w-xs flex justify-start items-center"
       >
@@ -96,6 +96,17 @@
           </Button>
         </div>
       </div>
+
+      <div class="flex items-center">
+        <Button
+          @click="handleAdd"
+          :icon="'i-tabler:plus'"
+          size="sm"
+          class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-500"
+        >
+          新增
+        </Button>
+      </div>
     </div>
     <TableList :columns="SpaceManagerColumns">
       <template #tr>
@@ -136,26 +147,22 @@
           <td
             class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500"
           >
-            <button
-              type="button"
-              class="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
-              @click=""
+            <span
+              class="text-emerald-600 hover:text-emerald-700 cursor-pointer transition-colors hover:underline"
+              @click="item.id && EditSpace(item.id)"
             >
-              编辑
-              <i class="i-tabler:edit size-5" />
-            </button>
+              Edit
+            </span>
           </td>
           <td
             class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500"
           >
-            <button
-              type="button"
-              class="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-              @click=""
+            <span
+              class="text-red-600 hover:text-red-700 cursor-pointer transition-colors hover:underline"
+              @click="item.id && handleDelete(item.id)"
             >
-              删除
-              <i class="i-tabler:layout-grid-remove" size-5 />
-            </button>
+              Delete
+            </span>
           </td>
         </tr>
       </template>
@@ -179,6 +186,7 @@ import { SpaceManagerColumns, type SpaceType } from "@/config";
 import { onMounted, ref } from "vue";
 import { GetSpaceList } from "@/services";
 import { Message } from "@/lib/Message";
+import router from "@/router";
 
 const total = ref<number>(0);
 interface SpaceInfoInterface {
@@ -214,8 +222,16 @@ const LoadList = async () => {
 const handleKeyPress = useThrottleFn((event: KeyboardEvent) => {
   if (event.key === "Enter") LoadList();
 }, 1000);
-
 onMounted(() => LoadList());
+
+const handleAdd = () => router.push(`/add/space`);
+
+// 添加删除处理函数
+const handleDelete = (id: number | string) => {
+  // TODO: 实现删除逻辑
+  console.log("Delete item:", id);
+};
+const EditSpace = (id: number | string) => router.push(`/update/space/${id}`);
 </script>
 
 <style scoped></style>

@@ -80,6 +80,16 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/add/space",
+    name: "ADD Space",
+    component: () => import("@/views/space/AddSpace.vue"),
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.ADMIN,
+      isHeader: false,
+    },
+  },
+  {
     path: "/list/pictures",
     name: "List Pictures",
     component: () => import("@/views/pictures/ListPicture.vue"),
@@ -123,6 +133,17 @@ export const routes: RouteRecordRaw[] = [
     path: "/update/picture/:id",
     name: "UPDATE Picture",
     component: () => import("@/views/pictures/UploadPicture.vue"),
+    props: true,
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      isHeader: false,
+    },
+  },
+
+  {
+    path: "/update/space/:id",
+    name: "UPDATE Space",
+    component: () => import("@/views/space/EditSpace.vue"),
     props: true,
     meta: {
       layout: LayoutMenu.BasicLayout,

@@ -1,6 +1,6 @@
 <template>
   <div class="w-full animated animated-duration-500 animated-fade-in">
-    <div class="flex flex-1 justify-start px-2">
+    <div class="flex flex-1 justify-between items-center px-2">
       <div
         class="grid w-full max-w-xl lg:max-w-xs flex justify-start items-center"
       >
@@ -27,6 +27,17 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="flex items-center">
+        <Button
+          @click="handleAdd"
+          :icon="'i-tabler:plus'"
+          size="sm"
+          class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-500"
+        >
+          新增
+        </Button>
       </div>
     </div>
     <TableList :columns="PictureManagerColumns">
@@ -346,4 +357,5 @@ const handleDelete = (id: number | string) => {
   // TODO: 实现删除逻辑
   console.log("Delete item:", id);
 };
+const handleAdd = () => router.push(`/add/picture`);
 </script>
