@@ -38,4 +38,22 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - fun.timu.init.controller
-# COS 配置 -> 从腾讯云获取
+
+# 自定义用户空间设置（弃用）
+space-level:
+  levels:
+    common:
+      name: "普通版"
+      level: 0
+      max-images: 100
+      max-storage: 104857600  # 100 * 1024 * 1024
+    professional:
+      name: "专业版"
+      level: 1
+      max-images: 1000
+      max-storage: 1048576000  # 1000 * 1024 * 1024
+    flagship:
+      name: "旗舰版"
+      level: 2
+      max-images: 10000
+      max-storage: 10485760000  # 10000 * 1024 * 1024
