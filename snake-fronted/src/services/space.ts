@@ -23,11 +23,40 @@ export const GetSpaceList = async (form: {
   return await Service.listSpaceVoByPageUsingPost(form);
 };
 
-export const AddSpace = async (form: {
-  spaceName: string;
-  spaceLevel: number;
-  maxSize: number;
-  maxCount: number;
+/**
+ * 根据表单数据添加或更新空间信息
+ * 此函数决定是添加新空间还是更新现有空间，基于表单中是否提供了空间ID
+ *
+ * @param form 包含空间信息的表单对象，包括：
+ * - id: 空间ID，可选，如果提供则进行更新操作，否则进行添加操作
+ * - maxCount: 空间最大数量，可选
+ * - maxSize: 空间最大尺寸，可选
+ * - spaceLevel: 空间级别，可选
+ * - spaceName: 空间名称，可选
+ * @returns Promise，根据操作返回不同的结果
+ */
+export const AddORUpdateSpace = async (form: {
+  id?: string;
+  maxCount?: number;
+  maxSize?: number;
+  spaceLevel?: number;
+  spaceName?: string;
 }) => {
+  // 如果表单中包含了空间ID，则执行更新空间的操作
+  if (form.id) return await Service.updateSpaceUsingPost(form);
+  // 如果表单中没有空间ID，则执行添加新空间的操作
   return await Service.addSpaceUsingPost(form);
+};
+
+/**
+ * 根据空间ID获取空间信息
+ *
+ * 此函数通过发送HTTP GET请求到服务端，获取特定空间的详细信息它依赖于后端服务的实现，
+ * 用于获取空间的详细信息，如名称、创建者、创建时间等
+ *
+ * @param spaceId 空间唯一的标识符ID
+ * @returns 返回一个Promise，解析后包含空间的详细信息
+ */
+export const GetSpaceInfoById = async (spaceId: string) => {
+  return await Service.getSpaceVoByIdUsingGet(spaceId);
 };

@@ -82,7 +82,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/add/space",
     name: "ADD Space",
-    component: () => import("@/views/space/AddSpace.vue"),
+    component: () => import("@/views/space/AddORUpdateSpace.vue"),
     meta: {
       layout: LayoutMenu.BasicLayout,
       access: ACCESSENUM.ADMIN,
@@ -143,7 +143,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/update/space/:id",
     name: "UPDATE Space",
-    component: () => import("@/views/space/EditSpace.vue"),
+    component: () => import("@/views/space/AddORUpdateSpace.vue"),
     props: true,
     meta: {
       layout: LayoutMenu.BasicLayout,

@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-[700px] flex items-center justify-center bg-gray-100">
+  <div class="min-h-[640px] flex items-center justify-center bg-gray-100">
     <div
-      class="max-w-2xl w-full mx-4 max-h-[700px] bg-white rounded-xl shadow-lg transform transition-all duration-300 hover:shadow-xl"
+      class="max-w-2xl w-full mx-4 max-h-[640px] bg-white rounded-xl shadow-lg transform transition-all duration-300 hover:shadow-xl"
     >
       <div class="p-6">
         <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
-          Create New Space
+          {{ isUpdateMode ? " Update Space" : " Create New Space" }}
         </h2>
 
         <div class="space-y-6">
@@ -67,7 +67,7 @@
             :disabled="isButtonDisabled"
             @click="handleSubmit"
           >
-            Create Space
+            {{ isUpdateMode ? "Update Space" : "Create Space" }}
           </Button>
         </div>
       </div>
@@ -76,10 +76,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, onMounted, nextTick } from "vue";
 import Button from "@/lib/Button";
-import { AddSpace } from "@/services";
+import { AddORUpdateSpace } from "@/services";
 import { Message } from "@/lib/Message";
+import { useRoute } from "vue-router";
+import { GetSpaceInfoById } from "@/services";
+const route = useRoute();
+const { id } = defineProps<{
+  id?: string;
+}>();
 
 interface SpaceLevel {
   name: string;
@@ -155,14 +161,29 @@ const validateForm = (): boolean => {
   return isValid;
 };
 
+/**
+ * 提交表单的异步函数
+ * 该函数处理表单提交逻辑，包括验证表单和提交数据
+ */
 const handleSubmit = async () => {
+  // 获取路由参数中的id，如果是数组则取第一个元素
+  const routeId = Array.isArray(route.params.id)
+    ? route.params.id[0]
+    : route.params.id;
+  console.log("handleSubmit", routeId);
+
+  // 如果表单验证通过，则执行添加或更新空间的操作
   if (validateForm()) {
-    const { data, code, message } = await AddSpace({
+    // 调用AddORUpdateSpace函数，传递必要的空间信息
+    const { data, code, message } = await AddORUpdateSpace({
+      id: routeId,
       spaceName: spaceName.value,
       spaceLevel: spaceLevel.value,
       maxSize: spaceLevels[spaceLevel.value].maxStorage,
       maxCount: spaceLevels[spaceLevel.value].maxImages,
     });
+
+    // 根据返回的code和data，显示相应的成功或错误消息
     if (code === 0 && data) Message.success("Space created successfully");
     else Message.error(message || "Failed to create space");
   }
@@ -170,5 +191,34 @@ const handleSubmit = async () => {
 
 const isButtonDisabled = computed(() => {
   return !spaceName.value.trim();
+});
+
+// UPDATE
+const isUpdateMode = computed(() => route.path.includes("update"));
+const getOldSpaceInfo = async (id: string) => {
+  const { data, code, message } = await GetSpaceInfoById(id);
+  if (code === 0 && data) {
+    if (data.spaceName) {
+      spaceName.value = data.spaceName;
+    }
+    spaceLevel.value = data.spaceLevel ?? 0;
+  } else {
+    Message.error(message || "Failed to get space info");
+  }
+};
+const resetForm = () => {
+  spaceName.value = "";
+  spaceLevel.value = 0;
+};
+onMounted(() => {
+  nextTick(() => {
+    if (isUpdateMode && id) {
+      if (typeof id === "string") {
+        getOldSpaceInfo(id);
+      } else {
+        Message.error("无效的图片ID");
+      }
+    } else resetForm();
+  });
 });
 </script>

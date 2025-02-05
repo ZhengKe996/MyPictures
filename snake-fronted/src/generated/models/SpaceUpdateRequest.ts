@@ -3,10 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type SpaceUpdateRequest = {
-    id?: number;
-    maxCount?: number;
-    maxSize?: number;
-    spaceLevel?: number;
-    spaceName?: string;
+  id?: string;
+  maxCount?: number;
+  maxSize?: number;
+  spaceLevel?: number;
+  spaceName?: string;
 };
-
