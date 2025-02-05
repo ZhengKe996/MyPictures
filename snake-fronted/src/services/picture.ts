@@ -212,3 +212,16 @@ export const AdminBatchByPexels = async (form: {
 }) => {
   return await Service.uploadPictureByPexelsUsingPost(form);
 };
+
+/**
+ * 根据图片ID删除图片
+ *
+ * 此函数通过调用Service的deletePictureUsingPost方法来删除指定ID的图片
+ * 选择使用POST方法进行删除操作可能是由于考虑到URL长度限制或安全性问题
+ *
+ * @param id 图片的唯一标识符，用于指定哪张图片需要被删除
+ * @returns 返回Service.deletePictureUsingPost的执行结果，通常是异步操作的结果
+ */
+export const DeletePictureById = async (id: string) => {
+  return await Service.deletePictureUsingPost({ id });
+};

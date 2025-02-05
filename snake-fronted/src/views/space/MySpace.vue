@@ -59,7 +59,14 @@
                 <div
                   class="overflow-hidden rounded-lg bg-white shadow-sm animate-fade-in-up animate-duration-500"
                 >
-                  <Item :picture="(item as PictureType)" :width="width"></Item>
+                  <SpaceItem
+                    :picture="(item as PictureType)"
+                    :width="width"
+                    @edit="handleEdit"
+                    @delete="handleDelete"
+                    @download="handleDownload"
+                    @preview="handlePreview"
+                  ></SpaceItem>
                 </div>
               </template>
             </waterfall>
@@ -120,11 +127,50 @@
         </div>
       </div>
     </Transition>
+    <!-- 删除确认对话框 -->
+    <Dialog
+      v-model="showDeleteDialog"
+      title="删除确认"
+      :confirmText="'删除'"
+      :cancelText="'取消删除'"
+      :confirmButtonColor="'red'"
+      :cancelButtonColor="'gray'"
+      :confirmHandler="confirmDelete"
+      :cancelHandler="handleCancelDelete"
+    >
+      <div class="space-y-4">
+        <p class="text-gray-600 dark:text-gray-300">
+          确定要删除这张图片吗？此操作不可恢复。
+        </p>
+        <div
+          v-if="currentPicture"
+          class="flex items-center space-x-4 bg-gray-50 dark:bg-zinc-700 p-3 rounded-lg"
+        >
+          <img
+            :src="currentPicture.thumbnailUrl"
+            class="w-16 h-16 object-cover rounded"
+            alt="预览图"
+          />
+          <div>
+            <p class="font-medium text-gray-900 dark:text-gray-100">
+              {{ currentPicture.name }}
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              创建于 {{ currentPicture.createTime }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { GetPictureList, GetSpaceByUserId } from "@/services";
+import {
+  GetPictureList,
+  GetSpaceByUserId,
+  DeletePictureById,
+} from "@/services";
 import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
 import { onMounted, ref, computed } from "vue";
@@ -134,10 +180,10 @@ import type { PictureType } from "@/config";
 import { useThrottleFn } from "@vueuse/core";
 import dayjs from "dayjs";
 import Pagination from "@/lib/Pagination";
-
 import Waterfall from "@/lib/Waterfall";
 import Infinite from "@/lib/Infinite";
-import { Item } from "@/components/ListItem";
+import { SpaceItem } from "@/components/ListItem";
+import Dialog from "@/lib/Dialog/Dialog.vue";
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -145,6 +191,51 @@ const route = useRoute();
 const isExit = ref(false);
 const spaceId = ref<string>("");
 const total = ref<number>(0);
+
+const handleEdit = async (picture: PictureType) =>
+  router.push(`/update/picture/${picture.id}?spaceId=${spaceId.value}`);
+
+// 删除对话框控制
+const showDeleteDialog = ref(false);
+const currentPicture = ref<PictureType | null>(null);
+
+// 更新handleDelete方法
+const handleDelete = async (picture: PictureType) => {
+  currentPicture.value = picture;
+  showDeleteDialog.value = true;
+};
+
+// 确认删除方法
+const confirmDelete = async () => {
+  if (!currentPicture.value?.id) return;
+
+  try {
+    const { code } = await DeletePictureById(
+      currentPicture.value.id.toString()
+    );
+    if (code === 0) {
+      Message.success("删除成功");
+      await LoadList();
+    } else {
+      Message.error("删除失败");
+    }
+  } catch (error) {
+    Message.error("删除操作发生错误");
+  } finally {
+    currentPicture.value = null;
+  }
+};
+
+// 取消删除方法
+const handleCancelDelete = () => {
+  showDeleteDialog.value = false;
+  currentPicture.value = null;
+  Message.warning("已取消删除操作");
+};
+
+const handleDownload = async () => {};
+const handlePreview = (picture: PictureType) =>
+  router.push(`/detail/picture/${picture.id}`);
 // Loading
 const loading = ref<boolean>(false);
 const isFinished = ref<boolean>(false);
