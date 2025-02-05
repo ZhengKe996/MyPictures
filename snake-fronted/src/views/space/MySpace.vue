@@ -84,6 +84,7 @@ const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
 const isExit = ref(false);
+const spaceId = ref<string>("");
 
 // 获取用户名
 const username = computed(() => userStore.getUserName || "未知用户");
@@ -94,12 +95,12 @@ const CheckSpace = async () => {
   console.log("CheckSpace", data);
   if (code !== 0 && data === null) isExit.value = false;
   else isExit.value = true;
+  if (data && data.id) spaceId.value = data.id;
 };
-onMounted(() => {
-  CheckSpace();
-});
+onMounted(() => CheckSpace());
 
 const handleCreateSpace = () => router.push("/add/space");
 
-const handleCreatePhoto = () => router.push(`/add/picture`);
+const handleCreatePhoto = () =>
+  router.push(`/add/picture?spaceId=${spaceId.value}`);
 </script>

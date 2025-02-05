@@ -2,6 +2,27 @@
   <div
     class="w-full h-full flex flex-col animated animated-duration-500 animated-fade-in"
   >
+    <!-- Add Space ID Banner -->
+    <div
+      v-if="spaceID"
+      class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r flex items-center justify-between"
+    >
+      <div class="flex items-center">
+        <span class="text-blue-700 font-medium">保存到空间：</span>
+        <span class="text-blue-600 ml-2">{{ spaceID }}</span>
+      </div>
+      <a-tooltip title="将在保存后添加到指定空间">
+        <div
+          class="w-4 h-4 rounded-full border-2 border-blue-500 flex items-center justify-center cursor-help group hover:bg-blue-500 transition-colors duration-200"
+        >
+          <span
+            class="text-blue-500 text-xs font-serif italic font-bold group-hover:text-white"
+            >i</span
+          >
+        </div>
+      </a-tooltip>
+    </div>
+
     <h2 class="mb-4 text-xl">{{ isUpdateMode ? "更新图片" : "创建图片" }}</h2>
     <div
       class="w-full mb-2 border-b border-gray-200 transition-all duration-300 ease-in-out"
@@ -119,6 +140,7 @@ import { convertTagsToStringArray } from "@/utils";
 import URLUpload from "@/components/URLUpload";
 
 import Tabs, { type TabItem } from "@/lib/Tabs";
+
 const imageUrl = ref("");
 const activeTab = ref("File");
 
@@ -260,6 +282,12 @@ onMounted(() => {
         Message.error("无效的图片ID");
       }
     } else resetForm();
+
+    // Handle spaceID from query params
+    const querySpaceId = route.query.spaceId;
+    spaceID.value = Array.isArray(querySpaceId)
+      ? querySpaceId[0] || ""
+      : querySpaceId || "";
   });
 });
 
@@ -272,4 +300,5 @@ const handleSubmit = async () => {
     router.push(`/detail/picture/${pictureId}`);
   } else Message.error(`失败, ${message}`);
 };
+const spaceID = ref<string>("");
 </script>

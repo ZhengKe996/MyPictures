@@ -66,7 +66,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/add/picture",
     name: "ADD Picture",
-    component: () => import("@/views/pictures/UploadPicture.vue"),
+    component: () => import("@/views/pictures/AddORUpdatePicture.vue"),
     meta: {
       layout: LayoutMenu.BasicLayout,
       access: ACCESSENUM.USER,
@@ -136,7 +136,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/update/picture/:id",
     name: "UPDATE Picture",
-    component: () => import("@/views/pictures/UploadPicture.vue"),
+    component: () => import("@/views/pictures/AddORUpdatePicture.vue"),
     props: true,
     meta: {
       layout: LayoutMenu.BasicLayout,
