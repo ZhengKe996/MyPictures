@@ -88,11 +88,33 @@ export class SpaceControllerService {
    * @throws ApiError
    */
   public static getSpaceByIdUsingGet(
-    id?: number
+    id?: string
   ): CancelablePromise<BaseResponse_Space_> {
     return __request(OpenAPI, {
       method: "GET",
       url: "/api/space/get",
+      query: {
+        id: id,
+      },
+      errors: {
+        401: `Unauthorized`,
+        403: `Forbidden`,
+        404: `Not Found`,
+      },
+    });
+  }
+  /**
+   * getSpaceVOByUserId
+   * @param id id
+   * @returns BaseResponse_SpaceVO_ OK
+   * @throws ApiError
+   */
+  public static getSpaceVoByUserIdUsingGet(
+    id?: string
+  ): CancelablePromise<BaseResponse_SpaceVO_> {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/space/get/userid/vo",
       query: {
         id: id,
       },

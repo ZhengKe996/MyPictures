@@ -75,3 +75,16 @@ export const GetSpaceInfoById = async (spaceId: string) => {
 export const DeleteSpaceById = async (spaceId: string) => {
   return await Service.deleteSpaceUsingPost({ id: spaceId });
 };
+
+/**
+ * 根据用户ID获取空间信息
+ *
+ * 此函数通过调用服务层的getSpaceVoByUserIdUsingGet方法来获取特定用户的空间信息
+ * 主要用于需要根据用户ID来获取其对应空间信息的场景
+ *
+ * @param user 用户ID，用于标识和获取特定用户的空间信息
+ * @returns 返回一个Promise，解析为用户的空间信息
+ */
+export const GetSpaceByUserId = async (user: string) => {
+  return await Service.getSpaceVoByUserIdUsingGet(user);
+};

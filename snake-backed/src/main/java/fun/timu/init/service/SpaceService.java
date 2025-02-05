@@ -74,4 +74,12 @@ public interface SpaceService extends IService<Space> {
      * @param space
      */
     void checkSpaceAuth(User loginUser, Space space);
+
+    /**
+     * 获取用户的空间
+     *
+     * @param user
+     * @return
+     */
+    Space getSpaceByUserId(User user);
 }

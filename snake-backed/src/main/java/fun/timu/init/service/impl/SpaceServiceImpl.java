@@ -20,6 +20,7 @@ import fun.timu.init.model.vo.SpaceVO;
 import fun.timu.init.model.vo.UserVO;
 import fun.timu.init.service.SpaceService;
 import fun.timu.init.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
  * @description 针对表【space(空间)】的数据库操作Service实现
  * @createDate 2025-02-05 11:41:10
  */
+@Slf4j
 @Service
 public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements SpaceService {
 
@@ -250,6 +252,38 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
     }
+
+    /**
+     * 根据用户获取空间
+     *
+     * @param user 用户对象，包含用户的相关信息
+     * @return Space 对象，表示用户对应的空间；如果找不到对应空间，则返回 null
+     */
+    @Override
+    public Space getSpaceByUserId(User user) {
+        // 检查用户对象是否为空，并抛出带有详细信息的异常
+        ThrowUtils.throwIf(user == null, ErrorCode.PARAMS_ERROR, "User object cannot be null");
+
+        // 检查用户ID是否为空，并抛出带有详细信息的异常
+        ThrowUtils.throwIf(user.getId() == null, ErrorCode.PARAMS_ERROR, "User ID cannot be null");
+
+        try {
+            // 构建查询条件
+            QueryWrapper<Space> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("userId", user.getId());
+
+            // 执行查询并返回结果
+            Space space = this.getOne(queryWrapper);
+            if (space == null) {
+                log.info("No space found for user with ID: {}", user.getId());
+            }
+            return space;
+        } catch (Exception e) {
+            log.error("Error occurred while fetching space for user with ID: {}", user.getId(), e);
+            throw e; // 重新抛出异常以便上层处理
+        }
+    }
+
 }
 
 

@@ -170,3 +170,8 @@ button {
 button::after {
   border: none;
 }
+
+:root {
+  --custom-gradient-start: #3b82f6;
+  --custom-gradient-end: #8b5cf6;
+}

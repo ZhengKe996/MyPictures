@@ -4,6 +4,7 @@ import { GetLoginInfoUser } from "@/services";
 import { DefaultUserAvatar } from "@/config";
 
 interface UserInfo {
+  id: string;
   userName: string;
   userRole: ACCESSENUM;
   userAvatar: string;
@@ -16,6 +17,7 @@ interface State {
 export const useUserStore = defineStore("user", {
   state: (): State => ({
     loginInfo: {
+      id: "",
       userName: NOLOGIN,
       userRole: ACCESSENUM.NOLOGIN,
       userAvatar: DefaultUserAvatar,
@@ -35,11 +37,15 @@ export const useUserStore = defineStore("user", {
     getLoginInfo(): UserInfo {
       return this.loginInfo;
     },
+    getUserID(): string {
+      return this.loginInfo.id;
+    },
   },
   actions: {
     async setLoginInfo() {
       const { code, data } = await GetLoginInfoUser();
       if (code === 0 && data) {
+        this.loginInfo.id = (data.id ?? "").toString();
         this.loginInfo.userName = data.userName as string;
         this.loginInfo.userRole = data.userRole as ACCESSENUM;
         this.loginInfo.userAvatar = data.userAvatar
@@ -47,6 +53,7 @@ export const useUserStore = defineStore("user", {
           : DefaultUserAvatar;
         this.loginInfo.userProfile = data.userProfile as string;
       } else {
+        this.loginInfo.id = "";
         this.loginInfo.userName = NOLOGIN;
         this.loginInfo.userRole = ACCESSENUM.NOLOGIN;
         this.loginInfo.userAvatar = DefaultUserAvatar;

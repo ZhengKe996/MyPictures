@@ -241,4 +241,20 @@ public class SpaceController {
         List<SpaceLevel> spaceLevelList = Arrays.stream(SpaceLevelEnum.values()).map(spaceLevelEnum -> new SpaceLevel(spaceLevelEnum.getValue(), spaceLevelEnum.getText(), spaceLevelEnum.getMaxCount(), spaceLevelEnum.getMaxSize())).collect(Collectors.toList());
         return ResultUtils.success(spaceLevelList);
     }
+
+    /**
+     * 根据用户id 获取空间（封装类）
+     */
+    @GetMapping("/get/userid/vo")
+    public BaseResponse<SpaceVO> getSpaceVOByUserId(long id, HttpServletRequest request) {
+        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+        // 查询数据库
+        User loginUser = userService.getLoginUser(request);
+        Space space = spaceService.getSpaceByUserId(loginUser);
+        ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR);
+        SpaceVO spaceVO = spaceService.getSpaceVO(space, request);
+        // 获取封装类
+        return ResultUtils.success(spaceVO);
+    }
+
 }

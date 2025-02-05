@@ -5,7 +5,7 @@ import { LayoutMenu } from "@/config";
 export const routes: RouteRecordRaw[] = [
   {
     path: "/",
-    redirect: "/home",
+    redirect: "/list/pictures",
   },
   {
     path: "/login",
@@ -32,12 +32,6 @@ export const routes: RouteRecordRaw[] = [
         component: () => import("@/views/user/Register.vue"),
       },
     ],
-  },
-  {
-    path: "/home",
-    name: "home",
-    component: () => import("@/views/Home.vue"),
-    meta: { layout: LayoutMenu.BasicLayout, isHeader: false },
   },
   {
     path: "/manager/users",
@@ -85,7 +79,7 @@ export const routes: RouteRecordRaw[] = [
     component: () => import("@/views/space/AddORUpdateSpace.vue"),
     meta: {
       layout: LayoutMenu.BasicLayout,
-      access: ACCESSENUM.ADMIN,
+      access: ACCESSENUM.USER,
       isHeader: false,
     },
   },
@@ -97,6 +91,16 @@ export const routes: RouteRecordRaw[] = [
       layout: LayoutMenu.BasicLayout,
       access: ACCESSENUM.USER,
       isHeader: true,
+    },
+  },
+  {
+    path: "/my-space",
+    name: "My Space",
+    component: () => import("@/views/space/MySpace.vue"),
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.USER,
+      isHeader: false,
     },
   },
   {
