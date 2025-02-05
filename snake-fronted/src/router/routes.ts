@@ -37,7 +37,7 @@ export const routes: RouteRecordRaw[] = [
     path: "/home",
     name: "home",
     component: () => import("@/views/Home.vue"),
-    meta: { layout: LayoutMenu.BasicLayout, isHeader: true },
+    meta: { layout: LayoutMenu.BasicLayout, isHeader: false },
   },
   {
     path: "/manager/users",
@@ -53,6 +53,16 @@ export const routes: RouteRecordRaw[] = [
     path: "/mamager/pictures",
     name: "Manager Pictures",
     component: () => import("@/views/pictures/ManagerPictures.vue"),
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.ADMIN,
+      isHeader: true,
+    },
+  },
+  {
+    path: "/mamager/space",
+    name: "Manager Space",
+    component: () => import("@/views/space/SpaceManager.vue"),
     meta: {
       layout: LayoutMenu.BasicLayout,
       access: ACCESSENUM.ADMIN,
