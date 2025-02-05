@@ -20,5 +20,14 @@ export const GetSpaceList = async (form: {
   spaceLevel?: number;
   spaceName?: string;
 }) => {
-  return await Service.listSpaceByPageUsingPost(form);
+  return await Service.listSpaceVoByPageUsingPost(form);
+};
+
+export const AddSpace = async (form: {
+  spaceName: string;
+  spaceLevel: number;
+  maxSize: number;
+  maxCount: number;
+}) => {
+  return await Service.addSpaceUsingPost(form);
 };

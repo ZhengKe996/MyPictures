@@ -182,11 +182,16 @@ import TableList from "@/components/TableList";
 import Pagination from "@/lib/Pagination";
 import Button from "@/lib/Button";
 import { useThrottleFn } from "@vueuse/core";
-import { SpaceManagerColumns, type SpaceType } from "@/config";
+import {
+  DefaultPictureTexts,
+  SpaceManagerColumns,
+  type SpaceType,
+} from "@/config";
 import { onMounted, ref } from "vue";
 import { GetSpaceList } from "@/services";
 import { Message } from "@/lib/Message";
 import router from "@/router";
+import dayjs from "dayjs";
 
 const total = ref<number>(0);
 interface SpaceInfoInterface {
@@ -213,7 +218,14 @@ const LoadList = async () => {
 
     ListInfo.value = Array.isArray(data.records)
       ? data.records.map((item: SpaceType) => ({
+          ...item,
           id: item.id ? String(item.id) : "",
+          createTime: item.createTime
+            ? dayjs(item.createTime).format("YYYY-MM-DD HH:mm:ss")
+            : DefaultPictureTexts.NO_CREATE_TIME,
+          editTime: item.editTime
+            ? dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss")
+            : DefaultPictureTexts.NO_UPDATE_TIME,
         }))
       : [];
   } else Message.error(`获取题目失败, 原因: ${message}`);
