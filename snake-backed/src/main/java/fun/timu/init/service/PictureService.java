@@ -3,10 +3,7 @@ package fun.timu.init.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import fun.timu.init.model.dto.picture.PictureQueryRequest;
-import fun.timu.init.model.dto.picture.PictureReviewRequest;
-import fun.timu.init.model.dto.picture.PictureUploadByBatchRequest;
-import fun.timu.init.model.dto.picture.PictureUploadRequest;
+import fun.timu.init.model.dto.picture.*;
 import fun.timu.init.model.entity.Picture;
 import fun.timu.init.model.entity.User;
 import fun.timu.init.model.vo.PictureVO;
@@ -92,6 +89,30 @@ public interface PictureService extends IService<Picture> {
      * @return
      */
     int uploadPictureByPexels(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser);
+
+    /**
+     * 校验图片权限
+     *
+     * @param loginUser
+     * @param picture
+     */
+    public void checkPictureAuth(User loginUser, Picture picture);
+
+    /**
+     * 删除图片
+     *
+     * @param pictureId
+     * @param loginUser
+     */
+    public void deletePicture(long pictureId, User loginUser);
+
+    /**
+     * 编辑图片
+     *
+     * @param pictureEditRequest
+     * @param loginUser
+     */
+    public void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
 
     /**
      * 图片清理

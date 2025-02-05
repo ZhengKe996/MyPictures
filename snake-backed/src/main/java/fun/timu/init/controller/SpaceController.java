@@ -9,12 +9,10 @@ import fun.timu.init.common.ResultUtils;
 import fun.timu.init.constant.UserConstant;
 import fun.timu.init.exception.BusinessException;
 import fun.timu.init.exception.ThrowUtils;
-import fun.timu.init.model.dto.space.SpaceAddRequest;
-import fun.timu.init.model.dto.space.SpaceEditRequest;
-import fun.timu.init.model.dto.space.SpaceQueryRequest;
-import fun.timu.init.model.dto.space.SpaceUpdateRequest;
+import fun.timu.init.model.dto.space.*;
 import fun.timu.init.model.entity.Space;
 import fun.timu.init.model.entity.User;
+import fun.timu.init.model.enums.SpaceLevelEnum;
 import fun.timu.init.model.vo.SpaceVO;
 import fun.timu.init.service.SpaceService;
 import fun.timu.init.service.UserService;
@@ -24,8 +22,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/space")
@@ -231,14 +231,14 @@ public class SpaceController {
         return ResultUtils.success(true);
     }
 
-//    /**
-//     * 获取空间级别列表，便于前端展示
-//     *
-//     * @return
-//     */
-//    @GetMapping("/list/level")
-//    public BaseResponse<List<SpaceLevel>> listSpaceLevel() {
-//        List<SpaceLevel> spaceLevelList = Arrays.stream(SpaceLevelEnum.values()).map(spaceLevelEnum -> new SpaceLevel(spaceLevelEnum.getValue(), spaceLevelEnum.getText(), spaceLevelEnum.getMaxCount(), spaceLevelEnum.getMaxSize())).collect(Collectors.toList());
-//        return ResultUtils.success(spaceLevelList);
-//    }
+    /**
+     * 获取空间级别列表，便于前端展示
+     *
+     * @return
+     */
+    @GetMapping("/list/level")
+    public BaseResponse<List<SpaceLevel>> listSpaceLevel() {
+        List<SpaceLevel> spaceLevelList = Arrays.stream(SpaceLevelEnum.values()).map(spaceLevelEnum -> new SpaceLevel(spaceLevelEnum.getValue(), spaceLevelEnum.getText(), spaceLevelEnum.getMaxCount(), spaceLevelEnum.getMaxSize())).collect(Collectors.toList());
+        return ResultUtils.success(spaceLevelList);
+    }
 }

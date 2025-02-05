@@ -16,11 +16,13 @@ import fun.timu.init.exception.ThrowUtils;
 import fun.timu.init.manager.CacheManager;
 import fun.timu.init.model.dto.picture.*;
 import fun.timu.init.model.entity.Picture;
+import fun.timu.init.model.entity.Space;
 import fun.timu.init.model.entity.User;
 import fun.timu.init.model.enums.PictureReviewStatusEnum;
 import fun.timu.init.model.vo.PictureTagCategory;
 import fun.timu.init.model.vo.PictureVO;
 import fun.timu.init.service.PictureService;
+import fun.timu.init.service.SpaceService;
 import fun.timu.init.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,12 +52,14 @@ public class PictureController {
 
     private final UserService userService;
     private final PictureService pictureService;
+    private final SpaceService spaceService;
     private final StringRedisTemplate stringRedisTemplate;
     private final CacheManager cacheManager;
 
-    public PictureController(UserService userService, PictureService pictureService, StringRedisTemplate stringRedisTemplate, CacheManager cacheManager) {
+    public PictureController(UserService userService, PictureService pictureService, SpaceService spaceService, StringRedisTemplate stringRedisTemplate, CacheManager cacheManager) {
         this.userService = userService;
         this.pictureService = pictureService;
+        this.spaceService = spaceService;
         this.stringRedisTemplate = stringRedisTemplate;
         this.cacheManager = cacheManager;
     }
@@ -286,6 +290,14 @@ public class PictureController {
 
         // 根据ID查询数据库，获取图片对象
         Picture picture = pictureService.getById(id);
+        ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
+
+        // 空间权限校验
+        Long spaceId = picture.getSpaceId();
+        if (spaceId != null) {
+            User loginUser = userService.getLoginUser(request);
+            pictureService.checkPictureAuth(loginUser, picture);
+        }
 
         // 验证查询结果是否为空，如果为空则抛出未找到错误异常
         ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
@@ -324,7 +336,6 @@ public class PictureController {
      * @return 返回封装了分页图片信息的响应对象
      */
     @PostMapping("/list/page/vo")
-    @Deprecated
     public BaseResponse<Page<PictureVO>> listPictureVOByPage(@RequestBody PictureQueryRequest pictureQueryRequest, HttpServletRequest request) {
         // 获取当前页码和页面大小
         long current = pictureQueryRequest.getCurrent();
@@ -332,6 +343,23 @@ public class PictureController {
 
         // 限制爬虫：如果页面大小超过20，则抛出参数错误异常
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+
+        // 空间权限校验
+        Long spaceId = pictureQueryRequest.getSpaceId();
+
+        if (spaceId != null) {
+            // 私有空间
+            User loginUser = userService.getLoginUser(request);
+            Space space = spaceService.getById(spaceId);
+            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
+            if (!loginUser.getId().equals(space.getUserId())) {
+                throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "没有空间权限");
+            }
+        } else {
+            // 公开图库
+            pictureQueryRequest.setNullSpaceId(true);
+        }
+
 
         User loginUser = userService.getLoginUser(request);
         if (loginUser.getUserRole().equals(UserConstant.ADMIN_ROLE)) {
@@ -462,6 +490,7 @@ public class PictureController {
      * @return 包含PictureVO列表的分页响应对象
      */
     @PostMapping("/list/page/vo/multilevel_cache")
+    @Deprecated
     public BaseResponse<Page<PictureVO>> listPictureVOByPageWithMultilevelCache(@RequestBody PictureQueryRequest pictureQueryRequest, HttpServletRequest request) {
         // 获取当前页码和页面大小
         long current = pictureQueryRequest.getCurrent();
