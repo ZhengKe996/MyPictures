@@ -70,25 +70,31 @@
       <template #tr>
         <tr v-for="item in ListInfo" :key="item.id" class="even:bg-gray-50">
           <td
-            class="whitespace-nowrap py-4 pl-4 px-3 text-sm font-medium text-gray-900 sm:pl-3"
+            class="whitespace-nowrap py-4 pl-4 px-3 text-sm font-medium text-gray-900 sm:pl-3 text-center"
           >
             {{ item.id }}
           </td>
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+          <td
+            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
+          >
             {{ item.userAccount }}
           </td>
           <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 max-w-12 overflow-hidden"
+            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 max-w-12 overflow-hidden text-center"
           >
             {{ item.userName }}
           </td>
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+          <td
+            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
+          >
             <Badges
               :text="item.userRole === ACCESSENUM.ADMIN ? 'ADMIN' : '普通用户'"
               :color="item.userRole === ACCESSENUM.ADMIN ? 'red' : 'blue'"
             ></Badges>
           </td>
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+          <td
+            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
+          >
             <img
               class="inline-block size-14 rounded-md max-w-8 max-h-8"
               :src="item.userAvatar ? item.userAvatar : DefaultUserAvatar"
@@ -96,12 +102,12 @@
             />
           </td>
           <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500"
+            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
           >
             {{ item.userProfile ? item.userProfile : "NULL" }}
           </td>
           <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500"
+            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
           >
             <button
               type="button"
@@ -113,7 +119,7 @@
             </button>
           </td>
           <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500"
+            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
           >
             <button
               type="button"

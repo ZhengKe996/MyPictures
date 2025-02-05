@@ -112,40 +112,48 @@
       <template #tr>
         <tr v-for="item in ListInfo" :key="item.id" class="even:bg-gray-50">
           <td
-            class="whitespace-nowrap py-4 pl-4 px-3 text-sm font-medium text-gray-900 sm:pl-3"
+            class="whitespace-nowrap py-4 pl-4 px-3 text-sm font-medium text-gray-900 sm:pl-3 text-center"
           >
             {{ item.id }}
           </td>
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+          <td
+            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
+          >
             {{ item.spaceName }}
           </td>
           <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 max-w-12 overflow-hidden"
+            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 max-w-12 overflow-hidden text-center"
           >
             {{ item.spaceLevel }}
           </td>
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-            <!-- <Badges
-              :text="item.userRole === ACCESSENUM.ADMIN ? 'ADMIN' : '普通用户'"
-              :color="item.userRole === ACCESSENUM.ADMIN ? 'red' : 'blue'"
-            ></Badges> -->
-            Condition
+          <td
+            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
+          >
+            <div class="flex flex-col items-center justify-center">
+              <div>
+                大小：{{ formatSize(item.totalSize) }} /
+                {{ formatSize(item.maxSize) }}
+              </div>
+              <div>数量：{{ item.totalCount }} / {{ item.maxCount }}</div>
+            </div>
           </td>
-          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+          <td
+            class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center"
+          >
             {{ item.user?.userName }}
           </td>
           <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500"
+            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
           >
             {{ item.createTime }}
           </td>
           <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500"
+            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
           >
             {{ item.editTime }}
           </td>
           <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500"
+            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
           >
             <span
               class="text-emerald-600 hover:text-emerald-700 cursor-pointer transition-colors hover:underline"
@@ -155,7 +163,7 @@
             </span>
           </td>
           <td
-            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500"
+            class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
           >
             <span
               class="text-red-600 hover:text-red-700 cursor-pointer transition-colors hover:underline"
@@ -187,6 +195,7 @@ import {
   SpaceManagerColumns,
   type SpaceType,
 } from "@/config";
+import { formatSize } from "@/utils";
 import { onMounted, ref } from "vue";
 import { GetSpaceList } from "@/services";
 import { Message } from "@/lib/Message";
