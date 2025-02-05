@@ -39,6 +39,50 @@
           <!-- <div
             class="bg-white rounded-xl shadow-sm p-6 animate-fade-in-up animate-delay-200"
           ></div> -->
+          <infinite
+            v-model="loading"
+            :isFinished="isFinished"
+            @on-load="getLoadData"
+            :threshold="100"
+            :immediate-check="true"
+            loading-text="玩命加载中..."
+            finished-text="我是有底线的"
+          >
+            <waterfall
+              class="px-1 w-full animate-fade-in animate-duration-300 animate-ease-out"
+              :data="PictureListInfo"
+              nodeKey="id"
+              :column="5"
+              :picturePreReading="false"
+            >
+              <template v-slot="{ item, width }">
+                <div
+                  class="overflow-hidden rounded-lg bg-white shadow-sm animate-fade-in-up animate-duration-500"
+                >
+                  <Item :picture="(item as PictureType)" :width="width"></Item>
+                </div>
+              </template>
+            </waterfall>
+
+            <!-- 添加空状态展示 -->
+            <template v-if="!loading && PictureListInfo.length === 0">
+              <div
+                class="flex flex-col items-center justify-center py-16 space-y-4 animate-fade-in"
+              >
+                <div
+                  class="rounded-full bg-gray-50 p-4 animate-hover-scale animate-duration-300"
+                >
+                  <i class="i-tabler:photo-off size-8 text-gray-400"></i>
+                </div>
+                <div class="text-center">
+                  <h3 class="text-base font-semibold text-gray-900 mb-1">
+                    暂无图片数据
+                  </h3>
+                  <p class="text-sm text-gray-500 mb-4">请尝试更换搜索条件</p>
+                </div>
+              </div>
+            </template>
+          </infinite>
         </div>
         <Pagination
           :total="total"
@@ -91,12 +135,26 @@ import { useThrottleFn } from "@vueuse/core";
 import dayjs from "dayjs";
 import Pagination from "@/lib/Pagination";
 
+import Waterfall from "@/lib/Waterfall";
+import Infinite from "@/lib/Infinite";
+import { Item } from "@/components/ListItem";
+
 const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
 const isExit = ref(false);
 const spaceId = ref<string>("");
-const total = ref<number>(0); // 题目总数
+const total = ref<number>(0);
+// Loading
+const loading = ref<boolean>(false);
+const isFinished = ref<boolean>(false);
+
+const getLoadData = async () => {
+  if (isFinished.value) return;
+  // 完成了第一次请求后，后续的请求让page自增
+  if (PictureListInfo.value.length > 0) PageInfo.value.current++;
+  await LoadList();
+};
 
 // 获取用户名
 const username = computed(() => userStore.getUserName || "未知用户");
@@ -146,10 +204,8 @@ const ChangeCurrentPageHandle = (current: number) =>
 const PictureListInfo = ref<PictureType[]>([]);
 
 const LoadList = useThrottleFn(async () => {
-  console.log("LoadList", PageInfo.value);
   const { data, message, code } = await GetPictureList(PageInfo.value);
   if (code === 0 && data) {
-    console.log(data);
     total.value = Number(data.total) ?? 0;
 
     const formattedRecords = Array.isArray(data.records)
@@ -160,6 +216,11 @@ const LoadList = useThrottleFn(async () => {
       PictureListInfo.value = formattedRecords;
     } else {
       PictureListInfo.value.push(...formattedRecords);
+    }
+
+    // 判断数据是否全部加载完成
+    if (PictureListInfo.value.length >= total.value) {
+      isFinished.value = true;
     }
   } else Message.error(`获取失败, 原因: ${message}`);
 }, 3000);
