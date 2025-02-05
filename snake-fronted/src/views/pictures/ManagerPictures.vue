@@ -32,7 +32,7 @@
     <TableList :columns="PictureManagerColumns">
       <template #tr>
         <tr
-          v-for="item in PictureListInfo"
+          v-for="item in ListInfo"
           :key="item.id"
           class="even:bg-gray-50 border-b border-gray-100 hover:bg-gray-50/60 transition-colors duration-200"
         >
@@ -246,7 +246,7 @@ const toggleFullscreen = (id: number | undefined) => {
   if (id === undefined) return;
 
   // 根据 ID 查找实际的图片元素
-  const item = PictureListInfo.value.find((picture) => picture.id === id);
+  const item = ListInfo.value.find((picture) => picture.id === id);
   // 如果找不到图片元素，则不执行任何操作
   if (!item) return;
 
@@ -290,7 +290,7 @@ const PageInfo = ref<PictureInfoInterface>({
   pageSize: 20,
 });
 
-const PictureListInfo = ref<PictureType[]>([]);
+const ListInfo = ref<PictureType[]>([]);
 
 const ChangeCurrentPageHandle = (current: number) =>
   (PageInfo.value = { ...PageInfo.value, current: current });
@@ -305,7 +305,7 @@ const LoadList = useThrottleFn(async () => {
   if (code === 0 && data) {
     total.value = Number(data.total) ?? 0;
 
-    PictureListInfo.value = Array.isArray(data.records)
+    ListInfo.value = Array.isArray(data.records)
       ? data.records.map((item: PictureType) => ({
           ...item,
           name: item.name || DefaultPictureTexts.UNNAMED_PICTURE,

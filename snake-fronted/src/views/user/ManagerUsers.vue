@@ -57,7 +57,7 @@
     </div>
     <TableList :columns="UserManagerColumns">
       <template #tr>
-        <tr v-for="item in UserListInfo" :key="item.id" class="even:bg-gray-50">
+        <tr v-for="item in ListInfo" :key="item.id" class="even:bg-gray-50">
           <td
             class="whitespace-nowrap py-4 pl-4 px-3 text-sm font-medium text-gray-900 sm:pl-3"
           >
@@ -156,7 +156,7 @@ const PageInfo = ref<UserInfoInterface>({
   pageSize: 20,
 });
 
-const UserListInfo = ref<UserType[]>([]);
+const ListInfo = ref<UserType[]>([]);
 const ChangeCurrentPageHandle = (current: number) =>
   (PageInfo.value = { ...PageInfo.value, current: current });
 
@@ -169,7 +169,7 @@ const LoadList = useThrottleFn(async () => {
   if (code === 0 && data) {
     total.value = Number(data.total) ?? 0;
 
-    UserListInfo.value = Array.isArray(data.records)
+    ListInfo.value = Array.isArray(data.records)
       ? data.records.map((item: UserType) => ({
           id: item.id ? String(item.id) : "",
           userAccount: item.userAccount ?? "",
