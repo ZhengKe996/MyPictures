@@ -162,9 +162,7 @@ public class PictureController {
         // 遍历允许的图像类型列表
         for (String type : ALLOWED_IMAGE_TYPES) {
             // 如果文件的类型与当前遍历的图像类型相匹配，则返回true
-            if (type.equals(file.getContentType())) {
-                return true;
-            }
+            if (type.equals(file.getContentType())) return true;
         }
         // 如果遍历完所有类型都没有匹配，则返回false
         return false;
@@ -391,6 +389,22 @@ public class PictureController {
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
 
+        // 空间权限校验
+        Long spaceId = pictureQueryRequest.getSpaceId();
+
+        if (spaceId != null) {
+            // 私有空间
+            User loginUser = userService.getLoginUser(request);
+            Space space = spaceService.getById(spaceId);
+            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
+            if (!loginUser.getId().equals(space.getUserId())) {
+                throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "没有空间权限");
+            }
+        } else {
+            // 公开图库
+            pictureQueryRequest.setNullSpaceId(true);
+        }
+
         User loginUser = userService.getLoginUser(request);
         if (loginUser.getUserRole().equals(UserConstant.ADMIN_ROLE)) {
             pictureQueryRequest.setReviewStatus(null);
@@ -446,6 +460,22 @@ public class PictureController {
         // 限制爬虫：如果页面大小超过20，则抛出参数错误异常
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
 
+        // 空间权限校验
+        Long spaceId = pictureQueryRequest.getSpaceId();
+
+        if (spaceId != null) {
+            // 私有空间
+            User loginUser = userService.getLoginUser(request);
+            Space space = spaceService.getById(spaceId);
+            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
+            if (!loginUser.getId().equals(space.getUserId())) {
+                throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "没有空间权限");
+            }
+        } else {
+            // 公开图库
+            pictureQueryRequest.setNullSpaceId(true);
+        }
+
         // 获取当前登录用户
         User loginUser = userService.getLoginUser(request);
         // 根据用户角色设置审核状态查询条件
@@ -498,6 +528,22 @@ public class PictureController {
 
         // 限制爬虫：如果页面大小超过20，则抛出参数错误异常
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+
+        // 空间权限校验
+        Long spaceId = pictureQueryRequest.getSpaceId();
+
+        if (spaceId != null) {
+            // 私有空间
+            User loginUser = userService.getLoginUser(request);
+            Space space = spaceService.getById(spaceId);
+            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
+            if (!loginUser.getId().equals(space.getUserId())) {
+                throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "没有空间权限");
+            }
+        } else {
+            // 公开图库
+            pictureQueryRequest.setNullSpaceId(true);
+        }
 
         // 获取当前登录用户
         User loginUser = userService.getLoginUser(request);

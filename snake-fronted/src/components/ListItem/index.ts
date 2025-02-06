@@ -1,4 +1,4 @@
 import Item from "./PictureItem.vue";
-import SpaceItem from "./SpaceItem.vue";
+import SpaceItem from "./SpacePictureItem.vue";
 
 export { Item, SpaceItem };
