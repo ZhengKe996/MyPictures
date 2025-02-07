@@ -138,4 +138,20 @@ public interface PictureService extends IService<Picture> {
      * @return
      */
     public List<String> getColorList();
+
+    /**
+     * 批量编辑图片
+     *
+     * @param pictureEditByBatchRequest
+     * @param loginUser
+     */
+    public void editPictureByBatch(PictureEditByBatchRequest pictureEditByBatchRequest, User loginUser);
+
+    /**
+     * 批量编辑图片元数据
+     *
+     * @param request
+     * @param loginUser
+     */
+    public void batchEditPictureMetadata(PictureBatchEditRequest request, User loginUser);
 }

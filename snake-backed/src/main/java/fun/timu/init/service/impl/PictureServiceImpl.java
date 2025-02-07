@@ -3,12 +3,11 @@ package fun.timu.init.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
 import fun.timu.init.common.ErrorCode;
 import fun.timu.init.exception.BusinessException;
 import fun.timu.init.exception.ThrowUtils;
@@ -32,12 +31,15 @@ import fun.timu.init.service.UserService;
 import fun.timu.init.utils.ColorSimilarUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +47,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -62,7 +65,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     private final TransactionTemplate transactionTemplate;
     private String defaulCategory = "素材";
 
-    PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService, SpaceService spaceService, PictureMapper pictureMapper, CosManager cosManager, PexelsManager pexelsManager, TransactionTemplate transactionTemplate) {
+    public PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService, SpaceService spaceService, PictureMapper pictureMapper, CosManager cosManager, PexelsManager pexelsManager, TransactionTemplate transactionTemplate, @Qualifier("customExecutor") ThreadPoolExecutor customExecutor) {
         this.filePictureUpload = filePictureUpload;
         this.urlPictureUpload = urlPictureUpload;
         this.userService = userService;
@@ -760,6 +763,29 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     }
 
     /**
+     * nameRule 格式：图片{序号}
+     *
+     * @param pictureList
+     * @param nameRule
+     */
+    private void fillPictureWithNameRule(List<Picture> pictureList, String nameRule) {
+        if (CollUtil.isEmpty(pictureList) || StrUtil.isBlank(nameRule)) {
+            return;
+        }
+        long count = 1;
+        try {
+            for (Picture picture : pictureList) {
+                String pictureName = nameRule.replaceAll("\\{序号}", String.valueOf(count++));
+                picture.setName(pictureName);
+            }
+        } catch (Exception e) {
+            log.error("名称解析错误", e);
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "名称解析错误");
+        }
+    }
+
+
+    /**
      * 获取图片颜色列表
      * <p>
      * 本方法通过查询数据库中所有独特的图片颜色，返回一个不含重复颜色的列表
@@ -775,5 +801,122 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         wrapper.select("DISTINCT picColor");
         // 执行查询并返回结果
         return pictureMapper.selectObjs(wrapper);
+    }
+
+    /**
+     * 批量编辑图片信息
+     *
+     * @param pictureEditByBatchRequest 包含要编辑的图片信息请求对象
+     * @param loginUser                 当前登录用户
+     *                                  <p>
+     *                                  该方法主要用于批量更新图片的分类和标签信息确保操作的原子性，任何异常情况下进行回滚
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void editPictureByBatch(PictureEditByBatchRequest pictureEditByBatchRequest, User loginUser) {
+        // 获取请求中的图片ID列表、空间ID、分类和标签
+        List<Long> pictureIdList = pictureEditByBatchRequest.getPictureIdList();
+        Long spaceId = pictureEditByBatchRequest.getSpaceId();
+        String category = pictureEditByBatchRequest.getCategory();
+        List<String> tags = pictureEditByBatchRequest.getTags();
+
+        // 1. 校验参数
+        ThrowUtils.throwIf(spaceId == null || CollUtil.isEmpty(pictureIdList), ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
+
+        // 2. 校验空间权限
+        Space space = spaceService.getById(spaceId);
+        ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
+        if (!loginUser.getId().equals(space.getUserId())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "没有空间访问权限");
+        }
+
+        // 3. 查询指定图片，仅选择需要的字段
+        List<Picture> pictureList = this.lambdaQuery().select(Picture::getId, Picture::getSpaceId).eq(Picture::getSpaceId, spaceId).in(Picture::getId, pictureIdList).list();
+
+
+        if (pictureList.isEmpty()) {
+            return;
+        }
+
+        // 4. 更新分类和标签
+        pictureList.forEach(picture -> {
+            if (StrUtil.isNotBlank(category)) {
+                picture.setCategory(category);
+            }
+            if (CollUtil.isNotEmpty(tags)) {
+                picture.setTags(JSONUtil.toJsonStr(tags));
+            }
+        });
+
+        // 批量重命名
+        String nameRule = pictureEditByBatchRequest.getNameRule();
+        fillPictureWithNameRule(pictureList, nameRule);
+
+        // 5. 批量更新
+        boolean result = this.updateBatchById(pictureList);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+    }
+
+
+    /**
+     * 批量编辑图片分类和标签
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchEditPictureMetadata(PictureBatchEditRequest request, User loginUser) {
+        // 1. 参数校验
+        ThrowUtils.throwIf(request.getSpaceId() == null || CollUtil.isEmpty(request.getPictureIdList()), ErrorCode.PARAMS_ERROR, "空间ID或图片列表不能为空");
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR, "用户未登录");
+
+        Long spaceId = request.getSpaceId();
+        List<Long> pictureIdList = request.getPictureIdList();
+        String category = request.getCategory();
+        List<String> tags = request.getTags();
+
+        // 2. 空间权限校验
+        Space space = spaceService.getById(spaceId);
+        ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
+        ThrowUtils.throwIf(!loginUser.getId().equals(space.getUserId()), ErrorCode.NO_AUTH_ERROR, "没有空间访问权限");
+
+        // 3. 分批查询图片
+        int batchSize = 100;
+        List<List<Long>> partitionedPictureIds = Lists.partition(pictureIdList, batchSize);
+
+        // 4. 使用并行流处理批次
+        partitionedPictureIds.parallelStream().forEach(batchPictureIds -> {
+            // 查询当前批次的图片
+            List<Picture> batchPictures = this.lambdaQuery().eq(Picture::getSpaceId, spaceId).in(Picture::getId, batchPictureIds).list();
+
+            if (CollUtil.isEmpty(batchPictures)) {
+                return;
+            }
+
+            // 5. 更新图片元数据
+            batchPictures.forEach(picture -> {
+                // 更新分类
+                if (StrUtil.isNotBlank(category)) {
+                    picture.setCategory(category);
+                }
+
+                // 更新标签
+                if (tags != null) {
+                    if (CollUtil.isNotEmpty(tags)) {
+                        picture.setTags(JSONUtil.toJsonStr(tags));
+                    } else {
+                        picture.setTags(null);
+                    }
+                }
+
+            });
+
+            // 批量重命名
+            String nameRule = request.getNameRule();
+            fillPictureWithNameRule(batchPictures, nameRule);
+
+            // 6. 批量更新
+            boolean updateResult = this.updateBatchById(batchPictures);
+            ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "批量更新图片失败");
+        });
     }
 }

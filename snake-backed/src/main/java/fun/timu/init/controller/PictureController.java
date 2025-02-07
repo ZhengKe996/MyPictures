@@ -797,4 +797,50 @@ public class PictureController {
         return ResultUtils.success(result);
     }
 
+    /**
+     * 处理批量编辑图片的请求
+     * 该方法允许用户通过发送POST请求来批量编辑图片信息
+     *
+     * @param pictureEditByBatchRequest 包含批量编辑图片信息的请求体
+     * @param request                   HTTP请求对象，用于获取登录用户信息
+     * @return 返回一个表示操作结果的BaseResponse对象，其中包含一个布尔值表示操作是否成功
+     */
+    @PostMapping("/edit/batch")
+    public BaseResponse<Boolean> editPictureByBatch(@RequestBody PictureEditByBatchRequest pictureEditByBatchRequest, HttpServletRequest request) {
+        // 检查请求参数是否为空，如果为空则抛出异常
+        ThrowUtils.throwIf(pictureEditByBatchRequest == null, ErrorCode.PARAMS_ERROR);
+
+        // 获取当前登录的用户信息
+        User loginUser = userService.getLoginUser(request);
+
+        // 调用服务层方法执行批量编辑图片操作
+        pictureService.editPictureByBatch(pictureEditByBatchRequest, loginUser);
+
+        // 返回成功响应，表示图片批量编辑操作成功
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 处理批量并行编辑图片的请求
+     * 该方法允许用户通过发送POST请求来批量编辑图片元数据，并行处理以提高效率
+     *
+     * @param pictureBatchEditRequest 包含要编辑的图片信息和新元数据的请求体
+     * @param request                 HTTP请求对象，用于获取登录用户信息
+     * @return 返回一个BaseResponse对象，包含一个布尔值来表示编辑操作是否成功
+     */
+    @PostMapping("/edit/batch/parallel")
+    public BaseResponse<Boolean> editPictureByBatchParallel(@RequestBody PictureBatchEditRequest pictureBatchEditRequest, HttpServletRequest request) {
+        // 检查请求体是否为null，如果为null则抛出参数错误异常
+        ThrowUtils.throwIf(pictureBatchEditRequest == null, ErrorCode.PARAMS_ERROR);
+
+        // 获取当前登录的用户信息
+        User loginUser = userService.getLoginUser(request);
+
+        // 调用服务层方法，批量并行编辑图片元数据
+        pictureService.batchEditPictureMetadata(pictureBatchEditRequest, loginUser);
+
+        // 返回成功响应，表示编辑操作成功
+        return ResultUtils.success(true);
+    }
+
 }
