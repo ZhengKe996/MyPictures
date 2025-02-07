@@ -24,13 +24,16 @@
       {{ label }}
     </label>
 
-    <!-- Main button with removed outline and improved states -->
+    <!-- Main button with updated styles -->
     <button
       type="button"
       @click="toggleDropdown"
       :aria-expanded="isOpen"
       :aria-controls="listboxId"
-      class="relative w-full flex items-center justify-between px-4 py-2.5 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl transition-all duration-200 ease-out hover:border-indigo-200 hover:bg-indigo-50/30 group-focus-visible:border-indigo-500 group-focus-visible:ring-4 group-focus-visible:ring-indigo-500/10 disabled:opacity-50 disabled:cursor-not-allowed data-[state=open]:border-indigo-500 data-[state=open]:bg-white data-[state=open]:shadow-lg outline-none focus:outline-none"
+      class="relative w-full flex items-center justify-between px-4 py-2.5 bg-white shadow-sm border border-gray-200 rounded-xl transition-all duration-200 ease-out hover:border-indigo-300 hover:bg-indigo-50/50 group-focus-visible:border-indigo-500 group-focus-visible:ring-4 group-focus-visible:ring-indigo-500/10 disabled:opacity-50 disabled:cursor-not-allowed data-[state=open]:border-indigo-500 data-[state=open]:bg-white data-[state=open]:shadow-md outline-none focus:outline-none"
+      :class="[
+        isOpen ? 'bg-white shadow-md' : 'bg-gray-50/80 backdrop-blur-sm',
+      ]"
       :data-state="isOpen ? 'open' : 'closed'"
     >
       <div class="flex items-center gap-3 min-w-0">
@@ -39,7 +42,7 @@
             v-if="modelValue?.icon"
             :class="[
               modelValue.icon,
-              'w-5 h-5 text-gray-600 transition-transform duration-200 group-hover/button:scale-110',
+              'w-5 h-5 text-indigo-600 transition-transform duration-200 group-hover/button:scale-110',
             ]"
           />
           <img
@@ -54,18 +57,22 @@
         </div>
         <span
           v-if="modelValue?.name || placeholder"
-          class="truncate text-sm text-gray-700 font-medium"
+          class="truncate text-sm font-medium"
+          :class="[modelValue?.name ? 'text-gray-700' : 'text-gray-500']"
         >
           {{ modelValue?.name || placeholder }}
         </span>
       </div>
       <i
-        class="i-tabler-chevron-down text-gray-400 transform transition-all duration-200 group-hover/button:text-indigo-500"
-        :class="[isOpen ? 'rotate-180 text-indigo-500' : '']"
+        class="i-tabler-chevron-down transform transition-all duration-200"
+        :class="[
+          isOpen ? 'rotate-180 text-indigo-500' : 'text-gray-400',
+          'group-hover/button:text-indigo-500',
+        ]"
       />
     </button>
 
-    <!-- Dropdown with improved focus effects -->
+    <!-- Dropdown with improved styles -->
     <Transition
       enter-active-class="transform-gpu transition-all duration-300 ease-out-back"
       enter-from-class="opacity-0 -translate-y-1 scale-95 blur-sm"
@@ -84,7 +91,7 @@
           <ul
             :id="listboxId"
             role="listbox"
-            class="relative max-h-64 overflow-auto rounded-xl bg-white/95 backdrop-blur-sm border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.12)] divide-y divide-gray-50 scrollbar-thin scrollbar-thumb-indigo-200 scrollbar-track-transparent focus:outline-none"
+            class="relative max-h-64 overflow-auto rounded-xl bg-white border border-gray-200 shadow-lg divide-y divide-gray-100 scrollbar-thin scrollbar-thumb-indigo-200 scrollbar-track-transparent focus:outline-none"
             :aria-activedescendant="highlightedId"
           >
             <li
@@ -99,13 +106,8 @@
                 'cursor-pointer select-none group/item relative',
                 'outline-none focus:outline-none',
                 highlightedIndex === index
-                  ? [
-                      'bg-gradient-to-r from-indigo-50/80 to-transparent',
-                      'text-indigo-900',
-                      'before:absolute before:inset-0 before:opacity-0',
-                      'before:bg-indigo-500/5 before:animate-pulse',
-                    ]
-                  : ['text-gray-700', 'hover:bg-gray-50/70'],
+                  ? ['bg-indigo-50', 'text-indigo-900']
+                  : ['text-gray-700', 'hover:bg-gray-50'],
                 isSelected(option) ? 'font-medium' : 'font-normal',
                 !option.name ? 'justify-center' : '',
               ]"
