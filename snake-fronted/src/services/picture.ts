@@ -106,6 +106,8 @@ export const GetPictureList = async (form: {
   picFormat?: string;
   tags?: Array<string>;
   spaceId?: string;
+  startEditTime?: string;
+  endEditTime?: string;
 }) => {
   // 不使用缓存
   return await Service.listPictureVoByPageUsingPost(form);

@@ -25,14 +25,36 @@
                 </span>
               </h1>
             </div>
-            <Button
-              type="primary"
-              icon="i-tabler:photo-plus"
-              @click="handleCreatePhoto"
-              :isActiveAnim="true"
-            >
-              创建图片
-            </Button>
+            <div class="flex items-center gap-4">
+              <!-- 添加日期选择器 -->
+              <Popover trigger="click" placement="bottom-end">
+                <template #reference>
+                  <Button
+                    type="primary"
+                    icon="i-tabler:calendar"
+                    :isActiveAnim="true"
+                  >
+                    {{ dateLabel }}
+                  </Button>
+                </template>
+                <div class="w-[320px]">
+                  <Calendars
+                    mode="range"
+                    :start-date="startDate"
+                    :end-date="endDate"
+                    @range-select="handleDateRangeSelect"
+                  />
+                </div>
+              </Popover>
+              <Button
+                type="primary"
+                icon="i-tabler:photo-plus"
+                @click="handleCreatePhoto"
+                :isActiveAnim="true"
+              >
+                创建图片
+              </Button>
+            </div>
           </div>
 
           <!-- 内容区域 -->
@@ -185,6 +207,8 @@ import Waterfall from "@/lib/Waterfall";
 import Infinite from "@/lib/Infinite";
 import { SpaceItem } from "@/components/ListItem";
 import Dialog from "@/lib/Dialog/Dialog.vue";
+import Calendars from "@/lib/Calendars";
+import Popover from "@/lib/Popover";
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -296,6 +320,41 @@ const handleCreateSpace = () => router.push("/add/space");
 const handleCreatePhoto = () =>
   router.push(`/add/picture?spaceId=${spaceId.value}`);
 
+// 添加日期选择相关的响应式变量
+const startDate = ref("");
+const endDate = ref("");
+
+// 日期展示标签
+const dateLabel = computed(() => {
+  if (!startDate.value && !endDate.value) {
+    return "选择日期";
+  }
+  if (startDate.value && endDate.value) {
+    return `${dayjs(startDate.value).format("MM/DD")} - ${dayjs(
+      endDate.value
+    ).format("MM/DD")}`;
+  }
+  return dayjs(startDate.value).format("YYYY/MM/DD");
+});
+
+// 处理日期范围选择
+const handleDateRangeSelect = (start: string, end: string) => {
+  startDate.value = start;
+  endDate.value = end;
+  console.log("日期范围选择成功", startDate.value, endDate.value);
+
+  // 更新 PageInfo
+  PageInfo.value = {
+    ...PageInfo.value,
+    current: 1, // 重置页码
+    startEditTime: start ? dayjs(start).startOf("day").format() : undefined,
+    endEditTime: end ? dayjs(end).endOf("day").format() : undefined,
+  };
+
+  // 重新加载列表
+  LoadList();
+};
+
 interface SpaceInfoInterface {
   current: number;
   pageSize: number;
@@ -306,6 +365,8 @@ interface SpaceInfoInterface {
   picFormat?: string;
   tags?: Array<string>;
   spaceId?: string;
+  startEditTime?: string;
+  endEditTime?: string;
 }
 const PageInfo = ref<SpaceInfoInterface>({
   current: 1,

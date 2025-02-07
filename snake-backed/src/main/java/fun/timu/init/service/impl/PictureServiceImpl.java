@@ -266,41 +266,59 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
 
     /**
      * 生成Picture实体的查询包装器
-     * 此方法根据传入的查询请求参数，构建一个查询包装器，用于数据库查询
-     * 它处理各种查询条件和排序需求，以生成高效的查询语句
+     * 此方法根据传入的查询请求参数，构建一个查询包装器，用于数据库查询。
+     * 它处理各种查询条件和排序需求，以生成高效的查询语句。
      *
      * @param pictureQueryRequest 包含查询条件和排序信息的请求对象
      * @return 返回一个配置好的QueryWrapper对象，用于执行数据库查询
      */
     @Override
     public QueryWrapper<Picture> getQueryWrapper(PictureQueryRequest pictureQueryRequest) {
+        // 创建一个新的QueryWrapper对象，用于构建查询条件
         QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
+
+        // 如果传入的查询请求对象为空，直接返回空的查询包装器
         if (pictureQueryRequest == null) {
             return queryWrapper;
         }
-        // 从对象中取值
-        Long id = pictureQueryRequest.getId();
-        String name = pictureQueryRequest.getName();
-        String introduction = pictureQueryRequest.getIntroduction();
-        String category = pictureQueryRequest.getCategory();
-        List<String> tags = pictureQueryRequest.getTags();
-        Long picSize = pictureQueryRequest.getPicSize();
-        Integer picWidth = pictureQueryRequest.getPicWidth();
-        Integer picHeight = pictureQueryRequest.getPicHeight();
-        Double picScale = pictureQueryRequest.getPicScale();
-        String picFormat = pictureQueryRequest.getPicFormat();
-        String searchText = pictureQueryRequest.getSearchText();
-        Long userId = pictureQueryRequest.getUserId();
-        String sortField = pictureQueryRequest.getSortField();
-        String sortOrder = pictureQueryRequest.getSortOrder();
-        Long spaceId = pictureQueryRequest.getSpaceId();
-        boolean nullSpaceId = pictureQueryRequest.isNullSpaceId();
-        // 从多字段中搜索
+
+        // 从pictureQueryRequest中提取各个字段的值
+        Long id = pictureQueryRequest.getId(); // 获取图片ID
+        String name = pictureQueryRequest.getName(); // 获取图片名称
+        String introduction = pictureQueryRequest.getIntroduction(); // 获取图片简介
+        String category = pictureQueryRequest.getCategory(); // 获取图片分类
+        List<String> tags = pictureQueryRequest.getTags(); // 获取图片标签列表
+        Long picSize = pictureQueryRequest.getPicSize(); // 获取图片大小
+        Integer picWidth = pictureQueryRequest.getPicWidth(); // 获取图片宽度
+        Integer picHeight = pictureQueryRequest.getPicHeight(); // 获取图片高度
+        Double picScale = pictureQueryRequest.getPicScale(); // 获取图片比例
+        String picFormat = pictureQueryRequest.getPicFormat(); // 获取图片格式
+        String searchText = pictureQueryRequest.getSearchText(); // 获取搜索文本
+        Long userId = pictureQueryRequest.getUserId(); // 获取用户ID
+        String sortField = pictureQueryRequest.getSortField(); // 获取排序字段
+        String sortOrder = pictureQueryRequest.getSortOrder(); // 获取排序顺序（升序或降序）
+        Long spaceId = pictureQueryRequest.getSpaceId(); // 获取空间ID
+        boolean nullSpaceId = pictureQueryRequest.isNullSpaceId(); // 是否为空间ID为null的记录
+
+        Date startEditTime = pictureQueryRequest.getStartEditTime(); // 获取编辑开始时间
+        Date endEditTime = pictureQueryRequest.getEndEditTime(); // 获取编辑结束时间
+
+        // 处理多字段搜索：如果searchText不为空，则在name和introduction字段中进行模糊匹配
         if (StrUtil.isNotBlank(searchText)) {
-            // 需要拼接查询条件
             queryWrapper.and(qw -> qw.like("name", searchText).or().like("introduction", searchText));
         }
-        // 构建其他查询条件
+
+        // 构建其他查询条件：
+        // - 根据id是否非空来决定是否添加id等于条件
+        // - 根据userId是否非空来决定是否添加userId等于条件
+        // - 根据name是否非空来决定是否添加name模糊匹配条件
+        // - 根据introduction是否非空来决定是否添加introduction模糊匹配条件
+        // - 根据picFormat是否非空来决定是否添加picFormat模糊匹配条件
+        // - 根据category是否非空来决定是否添加category等于条件
+        // - 根据picWidth是否非空来决定是否添加picWidth等于条件
+        // - 根据picHeight是否非空来决定是否添加picHeight等于条件
+        // - 根据picSize是否非空来决定是否添加picSize等于条件
+        // - 根据picScale是否非空来决定是否添加picScale等于条件
         queryWrapper.eq(ObjUtil.isNotEmpty(id), "id", id);
         queryWrapper.eq(ObjUtil.isNotEmpty(userId), "userId", userId);
         queryWrapper.like(StrUtil.isNotBlank(name), "name", name);
@@ -312,7 +330,10 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         queryWrapper.eq(ObjUtil.isNotEmpty(picSize), "picSize", picSize);
         queryWrapper.eq(ObjUtil.isNotEmpty(picScale), "picScale", picScale);
 
-        // 支持审核状态查询
+        // 支持审核状态查询：
+        // - 根据reviewStatus是否非空来决定是否添加reviewStatus等于条件
+        // - 根据reviewMessage是否非空来决定是否添加reviewMessage模糊匹配条件
+        // - 根据reviewerId是否非空来决定是否添加reviewerId等于条件
         Integer reviewStatus = pictureQueryRequest.getReviewStatus();
         String reviewMessage = pictureQueryRequest.getReviewMessage();
         Long reviewerId = pictureQueryRequest.getReviewerId();
@@ -320,20 +341,30 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         queryWrapper.like(StrUtil.isNotBlank(reviewMessage), "reviewMessage", reviewMessage);
         queryWrapper.eq(ObjUtil.isNotEmpty(reviewerId), "reviewerId", reviewerId);
 
+        // 根据spaceId是否非空来决定是否添加spaceId等于条件
+        // 如果nullSpaceId为true，则添加spaceId为null的条件
         queryWrapper.eq(ObjUtil.isNotEmpty(spaceId), "spaceId", spaceId);
         queryWrapper.isNull(nullSpaceId, "spaceId");
 
+        // 根据startEditTime是否非空来决定是否添加editTime大于等于条件
+        // 根据endEditTime是否非空来决定是否添加editTime小于条件
+        queryWrapper.ge(ObjUtil.isNotEmpty(startEditTime), "editTime", startEditTime);
+        queryWrapper.lt(ObjUtil.isNotEmpty(endEditTime), "editTime", endEditTime);
 
-        // 处理标签查询
+        // 处理标签查询：如果tags列表不为空，则对每个标签进行模糊匹配
         if (CollUtil.isNotEmpty(tags)) {
             for (String tag : tags) {
                 queryWrapper.like("tags", "\"" + tag + "\"");
             }
         }
-        // 排序处理
+
+        // 排序处理：如果sortField不为空且sortOrder为"ascend"，则按升序排序；否则按降序排序
         queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
+
+        // 返回配置好的查询包装器
         return queryWrapper;
     }
+
 
     /**
      * 校验图片信息的合法性

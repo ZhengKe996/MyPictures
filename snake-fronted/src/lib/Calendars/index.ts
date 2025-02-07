@@ -178,4 +178,5 @@ export const calendarUtils = {
   },
 };
 
-export { default as Calendars } from "./Calendars.vue";
+import Calendars from "./Calendars.vue";
+export default Calendars;
