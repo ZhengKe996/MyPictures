@@ -66,17 +66,30 @@
       >
         {{ picture.name }}
       </p>
-      <div class="flex items-center mt-2">
-        <img
-          class="h-5 w-5 rounded-full transition-transform duration-300 hover:scale-110 animate-hover"
-          :src="picture.user?.userAvatar"
-          alt=""
-        />
-        <span
-          class="text-sm text-zinc-500 ml-2 transition-colors duration-300 hover:text-zinc-700 dark:hover:text-zinc-300"
+      <div class="flex items-center justify-between mt-2">
+        <div class="flex items-center">
+          <img
+            class="h-5 w-5 rounded-full transition-transform duration-300 hover:scale-110 animate-hover"
+            :src="picture.user?.userAvatar"
+            alt=""
+          />
+          <span
+            class="text-sm text-zinc-500 ml-2 transition-colors duration-300 hover:text-zinc-700 dark:hover:text-zinc-300"
+          >
+            {{ picture.user?.userName }}
+          </span>
+        </div>
+        <!-- 主色调显示 -->
+        <div
+          v-if="picture.picColor"
+          class="flex items-center gap-1.5"
+          :title="`主色调: ${picture.picColor}`"
         >
-          {{ picture.user?.userName }}
-        </span>
+          <div
+            class="w-4 h-4 rounded-full border border-gray-200"
+            :style="{ backgroundColor: convertOxToHex(picture.picColor) }"
+          ></div>
+        </div>
       </div>
     </div>
   </div>
@@ -89,6 +102,7 @@ import { type PictureType } from "@/config";
 import Button from "@/lib/Button";
 import { randomRGB } from "@/utils/color";
 import { useRouter } from "vue-router";
+import { convertOxToHex } from "@/utils/colorConverter";
 const router = useRouter();
 const { picture, width } = defineProps<{
   picture: PictureType;

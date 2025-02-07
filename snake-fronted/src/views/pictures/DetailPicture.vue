@@ -116,6 +116,22 @@
 
           <!-- 分类和标签区域 -->
           <div class="py-5 space-y-4">
+            <!-- 主色调显示区域 -->
+            <div class="space-y-2">
+              <h2 class="text-sm font-medium text-gray-500">主色调</h2>
+              <div class="flex items-center gap-2">
+                <div
+                  v-if="picture?.picColor"
+                  class="w-12 h-6 rounded-md shadow-sm border border-gray-200"
+                  :style="{ backgroundColor: convertOxToHex(picture.picColor) }"
+                  :title="picture.picColor"
+                ></div>
+                <span class="text-xs text-gray-600">{{
+                  picture?.picColor || "未获取"
+                }}</span>
+              </div>
+            </div>
+
             <div class="space-y-2">
               <h2 class="text-sm font-medium text-gray-500">分类</h2>
               <div class="flex items-center gap-2">
@@ -232,6 +248,7 @@ import { getRandomUnoColor } from "@/utils/color";
 import dayjs from "dayjs";
 import { useFullscreen } from "@vueuse/core";
 import Dialog from "@/lib/Dialog/Dialog.vue";
+import { convertOxToHex } from "@/utils/colorConverter";
 
 import { AdminReviewPicture } from "@/services";
 
