@@ -1,4 +1,3 @@
-import ColorInput from "./ColorInput.vue";
 import { type ColorFormat, type ColorUtilsOptions } from "./colorUtils";
 
 export interface ColorInputProps {
@@ -49,10 +48,11 @@ export const DEFAULT_COLORS = [
   "#666666",
 ] as string[];
 
-// 工具函数
+// 修改颜色验证函数以支持 0x 格式
 export const isValidHexColor = (color: string | null): boolean => {
   if (!color) return false;
-  return /^#[0-9A-Fa-f]{6}$/.test(color);
+  // 支持 # 和 0x 开头的颜色
+  return /^(#|0x)[0-9A-Fa-f]{6}$/.test(color);
 };
 
 // 颜色验证和格式化
@@ -71,4 +71,6 @@ export { isValidColor } from "./colorUtils";
 export type { ColorFormat, ColorUtilsOptions };
 
 // 导出组件
-export { default } from "./ColorInput.vue";
+import ColorInput from "./ColorInput.vue";
+
+export default ColorInput;

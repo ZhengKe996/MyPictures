@@ -37,7 +37,7 @@
       >
         <div
           v-for="(color, index) in colorList"
-          :key="color"
+          :key="index"
           class="group relative"
         >
           <div
@@ -45,7 +45,9 @@
             class="w-8 h-8 rounded-lg cursor-pointer transition-all duration-200"
             :class="[
               'ring-2 relative',
-              color === modelValue && focusedIndex !== index
+              normalizeColorForComparison(color) ===
+                normalizeColorForComparison(modelValue) &&
+              focusedIndex !== index
                 ? 'ring-blue-400 ring-offset-2 hover:ring-blue-500'
                 : 'ring-transparent',
               focusedIndex === index
@@ -59,12 +61,9 @@
               'hover:ring-blue-400 hover:ring-offset-2 hover:scale-110',
               'focus:outline-none',
             ]"
-            :style="[
-              { backgroundColor: color },
-              focusedIndex === index
-                ? { transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)' }
-                : {},
-            ]"
+            :style="{
+              backgroundColor: formatColorForDisplay(color),
+            }"
             @click="selectColor(color)"
             @keydown="handleKeyDown($event, index)"
             @blur="() => handleBlur(index)"
@@ -125,7 +124,6 @@ const props = withDefaults(defineProps<ColorInputProps>(), {
   position: "bottom",
   colors: () => DEFAULT_COLORS,
   allowCustom: true,
-  outputFormat: "hex",
   colorOptions: () => ({ outputFormat: "hex" }),
 });
 
@@ -247,38 +245,86 @@ const isValidColor = computed(() => {
   return validateColor(currentCustomColor.value);
 });
 
-// 验证并格式化传入的颜色列表
+// 更新 colorList computed 属性
 const colorList = computed(() => {
-  return validateAndFormatColors(props.colors ?? DEFAULT_COLORS);
+  const sourceColors = props.colors ?? DEFAULT_COLORS;
+
+  try {
+    return sourceColors.map((color) => {
+      try {
+        // 如果颜色已经是 0x 格式且需要 0x 输出，直接使用
+        if (
+          props.colorOptions.outputFormat === "0x" &&
+          color.startsWith("0x")
+        ) {
+          return color;
+        }
+
+        // 其他情况，进行格式转换
+        return formatColor(color, props.colorOptions);
+      } catch (e) {
+        console.warn(`Invalid color in list: ${color}`, e);
+        return props.colorOptions.outputFormat === "0x"
+          ? "0x000000"
+          : "#000000";
+      }
+    });
+  } catch (e) {
+    console.error("Error processing color list:", e);
+    return DEFAULT_COLORS.map((color) =>
+      formatColor(color, props.colorOptions)
+    );
+  }
 });
 
-// 修改 selectColor 和 applyCustomColor 函数，添加保存功能
+// 更新 displayColor computed 属性
+const displayColor = computed(() => {
+  return formatColorForDisplay(props.modelValue || "#000000");
+});
+
+// 更新 selectColor 方法
 const selectColor = (color: string) => {
-  if (validateColor(color)) {
+  try {
+    if (!color) return;
+
     const formattedColor = formatColor(color, props.colorOptions);
     emit("update:modelValue", formattedColor);
     emit("change", formattedColor);
     currentCustomColor.value = formattedColor;
     showPalette.value = false;
+  } catch (e) {
+    console.error("Error selecting color:", e);
   }
 };
 
+// 修改 applyCustomColor 函数，添加保存功能
 const applyCustomColor = () => {
   if (!props.allowCustom) return;
 
-  if (validateColor(currentCustomColor.value)) {
-    const color = formatColor(currentCustomColor.value, props.colorOptions);
-    emit("update:modelValue", color);
-    emit("change", color);
-    showPalette.value = false;
-    currentCustomColor.value = "";
+  try {
+    if (validateColor(currentCustomColor.value)) {
+      const formattedColor = formatColor(
+        currentCustomColor.value,
+        props.colorOptions
+      );
+      emit("update:modelValue", formattedColor);
+      emit("change", formattedColor);
+      showPalette.value = false;
+      currentCustomColor.value = "";
+    } else {
+      console.warn("请输入有效的颜色值");
+    }
+  } catch (e) {
+    console.error("Error applying custom color:", e);
   }
 };
 
 // 处理输入框回车事件
 const handleInputEnter = () => {
-  if (isValidColor.value) {
+  if (validateColorFormat(currentCustomColor.value)) {
     applyCustomColor();
+  } else {
+    console.warn("请输入有效的颜色值");
   }
 };
 
@@ -289,8 +335,47 @@ const handleBlur = (index: number) => {
   }
 };
 
-// 添加计算属性用于显示
-const displayColor = computed(() => {
-  return formatColor(props.modelValue, { outputFormat: "hex" });
-});
+// 添加颜色转换方法
+const normalizeColorInput = (color: string): string => {
+  try {
+    return formatColor(color, props.colorOptions);
+  } catch (e) {
+    console.warn("Color normalization failed:", e);
+    return props.colorOptions.outputFormat === "0x" ? "0x000000" : "#000000";
+  }
+};
+
+// 添加颜色格式验证方法
+const validateColorFormat = (color: string): boolean => {
+  try {
+    const normalized = normalizeColorInput(color);
+    return Boolean(
+      normalized && normalized !== "#000000" && normalized !== "0x000000"
+    );
+  } catch {
+    return false;
+  }
+};
+
+// 添加用于显示的颜色格式化函数
+const formatColorForDisplay = (color: string): string => {
+  try {
+    // 始终以 hex 格式显示颜色
+    return formatColor(color, { outputFormat: "hex" });
+  } catch (e) {
+    console.warn("Error formatting color for display:", color, e);
+    return "#000000";
+  }
+};
+
+// 添加用于比较的颜色格式化函数
+const normalizeColorForComparison = (color: string): string => {
+  try {
+    // 将颜色统一转换为目标格式进行比较
+    return formatColor(color, props.colorOptions);
+  } catch (e) {
+    console.warn("Error normalizing color for comparison:", color, e);
+    return props.colorOptions.outputFormat === "0x" ? "0x000000" : "#000000";
+  }
+};
 </script>
