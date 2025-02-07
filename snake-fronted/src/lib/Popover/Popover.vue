@@ -1,10 +1,5 @@
 <template>
-  <div
-    class="relative inline-block"
-    @mouseleave="onMouseleave"
-    @mouseenter="onMouseenter"
-    @click.stop="onClick"
-  >
+  <div ref="containerRef" class="relative inline-block">
     <div ref="triggerRef" class="inline-block">
       <slot name="reference" />
     </div>
@@ -18,29 +13,43 @@
         v-show="isVisible"
         ref="popoverRef"
         :class="[
-          'absolute z-50 p-2',
-          'bg-white dark:bg-zinc-800 shadow-lg',
-          'border border-gray-200 dark:border-zinc-700 rounded-lg',
+          'absolute z-50',
+          'bg-white dark:bg-zinc-800',
+          'border border-gray-200 dark:border-zinc-700',
+          'shadow-lg shadow-gray-200/50 dark:shadow-zinc-900/50',
+          'rounded-lg backdrop-blur-sm',
+          'transform-gpu motion-safe:transition-transform',
           customClass,
         ]"
         :style="popoverStyle"
       >
-        <slot />
+        <div :class="['p-2', contentClass]">
+          <slot />
+        </div>
+        <div
+          v-if="arrow"
+          :class="[
+            'absolute w-4 h-4 rotate-45 bg-inherit border',
+            getArrowPositionClass,
+          ]"
+        />
       </div>
     </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, nextTick, ref } from "vue";
 import {
-  ref,
-  watch,
-  nextTick,
-  computed,
-  onMounted,
-  onBeforeUnmount,
-} from "vue";
-import { useElementBounding } from "@vueuse/core";
+  useElementBounding,
+  useEventListener,
+  useTimeoutFn,
+  onClickOutside,
+  useElementHover,
+  useToggle,
+  tryOnUnmounted,
+  whenever,
+} from "@vueuse/core";
 
 // 扩展位置类型
 type PlacementType =
@@ -64,6 +73,11 @@ interface Props {
   trigger?: "hover" | "click";
   arrow?: boolean;
   customClass?: string;
+  contentClass?: string;
+  closeOnContentClick?: boolean; // 新增：点击内容是否关闭
+  showDelay?: number; // 新增：显示延迟
+  hideDelay?: number; // 新增：隐藏延迟
+  persistent?: boolean; // 新增：是否持久化显示
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -73,19 +87,136 @@ const props = withDefaults(defineProps<Props>(), {
   trigger: "hover",
   arrow: false,
   customClass: "",
+  contentClass: "",
+  closeOnContentClick: false,
+  showDelay: 0,
+  hideDelay: 300,
+  persistent: false,
 });
 
-const isVisible = ref(false);
+const emit = defineEmits<{
+  show: [];
+  hide: [];
+}>();
+
+// Refs
+const containerRef = ref<HTMLElement | null>(null);
 const triggerRef = ref<HTMLElement | null>(null);
 const popoverRef = ref<HTMLElement | null>(null);
+const [isVisible, toggleVisible] = useToggle(false);
 
-// 使用 VueUse 的 useElementBounding 来获取元素位置
+// VueUse composables
 const triggerBounds = useElementBounding(triggerRef);
 const popoverBounds = useElementBounding(popoverRef);
+const isHovered = useElementHover(containerRef);
 
-let timeout: NodeJS.Timeout | null = null;
+// Timeout handlers using VueUse
+const { start: startShowTimer, stop: stopShowTimer } = useTimeoutFn(() => {
+  isVisible.value = true;
+  emit("show");
+}, props.showDelay);
 
-// 更新弹出层样式计算逻辑
+const { start: startHideTimer, stop: stopHideTimer } = useTimeoutFn(() => {
+  isVisible.value = false;
+  emit("hide");
+}, props.hideDelay);
+
+// Click outside handling
+onClickOutside(
+  containerRef,
+  (event) => {
+    if (props.trigger === "click" && !props.persistent) {
+      hide();
+    }
+  },
+  { ignore: [triggerRef] }
+);
+
+// Watch hover state for hover trigger
+whenever(isHovered, (value) => {
+  if (props.trigger !== "hover") return;
+  value ? show() : hide();
+});
+
+// Methods
+const show = () => {
+  stopHideTimer();
+  startShowTimer();
+};
+
+const hide = () => {
+  if (props.persistent) return;
+  stopShowTimer();
+  startHideTimer();
+};
+
+// Handle trigger click
+const handleTriggerClick = useEventListener(
+  triggerRef,
+  "click",
+  (event: Event) => {
+    if (props.trigger !== "click") return;
+    event.stopPropagation();
+    isVisible.value ? hide() : show();
+  }
+);
+
+// Handle content click
+useEventListener(popoverRef, "click", (event: Event) => {
+  if (!props.closeOnContentClick) {
+    event.stopPropagation();
+    return;
+  }
+  hide();
+});
+
+// Update position on visibility change
+whenever(isVisible, async () => {
+  await nextTick();
+  triggerBounds.update();
+  popoverBounds.update();
+});
+
+// Cleanup
+tryOnUnmounted(() => {
+  stopShowTimer();
+  stopHideTimer();
+});
+
+// Computed styles remain unchanged
+const getArrowPositionClass = computed(() => {
+  const baseClasses = "border-gray-200 dark:border-zinc-700";
+  const positions = {
+    top: `bottom-[-7px] border-b border-r ${baseClasses}`,
+    bottom: `top-[-7px] border-t border-l ${baseClasses}`,
+    left: `right-[-7px] border-r border-t ${baseClasses}`,
+    right: `left-[-7px] border-l border-b ${baseClasses}`,
+  };
+
+  const direction = props.placement.split("-")[0] as keyof typeof positions;
+  return positions[direction];
+});
+
+const transitClass = computed(() => {
+  const base = "transition-all duration-200 ease-out";
+  const directions = {
+    top: "translate-y-2",
+    bottom: "-translate-y-2",
+    left: "translate-x-2",
+    right: "-translate-x-2",
+  };
+
+  const direction = props.placement.split("-")[0] as keyof typeof directions;
+  const transform = directions[direction];
+
+  return {
+    enter: `${base}`,
+    leave: `${base}`,
+    enterFrom: `opacity-0 scale-95 ${transform}`,
+    leaveTo: `opacity-0 scale-95 ${transform}`,
+  };
+});
+
 const popoverStyle = computed(() => {
   const style: Record<string, string> = {};
 
@@ -154,112 +285,16 @@ const popoverStyle = computed(() => {
 
   return style;
 });
-
-// 更新过渡动画类
-const transitClass = computed(() => {
-  const base = "transition-all duration-200 ease-in-out";
-  const baseTransitions = {
-    top: { y: "-2", x: "0" },
-    bottom: { y: "2", x: "0" },
-    left: { y: "0", x: "-2" },
-    right: { y: "0", x: "2" },
-  };
-
-  const getBaseDirection = (placement: PlacementType) => {
-    if (placement.startsWith("top")) return "top";
-    if (placement.startsWith("bottom")) return "bottom";
-    if (placement.startsWith("left")) return "left";
-    return "right";
-  };
-
-  const direction = getBaseDirection(props.placement);
-  const { x, y } = baseTransitions[direction];
-
-  return {
-    enter: base,
-    leave: base,
-    enterFrom: `opacity-0 transform translate-x-${x} translate-y-${y}`,
-    leaveTo: `opacity-0 transform translate-x-${x} translate-y-${y}`,
-  };
-});
-
-const emit = defineEmits(["show", "hide"]);
-
-// 修改可见状态的处理函数
-const toggleVisible = (value: boolean) => {
-  isVisible.value = value;
-  emit(value ? "show" : "hide");
-};
-
-// 新增点击处理函数
-const onClick = (event: MouseEvent) => {
-  if (props.trigger !== "click") return;
-  event.stopPropagation();
-  toggleVisible(!isVisible.value);
-};
-
-// 修改点击外部处理函数
-const handleClickOutside = (event: MouseEvent) => {
-  if (props.trigger !== "click") return;
-  const target = event.target as HTMLElement;
-  if (
-    !triggerRef.value?.contains(target) &&
-    !popoverRef.value?.contains(target)
-  ) {
-    toggleVisible(false);
-  }
-};
-
-// 修改鼠标进入处理函数
-const onMouseenter = () => {
-  if (props.trigger !== "hover") return;
-  if (timeout) clearTimeout(timeout);
-  toggleVisible(true);
-};
-
-const onMouseleave = () => {
-  if (props.trigger !== "hover") return;
-  timeout = setTimeout(() => {
-    toggleVisible(false);
-    timeout = null;
-  }, props.delay);
-};
-
-// 监听可见性变化时重新计算位置
-watch(isVisible, async (val) => {
-  if (val) {
-    await nextTick();
-    // 触发重新计算
-    triggerBounds.update();
-    popoverBounds.update();
-  }
-});
-
-onMounted(() => {
-  if (props.trigger === "click") {
-    document.addEventListener("click", handleClickOutside);
-  }
-});
-
-onBeforeUnmount(() => {
-  if (props.trigger === "click") {
-    document.removeEventListener("click", handleClickOutside);
-  }
-});
 </script>
 
 <style scoped>
-.slide-enter-active {
-  transition: opacity 0.3s, transform 0.3s;
+.popover-enter-active,
+.popover-leave-active {
+  @apply transition-all duration-200 ease-out transform-gpu;
 }
 
-.slide-leave-active {
-  transition: opacity 0.3s, transform 0.3s;
-}
-
-.slide-enter-from,
-.slide-leave-to {
-  transform: translateY(20px);
-  opacity: 0;
+.popover-enter-from,
+.popover-leave-to {
+  @apply opacity-0 scale-95;
 }
 </style>
