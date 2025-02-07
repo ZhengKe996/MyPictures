@@ -763,4 +763,35 @@ public class PictureController {
         // 返回上传成功的图片数量
         return ResultUtils.success(uploadCount);
     }
+
+    /**
+     * 根据颜色搜索图片
+     *
+     * @param searchPictureByColorRequest 包含搜索请求参数的对象，包括图片颜色和空间ID
+     * @param request                     HTTP请求对象，用于获取登录用户信息
+     * @return 返回一个包含图片信息列表的BaseResponse对象
+     * <p>
+     * 此方法处理根据颜色搜索图片的POST请求它首先确保请求参数不为空，
+     * 然后提取图片颜色和空间ID，接着获取当前登录用户信息，最后调用服务层方法
+     * 根据颜色搜索并返回图片列表
+     */
+    @PostMapping("/search/color")
+    public BaseResponse<List<PictureVO>> searchPictureByColor(@RequestBody SearchPictureByColorRequest searchPictureByColorRequest, HttpServletRequest request) {
+        // 检查请求参数是否为空，为空则抛出参数错误异常
+        ThrowUtils.throwIf(searchPictureByColorRequest == null, ErrorCode.PARAMS_ERROR);
+
+        // 提取请求参数中的图片颜色和空间ID
+        String picColor = searchPictureByColorRequest.getPicColor();
+        Long spaceId = searchPictureByColorRequest.getSpaceId();
+
+        // 获取当前登录用户信息
+        User loginUser = userService.getLoginUser(request);
+
+        // 调用服务层方法，根据颜色搜索图片，并返回搜索结果
+        List<PictureVO> result = pictureService.searchPictureByColor(spaceId, picColor, loginUser);
+
+        // 返回成功响应，包含搜索结果
+        return ResultUtils.success(result);
+    }
+
 }

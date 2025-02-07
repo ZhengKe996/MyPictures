@@ -10,6 +10,7 @@ import fun.timu.init.model.vo.PictureVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 public interface PictureService extends IService<Picture> {
     /**
@@ -120,4 +121,14 @@ public interface PictureService extends IService<Picture> {
      * @param oldPicture
      */
     public void clearPictureFile(Picture oldPicture);
+
+    /**
+     * 根据颜色搜索图片
+     *
+     * @param spaceId
+     * @param picColor
+     * @param loginUser
+     * @return
+     */
+    public List<PictureVO> searchPictureByColor(Long spaceId, String picColor, User loginUser);
 }

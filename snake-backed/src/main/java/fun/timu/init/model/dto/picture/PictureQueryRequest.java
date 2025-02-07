@@ -66,6 +66,11 @@ public class PictureQueryRequest extends PageRequest implements Serializable {
     private String picFormat;
 
     /**
+     * 图片主色调
+     */
+    private String picColor;
+
+    /**
      * 搜索词（同时搜名称、简介等）
      */
     private String searchText;
