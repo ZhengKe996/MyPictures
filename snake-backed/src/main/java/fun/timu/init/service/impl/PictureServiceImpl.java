@@ -56,16 +56,18 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     private final UrlPictureUpload urlPictureUpload;
     private final UserService userService;
     private final SpaceService spaceService;
+    private final PictureMapper pictureMapper;
     private final CosManager cosManager;
     private final PexelsManager pexelsManager;
     private final TransactionTemplate transactionTemplate;
     private String defaulCategory = "素材";
 
-    PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService, SpaceService spaceService, CosManager cosManager, PexelsManager pexelsManager, TransactionTemplate transactionTemplate) {
+    PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService, SpaceService spaceService, PictureMapper pictureMapper, CosManager cosManager, PexelsManager pexelsManager, TransactionTemplate transactionTemplate) {
         this.filePictureUpload = filePictureUpload;
         this.urlPictureUpload = urlPictureUpload;
         this.userService = userService;
         this.spaceService = spaceService;
+        this.pictureMapper = pictureMapper;
         this.cosManager = cosManager;
         this.pexelsManager = pexelsManager;
         this.transactionTemplate = transactionTemplate;
@@ -757,4 +759,21 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         return sortedPictures.stream().map(PictureVO::objToVo).collect(Collectors.toList());
     }
 
+    /**
+     * 获取图片颜色列表
+     * <p>
+     * 本方法通过查询数据库中所有独特的图片颜色，返回一个不含重复颜色的列表
+     * 使用 MyBatis-Plus 的 Wrapper 来构建查询条件，以实现高效的数据库操作
+     *
+     * @return 包含所有独特图片颜色的列表
+     */
+    @Override
+    public List<String> getColorList() {
+        // 使用 MyBatis-Plus 的 Wrapper 来构建查询条件
+        QueryWrapper<Picture> wrapper = new QueryWrapper<>();
+        // 选择 picColor 字段并去重
+        wrapper.select("DISTINCT picColor");
+        // 执行查询并返回结果
+        return pictureMapper.selectObjs(wrapper);
+    }
 }

@@ -131,4 +131,11 @@ public interface PictureService extends IService<Picture> {
      * @return
      */
     public List<PictureVO> searchPictureByColor(Long spaceId, String picColor, User loginUser);
+
+    /**
+     * 获取颜色列表
+     *
+     * @return
+     */
+    public List<String> getColorList();
 }

@@ -18,4 +18,9 @@ public class PictureTagCategory {
      * 分类列表
      */
     private List<String> categoryList;
+
+    /**
+     * 颜色列表
+     */
+    private List<String> colorList;
 }

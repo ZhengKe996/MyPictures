@@ -266,7 +266,7 @@ export class PictureControllerService {
   public static listPictureTagCategoryUsingGet(): CancelablePromise<BaseResponse_PictureTagCategory_> {
     return __request(OpenAPI, {
       method: "GET",
-      url: "/api/picture/tag_category",
+      url: "/api/picture/tag_category_color",
       errors: {
         401: `Unauthorized`,
         403: `Forbidden`,
@@ -313,7 +313,7 @@ export class PictureControllerService {
     id?: string,
     picColor?: string,
     picName?: string,
-    spaceId?: string
+    spaceId?: number
   ): CancelablePromise<BaseResponse_PictureVO_ | any> {
     return __request(OpenAPI, {
       method: "POST",

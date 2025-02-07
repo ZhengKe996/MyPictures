@@ -664,7 +664,7 @@ public class PictureController {
      *
      * @return BaseResponse<PictureTagCategory> 包含图片标签和类别的响应对象
      */
-    @GetMapping("/tag_category")
+    @GetMapping("/tag_category_color")
     public BaseResponse<PictureTagCategory> listPictureTagCategory() {
         // 创建一个PictureTagCategory对象，用于存储标签和类别信息
         PictureTagCategory pictureTagCategory = new PictureTagCategory();
@@ -674,10 +674,13 @@ public class PictureController {
         // 定义一组常见的图片类别
         List<String> categoryList = Arrays.asList("模板", "电商", "表情包", "素材", "海报");
 
+        List<String> colorList = pictureService.getColorList();
         // 将标签列表设置到PictureTagCategory对象中
         pictureTagCategory.setTagList(tagList);
         // 将类别列表设置到PictureTagCategory对象中
         pictureTagCategory.setCategoryList(categoryList);
+
+        pictureTagCategory.setColorList(colorList);
 
         // 使用ResultUtils工具类，构建并返回一个表示成功操作的响应对象
         return ResultUtils.success(pictureTagCategory);

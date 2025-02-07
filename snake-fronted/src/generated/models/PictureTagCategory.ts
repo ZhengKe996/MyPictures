@@ -4,6 +4,7 @@
 /* eslint-disable */
 export type PictureTagCategory = {
     categoryList?: Array<string>;
+    colorList?: Array<string>;
     tagList?: Array<string>;
 };
 
