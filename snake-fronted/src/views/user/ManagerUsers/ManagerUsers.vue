@@ -62,7 +62,7 @@
           size="sm"
           class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-500"
         >
-          新增
+          Add New
         </Button>
       </div>
     </div>
@@ -90,7 +90,7 @@
             >
               <Badges
                 :text="
-                  item.userRole === ACCESSENUM.ADMIN ? 'ADMIN' : '普通用户'
+                  item.userRole === ACCESSENUM.ADMIN ? 'ADMIN' : 'Normal User'
                 "
                 :color="item.userRole === ACCESSENUM.ADMIN ? 'red' : 'blue'"
               ></Badges>
@@ -117,7 +117,7 @@
                 class="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
                 @click=""
               >
-                编辑
+                Edit
                 <i class="i-tabler:edit size-5" />
               </button>
             </td>
@@ -129,7 +129,7 @@
                 class="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
                 @click="item.id && handleDelete(item.id)"
               >
-                删除
+                Delete
                 <i class="i-tabler:layout-grid-remove" size-5 />
               </button>
             </td>
@@ -147,10 +147,10 @@
               </div>
               <div class="text-center">
                 <h3 class="text-base font-semibold text-gray-900 mb-1">
-                  暂无用户数据
+                  No User Data
                 </h3>
                 <p class="text-sm text-gray-500 mb-4">
-                  点击下方按钮添加新的用户
+                  Click the button below to add a new user
                 </p>
                 <Button
                   type="primary"
@@ -159,7 +159,7 @@
                   class="animate-hover-scale animate-duration-300"
                   @click="handleAdd"
                 >
-                  添加新用户
+                  Add New User
                 </Button>
               </div>
             </div>
@@ -178,9 +178,9 @@
     <!-- 删除确认对话框 -->
     <Dialog
       v-model="showDeleteDialog"
-      title="删除确认"
-      :confirmText="'删除'"
-      :cancelText="'取消删除'"
+      title="Delete Confirmation"
+      :confirmText="'Delete'"
+      :cancelText="'Cancel'"
       :confirmButtonColor="'red'"
       :cancelButtonColor="'gray'"
       :confirmHandler="confirmDelete"
@@ -188,7 +188,8 @@
     >
       <div class="space-y-4">
         <p class="text-gray-600 dark:text-gray-300">
-          确定要删除此用户吗？删除后该用户的所有数据都将被删除，此操作不可恢复。
+          Are you sure you want to delete this user? All data associated with
+          this user will be permanently deleted and cannot be recovered.
         </p>
         <div
           v-if="currentItem"
@@ -198,21 +199,24 @@
             <img
               :src="currentItem.userAvatar"
               class="w-12 h-12 rounded-full"
-              alt="用户头像"
+              alt="User Avatar"
             />
             <div>
               <p class="font-medium text-gray-900 dark:text-gray-100">
                 {{ currentItem.userName }}
               </p>
               <p class="text-sm text-gray-500">
-                账号：{{ currentItem.userAccount }}
+                Account: {{ currentItem.userAccount }}
               </p>
             </div>
           </div>
           <div class="text-sm text-gray-500">
             <p>
-              用户角色：{{
-                currentItem.userRole === ACCESSENUM.ADMIN ? "ADMIN" : "普通用户"
+              User Role:
+              {{
+                currentItem.userRole === ACCESSENUM.ADMIN
+                  ? "ADMIN"
+                  : "Normal User"
               }}
             </p>
           </div>
@@ -224,107 +228,27 @@
 
 <script setup lang="ts">
 import TableList from "@/components/TableList";
-import { UserManagerColumns, type UserType, DefaultUserAvatar } from "@/config";
-import { AdminGetUserList } from "@/services";
-import { ref, watchEffect } from "vue";
-
-import { Message } from "@/lib/Message";
-import { useThrottleFn } from "@vueuse/core";
+import { UserManagerColumns, DefaultUserAvatar } from "@/config";
 import Badges from "@/lib/Badges";
 import Pagination from "@/lib/Pagination";
 import { ACCESSENUM } from "@/access";
 import Button from "@/lib/Button";
 import Dialog from "@/lib/Dialog/Dialog.vue";
-import { DeleteUserById } from "@/services";
+import { useUserManagement } from "./hooks";
 
-const total = ref<number>(0); // 题目总数
-interface UserInfoInterface {
-  current: number;
-  pageSize: number;
-  id?: string;
-  sortField?: string;
-  sortOrder?: string;
-  userAccount?: string;
-  userName?: string;
-  userProfile?: string;
-  userRole?: string;
-}
-// 分页请求数据
-const PageInfo = ref<UserInfoInterface>({
-  current: 1,
-  pageSize: 20,
-});
-
-const ListInfo = ref<UserType[]>([]);
-const ChangeCurrentPageHandle = (current: number) =>
-  (PageInfo.value = { ...PageInfo.value, current: current });
-
-const handleKeyPress = useThrottleFn((event: KeyboardEvent) => {
-  if (event.key === "Enter") LoadList();
-}, 1000);
-
-const LoadList = useThrottleFn(async () => {
-  const { data, code, message } = await AdminGetUserList(PageInfo.value);
-  if (code === 0 && data) {
-    total.value = Number(data.total) ?? 0;
-
-    ListInfo.value = Array.isArray(data.records)
-      ? data.records.map((item: UserType) => ({
-          id: item.id ? String(item.id) : "",
-          userAccount: item.userAccount ?? "",
-          userName: item.userName ?? "",
-          userRole: item.userRole ?? "",
-          userAvatar: item.userAvatar ?? DefaultUserAvatar,
-          userProfile: item.userProfile ?? "",
-        }))
-      : [];
-  } else Message.error(`获取失败, 原因: ${message}`);
-}, 1000);
-
-watchEffect(() => LoadList());
-
-const handleAdd = () => {
-  console.log("添加新空间");
-};
-
-const showDeleteDialog = ref(false);
-const currentItem = ref<UserType | null>(null);
-
-// Update handleDelete method
-const handleDelete = (id: string) => {
-  const item = ListInfo.value.find((item) => item.id === id);
-  if (item) {
-    currentItem.value = item;
-    showDeleteDialog.value = true;
-  }
-};
-
-// Add confirm delete method
-const confirmDelete = async () => {
-  if (!currentItem.value?.id) return;
-
-  try {
-    const { code } = await DeleteUserById(currentItem.value.id);
-    if (code === 0) {
-      Message.success("删除成功");
-      await LoadList();
-    } else {
-      Message.error("删除失败");
-    }
-  } catch (error) {
-    Message.error("删除操作发生错误");
-  } finally {
-    currentItem.value = null;
-    showDeleteDialog.value = false;
-  }
-};
-
-// Add cancel delete method
-const handleCancelDelete = () => {
-  showDeleteDialog.value = false;
-  currentItem.value = null;
-  Message.warning("已取消删除操作");
-};
+const {
+  total,
+  PageInfo,
+  ListInfo,
+  showDeleteDialog,
+  currentItem,
+  ChangeCurrentPageHandle,
+  handleKeyPress,
+  handleAdd,
+  handleDelete,
+  confirmDelete,
+  handleCancelDelete,
+} = useUserManagement();
 </script>
 
 <style scoped>

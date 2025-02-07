@@ -24,19 +24,19 @@ export const routes: RouteRecordRaw[] = [
       {
         path: "login",
         name: "用户登录",
-        component: () => import("@/views/user/Login.vue"),
+        component: () => import("@/views/user/Login"),
       },
       {
         path: "register",
         name: "用户注册",
-        component: () => import("@/views/user/Register.vue"),
+        component: () => import("@/views/user/Register"),
       },
     ],
   },
   {
     path: "/manager/users",
     name: "Manager Users",
-    component: () => import("@/views/user/ManagerUsers.vue"),
+    component: () => import("@/views/user/ManagerUsers"),
     meta: {
       layout: LayoutMenu.BasicLayout,
       access: ACCESSENUM.ADMIN,
@@ -152,14 +152,6 @@ export const routes: RouteRecordRaw[] = [
     meta: {
       layout: LayoutMenu.BasicLayout,
       isHeader: false,
-    },
-  },
-  {
-    path: "/demo",
-    name: "Demo",
-    component: () => import("@/views/Demo.vue"),
-    meta: {
-      layout: LayoutMenu.UserLayout,
     },
   },
   {
