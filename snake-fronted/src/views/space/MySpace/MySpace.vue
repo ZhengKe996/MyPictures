@@ -28,6 +28,13 @@
             <div class="flex items-center gap-3 justify-end flex-1 ml-8">
               <div class="flex items-center gap-3">
                 <SelectMenus
+                  v-model="selectedCategory"
+                  :options="categoryOptions"
+                  placeholder="选择分类"
+                  @update:modelValue="handleCategorySelect"
+                  class="w-[140px]"
+                />
+                <SelectMenus
                   v-model="selectedDateRange"
                   :options="dateRangeOptions"
                   placeholder="选择时间范围"
@@ -205,6 +212,7 @@ import {
   GetPictureList,
   GetSpaceByUserId,
   DeletePictureById,
+  GetTagCategory,
 } from "@/services";
 import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
@@ -418,6 +426,22 @@ const handleDateRangeOptionSelect = (option: SelectOption | null) => {
   LoadList();
 };
 
+// 添加分类选择相关的响应式变量
+const selectedCategory = ref<SelectOption | undefined>(undefined);
+
+// 分类选项数据
+const categoryOptions = ref<SelectOption[]>([]);
+
+// 处理分类选择
+const handleCategorySelect = (option: SelectOption | null) => {
+  PageInfo.value = {
+    ...PageInfo.value,
+    current: 1,
+    category: option && option.id !== "all" ? String(option.id) : undefined,
+  };
+  LoadList();
+};
+
 interface SpaceInfoInterface {
   current: number;
   pageSize: number;
@@ -470,4 +494,13 @@ const formatRecords = (records: PictureType[]) => {
     editTime: dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
   }));
 };
+onMounted(async () => {
+  const { code, data, message } = await GetTagCategory();
+  if (code === 0 && data) {
+    categoryOptions.value = (data.categoryList ?? []).map((data: string) => {
+      return { id: data, name: data };
+    });
+    categoryOptions.value.unshift({ id: "all", name: "全部分类" });
+  } else Message.error(`获取标签和分类选项失败${message}`);
+});
 </script>

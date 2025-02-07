@@ -96,7 +96,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/my-space",
     name: "My Space",
-    component: () => import("@/views/space/MySpace.vue"),
+    component: () => import("@/views/space/MySpace"),
     meta: {
       layout: LayoutMenu.BasicLayout,
       access: ACCESSENUM.USER,
