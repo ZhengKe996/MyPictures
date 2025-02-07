@@ -23,7 +23,7 @@
                 <h1 class="text-2xl font-bold text-gray-800">
                   {{ username }}
                   <span class="text-sm font-normal text-gray-500 ml-2">
-                    (私有空间)
+                    (Private Space)
                   </span>
                 </h1>
               </div>
@@ -36,7 +36,7 @@
                 <SearchInput
                   v-model="PageInfo.name"
                   :showLabel="false"
-                  placeholder="搜索图片名称..."
+                  placeholder="Search image name..."
                   @search="handleSearch"
                   @clear="handleClear"
                 />
@@ -47,14 +47,14 @@
                 <SelectMenus
                   v-model="selectedCategory"
                   :options="categoryOptions"
-                  placeholder="选择分类"
+                  placeholder="Select Category"
                   @update:modelValue="handleCategorySelect"
                   class="w-[140px]"
                 />
                 <SelectMenus
                   v-model="selectedDateRange"
                   :options="dateRangeOptions"
-                  placeholder="选择时间范围"
+                  placeholder="Select Time Range"
                   @update:modelValue="handleDateRangeOptionSelect"
                   class="w-[140px]"
                 />
@@ -92,7 +92,7 @@
                   type="button"
                   class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-white border border-gray-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 active:bg-indigo-100 transition-all duration-200 ease-out group shadow-sm"
                   @click="handleReset"
-                  title="重置所有筛选"
+                  title="Reset all filters"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -106,7 +106,7 @@
                     <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
                     <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
                   </svg>
-                  <span class="text-sm">重置筛选</span>
+                  <span class="text-sm">Reset Filters</span>
                   <span
                     class="absolute -top-1 -right-1 size-2 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     aria-hidden="true"
@@ -122,7 +122,7 @@
                   :isActiveAnim="true"
                   class="w-[140px]"
                 >
-                  创建图片
+                  Create Image
                 </Button>
               </div>
             </div>
@@ -134,8 +134,8 @@
             @on-load="getLoadData"
             :threshold="100"
             :immediate-check="true"
-            loading-text="玩命加载中..."
-            finished-text="我是有底线的"
+            loading-text="Loading..."
+            finished-text="No more data"
           >
             <waterfall
               class="px-1 w-full animate-fade-in animate-duration-300 animate-ease-out"
@@ -172,9 +172,11 @@
                 </div>
                 <div class="text-center">
                   <h3 class="text-base font-semibold text-gray-900 mb-1">
-                    暂无图片数据
+                    No Images Found
                   </h3>
-                  <p class="text-sm text-gray-500 mb-4">请尝试更换搜索条件</p>
+                  <p class="text-sm text-gray-500 mb-4">
+                    Please try different search criteria
+                  </p>
                 </div>
               </div>
             </template>
@@ -201,16 +203,16 @@
           </div>
           <div class="space-y-3">
             <h3 class="text-xl font-medium text-gray-700">
-              你还没有创建自己的空间
+              You haven't created your space yet
             </h3>
             <p class="text-gray-500 text-sm">
-              创建一个空间来存储和管理你的照片吧！
+              Create a space to store and manage your photos!
             </p>
             <button
               @click="handleCreateSpace"
               class="mt-4 px-6 py-2.5 bg-blue-500 text-white rounded-lg transform transition-all duration-200 hover:bg-blue-600 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 active:scale-95"
             >
-              创建空间
+              Create Space
             </button>
           </div>
         </div>
@@ -219,9 +221,9 @@
     <!-- 删除确认对话框 -->
     <Dialog
       v-model="showDeleteDialog"
-      title="删除确认"
-      :confirmText="'删除'"
-      :cancelText="'取消删除'"
+      title="Delete Confirmation"
+      :confirmText="'Delete'"
+      :cancelText="'Cancel'"
       :confirmButtonColor="'red'"
       :cancelButtonColor="'gray'"
       :confirmHandler="confirmDelete"
@@ -229,7 +231,8 @@
     >
       <div class="space-y-4">
         <p class="text-gray-600 dark:text-gray-300">
-          确定要删除这张图片吗？此操作不可恢复。
+          Are you sure you want to delete this image? This action cannot be
+          undone.
         </p>
         <div
           v-if="currentPicture"
@@ -238,14 +241,14 @@
           <img
             :src="currentPicture.thumbnailUrl"
             class="w-16 h-16 object-cover rounded"
-            alt="预览图"
+            alt="Preview Image"
           />
           <div>
             <p class="font-medium text-gray-900 dark:text-gray-100">
               {{ currentPicture.name }}
             </p>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              创建于 {{ currentPicture.createTime }}
+              Created at {{ currentPicture.createTime }}
             </p>
           </div>
         </div>
@@ -255,354 +258,95 @@
 </template>
 
 <script setup lang="ts">
-import { saveAs } from "file-saver";
-import {
-  GetPictureList,
-  GetSpaceByUserId,
-  DeletePictureById,
-  GetTagCategory,
-} from "@/services";
-import { useRoute, useRouter } from "vue-router";
-import { useUserStore } from "@/store/user";
-import { onMounted, ref, computed } from "vue";
-import Button from "@/lib/Button/Button.vue";
-import { Message } from "@/lib/Message";
-import type { PictureType } from "@/config";
-import { useThrottleFn } from "@vueuse/core";
-import dayjs from "dayjs";
-import Pagination from "@/lib/Pagination";
+import { onMounted, watch } from "vue";
+import SearchInput from "@/lib/SearchInput";
+import SelectMenus from "@/lib/SelectMenus";
+import Popover from "@/lib/Popover";
+import ColorInput from "@/lib/ColorInput";
+import Calendars from "@/lib/Calendars";
+import Button from "@/lib/Button";
+import { SpaceItem } from "@/components/ListItem";
 import Waterfall from "@/lib/Waterfall";
 import Infinite from "@/lib/Infinite";
-import { SpaceItem } from "@/components/ListItem";
-import Dialog from "@/lib/Dialog/Dialog.vue";
-import Calendars from "@/lib/Calendars";
-import Popover from "@/lib/Popover";
-import SelectMenus from "@/lib/SelectMenus";
-import type { SelectOption } from "@/lib/SelectMenus";
-import SearchInput from "@/lib/SearchInput";
-import ColorInput from "@/lib/ColorInput";
+import Pagination from "@/lib/Pagination";
+import Dialog from "@/lib/Dialog";
+import {
+  useSpaceManagement,
+  useFileHandling,
+  useListManagement,
+  useFilterOptions,
+  useDateFilter,
+  useSearchAndFilter,
+  type PictureType,
+} from "./hooks";
 
-const userStore = useUserStore();
-const router = useRouter();
-const route = useRoute();
-const isExit = ref(false);
-const spaceId = ref<string>("");
-const total = ref<number>(0);
-const oxColor = ref();
+const {
+  isExit,
+  spaceId,
+  username,
+  CheckSpace,
+  handleCreateSpace,
+  handleCreatePhoto,
+} = useSpaceManagement();
+const {
+  showDeleteDialog,
+  currentPicture,
+  handleEdit,
+  handleDelete,
+  confirmDelete,
+  handleCancelDelete,
+  handleDownload,
+  handlePreview,
+} = useFileHandling();
 
-const handleEdit = async (picture: PictureType) =>
-  router.push(`/update/picture/${picture.id}?spaceId=${spaceId.value}`);
+const { loading, isFinished, total, PictureListInfo, PageInfo, LoadList } =
+  useListManagement(spaceId);
 
-// 删除对话框控制
-const showDeleteDialog = ref(false);
-const currentPicture = ref<PictureType | null>(null);
+const { categoryOptions, customColors, loadFilterOptions } = useFilterOptions();
 
-// 更新handleDelete方法
-const handleDelete = async (picture: PictureType) => {
-  currentPicture.value = picture;
-  showDeleteDialog.value = true;
-};
+const {
+  startDate,
+  endDate,
+  selectedDateRange,
+  dateRangeOptions,
+  dateLabel,
+  handleDateRangeSelect,
+  handleDateRangeOptionSelect,
+} = useDateFilter(PageInfo, () => LoadList()); // 传入 LoadList 回调
 
-// 确认删除方法
-const confirmDelete = async () => {
-  if (!currentPicture.value?.id) return;
+const {
+  selectedCategory,
+  oxColor,
+  handleSearch,
+  handleClear,
+  handleColorChange,
+  handleCategorySelect,
+  handleReset,
+} = useSearchAndFilter(PageInfo, () => LoadList()); // 传入 LoadList 回调
 
-  try {
-    const { code } = await DeletePictureById(
-      currentPicture.value.id.toString()
-    );
-    if (code === 0) {
-      Message.success("删除成功");
-      await LoadList();
-    } else {
-      Message.error("删除失败");
-    }
-  } catch (error) {
-    Message.error("删除操作发生错误");
-  } finally {
-    currentPicture.value = null;
-  }
-};
-
-// 取消删除方法
-const handleCancelDelete = () => {
-  showDeleteDialog.value = false;
-  currentPicture.value = null;
-  Message.warning("已取消删除操作");
-};
-
-const handleDownload = async (picture: PictureType) => {
-  if (!picture?.url) {
-    Message.warning("暂无可下载的图片");
-    return;
-  }
-
-  const { url, name, user, picFormat } = picture;
-
-  if (!url || !name || !user?.userName || !picFormat) {
-    Message.warning("图片信息不完整，无法下载");
-    return;
-  }
-
-  try {
-    const fileName = `${name}-作者:${user.userName}.${picFormat}`;
-    await saveAs(url, fileName);
-    Message.success("下载成功");
-  } catch (error) {
-    console.error("下载失败:", error);
-    Message.error("下载失败，请稍后再试");
-  }
-};
-
-const handlePreview = (picture: PictureType) =>
-  router.push(`/detail/picture/${picture.id}`);
-// Loading
-const loading = ref<boolean>(false);
-const isFinished = ref<boolean>(false);
-
+// 分页和加载更多处理
 const getLoadData = async () => {
   if (isFinished.value) return;
-  // 完成了第一次请求后，后续的请求让page自增
-  if (PictureListInfo.value.length > 0) PageInfo.value.current++;
+  if (PictureListInfo.value.length > 0) {
+    PageInfo.value.current++;
+  }
   await LoadList();
 };
 
-// 获取用户名
-const username = computed(() => userStore.getUserName || "未知用户");
-
-const CheckSpace = async () => {
-  const userId = userStore.getUserID;
-  const { data, code } = await GetSpaceByUserId(userId);
-  if (code !== 0 && data === null) {
-    isExit.value = false;
-  } else {
-    isExit.value = true;
-    if (data && data.id) {
-      spaceId.value = data.id;
-      // 更新 PageInfo 中的 spaceId
-      PageInfo.value.spaceId = data.id;
-      // 在确认空间存在后加载列表
-      await LoadList();
-    }
-  }
+const ChangeCurrentPageHandle = (current: number) => {
+  PageInfo.value.current = current;
+  LoadList();
 };
-onMounted(() => CheckSpace());
 
-const handleCreateSpace = () => router.push("/add/space");
-
-const handleCreatePhoto = () =>
-  router.push(`/add/picture?spaceId=${spaceId.value}`);
-
-// 添加日期选择相关的响应式变量
-const startDate = ref("");
-const endDate = ref("");
-
-// 日期展示标签
-const dateLabel = computed(() => {
-  if (!startDate.value && !endDate.value) {
-    return "选择日期范围";
+// 监听 spaceId 变化，当值存在时加载列表
+watch(spaceId, async (newSpaceId) => {
+  if (newSpaceId) {
+    await LoadList();
   }
-  const start = dayjs(startDate.value).format("MM/DD");
-  const end = dayjs(endDate.value).format("MM/DD");
-  const year = dayjs(startDate.value).format("YYYY");
-  return `${year}年 ${start} - ${end}`;
 });
 
-// 处理日期范围选择
-const handleDateRangeSelect = (start: string, end: string) => {
-  selectedDateRange.value = undefined; // 清空预设日期选择的状态
-  startDate.value = start;
-  endDate.value = end;
-
-  PageInfo.value = {
-    ...PageInfo.value,
-    current: 1,
-    startEditTime: start ? dayjs(start).startOf("day").format() : undefined,
-    endEditTime: end ? dayjs(end).endOf("day").format() : undefined,
-  };
-
-  LoadList();
-};
-
-// 添加预设日期范围选择相关的响应式变量
-const selectedDateRange = ref<SelectOption | undefined>(undefined);
-
-// 添加预设日期范围选项
-const dateRangeOptions = ref<SelectOption[]>([
-  {
-    id: "7",
-    name: "过去7天",
-  },
-  {
-    id: "14",
-    name: "过去14天",
-  },
-  {
-    id: "30",
-    name: "过去30天",
-  },
-  {
-    id: "90",
-    name: "过去90天",
-  },
-]);
-
-// 修改处理预设日期范围选择的方法
-const handleDateRangeOptionSelect = (option: SelectOption | null) => {
-  if (!option) {
-    selectedDateRange.value = undefined; // 清空选择器状态
-    startDate.value = "";
-    endDate.value = "";
-    PageInfo.value = {
-      ...PageInfo.value,
-      current: 1,
-      startEditTime: undefined,
-      endEditTime: undefined,
-    };
-  } else {
-    const days = parseInt(String(option.id));
-    const end = dayjs();
-    const start = end.subtract(days, "day");
-
-    startDate.value = start.format("YYYY-MM-DD");
-    endDate.value = end.format("YYYY-MM-DD");
-
-    PageInfo.value = {
-      ...PageInfo.value,
-      current: 1,
-      startEditTime: start.startOf("day").format(),
-      endEditTime: end.endOf("day").format(),
-    };
-  }
-  LoadList();
-};
-
-// 添加分类选择相关的响应式变量
-const selectedCategory = ref<SelectOption | undefined>(undefined);
-
-// 分类选项数据
-const categoryOptions = ref<SelectOption[]>([]);
-const customColors = ref<string[]>();
-// 处理分类选择
-const handleCategorySelect = (option: SelectOption | null) => {
-  PageInfo.value = {
-    ...PageInfo.value,
-    current: 1,
-    category: option && option.id !== "all" ? String(option.id) : undefined,
-  };
-  LoadList();
-};
-
-interface SpaceInfoInterface {
-  current: number;
-  pageSize: number;
-  category?: string;
-  id?: string;
-  name?: string;
-  userId?: string;
-  picFormat?: string;
-  tags?: Array<string>;
-  spaceId?: string;
-  picColor?: string;
-  startEditTime?: string;
-  endEditTime?: string;
-}
-const PageInfo = ref<SpaceInfoInterface>({
-  current: 1,
-  pageSize: 20,
-  spaceId: spaceId.value,
-  userId: userStore.getUserID,
-});
-const ChangeCurrentPageHandle = (current: number) =>
-  (PageInfo.value = { ...PageInfo.value, current: current });
-const PictureListInfo = ref<PictureType[]>([]);
-
-const LoadList = useThrottleFn(async () => {
-  const { data, message, code } = await GetPictureList(PageInfo.value);
-  if (code === 0 && data) {
-    total.value = Number(data.total) ?? 0;
-
-    const formattedRecords = Array.isArray(data.records)
-      ? formatRecords(data.records)
-      : [];
-
-    if (Number(PageInfo.value.current) === 1) {
-      PictureListInfo.value = formattedRecords;
-    } else {
-      PictureListInfo.value.push(...formattedRecords);
-    }
-
-    // 判断数据是否全部加载完成
-    if (PictureListInfo.value.length >= total.value) {
-      isFinished.value = true;
-    }
-  } else Message.error(`获取失败, 原因: ${message}`);
-}, 500);
-
-const formatRecords = (records: PictureType[]) => {
-  return records.map((item: PictureType) => ({
-    ...item,
-    createTime: dayjs(item.createTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
-    editTime: dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss") ?? "",
-  }));
-};
 onMounted(async () => {
-  const { code, data, message } = await GetTagCategory();
-  if (code === 0 && data) {
-    categoryOptions.value = (data.categoryList ?? []).map((data: string) => {
-      return { id: data, name: data };
-    });
-    categoryOptions.value.unshift({ id: "all", name: "全部分类" });
-    customColors.value = (data.colorList ?? []).map((data: string) => {
-      return data;
-    });
-  } else Message.error(`获取标签和分类选项失败${message}`);
+  await CheckSpace();
+  await loadFilterOptions();
 });
-
-// 添加搜索处理函数
-const handleSearch = () => {
-  PageInfo.value.current = 1;
-  isFinished.value = false;
-  LoadList();
-};
-
-// 添加清除搜索处理函数
-const handleClear = () => {
-  PageInfo.value.name = "";
-  LoadList();
-};
-
-const handleColorChange = (color: string) => {
-  PageInfo.value = {
-    ...PageInfo.value,
-    current: 1,
-    picColor: color || undefined,
-  };
-  LoadList();
-};
-
-// 添加重置所有筛选条件的函数
-const handleReset = () => {
-  // 重置所有筛选条件
-  PageInfo.value = {
-    current: 1,
-    pageSize: 20,
-    spaceId: spaceId.value,
-    userId: userStore.getUserID,
-    name: "",
-  };
-
-  // 重置日期选择
-  startDate.value = "";
-  endDate.value = "";
-
-  // 重置选择器状态
-  selectedDateRange.value = undefined;
-  selectedCategory.value = undefined;
-
-  // 重新加载列表
-  LoadList();
-
-  Message.success("已重置所有筛选条件");
-};
 </script>
