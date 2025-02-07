@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { BaseResponse_boolean_ } from "../models/BaseResponse_boolean_";
 import type { BaseResponse_int_ } from "../models/BaseResponse_int_";
+import type { BaseResponse_List_PictureVO_ } from "../models/BaseResponse_List_PictureVO_";
 import type { BaseResponse_Page_Picture_ } from "../models/BaseResponse_Page_Picture_";
 import type { BaseResponse_Page_PictureVO_ } from "../models/BaseResponse_Page_PictureVO_";
 import type { BaseResponse_Picture_ } from "../models/BaseResponse_Picture_";
@@ -16,6 +17,7 @@ import type { PictureReviewRequest } from "../models/PictureReviewRequest";
 import type { PictureUpdateRequest } from "../models/PictureUpdateRequest";
 import type { PictureUploadByBatchRequest } from "../models/PictureUploadByBatchRequest";
 import type { PictureUploadRequest } from "../models/PictureUploadRequest";
+import type { SearchPictureByColorRequest } from "../models/SearchPictureByColorRequest";
 import type { CancelablePromise } from "../core/CancelablePromise";
 import { OpenAPI } from "../core/OpenAPI";
 import { request as __request } from "../core/request";
@@ -236,6 +238,27 @@ export class PictureControllerService {
     });
   }
   /**
+   * searchPictureByColor
+   * @param searchPictureByColorRequest searchPictureByColorRequest
+   * @returns BaseResponse_List_PictureVO_ OK
+   * @returns any Created
+   * @throws ApiError
+   */
+  public static searchPictureByColorUsingPost(
+    searchPictureByColorRequest: SearchPictureByColorRequest
+  ): CancelablePromise<BaseResponse_List_PictureVO_ | any> {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/picture/search/color",
+      body: searchPictureByColorRequest,
+      errors: {
+        401: `Unauthorized`,
+        403: `Forbidden`,
+        404: `Not Found`,
+      },
+    });
+  }
+  /**
    * listPictureTagCategory
    * @returns BaseResponse_PictureTagCategory_ OK
    * @throws ApiError
@@ -277,6 +300,7 @@ export class PictureControllerService {
    * @param file file
    * @param fileUrl
    * @param id
+   * @param picColor
    * @param picName
    * @param spaceId
    * @returns BaseResponse_PictureVO_ OK
@@ -287,6 +311,7 @@ export class PictureControllerService {
     file: Blob,
     fileUrl?: string,
     id?: string,
+    picColor?: string,
     picName?: string,
     spaceId?: string
   ): CancelablePromise<BaseResponse_PictureVO_ | any> {
@@ -296,6 +321,7 @@ export class PictureControllerService {
       query: {
         fileUrl: fileUrl,
         id: id,
+        picColor: picColor,
         picName: picName,
         spaceId: spaceId,
       },

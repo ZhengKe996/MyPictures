@@ -3,13 +3,12 @@
 /* tslint:disable */
 /* eslint-disable */
 export type SpaceQueryRequest = {
-    current?: number;
-    id?: number;
-    pageSize?: number;
-    sortField?: string;
-    sortOrder?: string;
-    spaceLevel?: number;
-    spaceName?: string;
-    userId?: number;
+  current?: number;
+  id?: string;
+  pageSize?: number;
+  sortField?: string;
+  sortOrder?: string;
+  spaceLevel?: number;
+  spaceName?: string;
+  userId?: string;
 };
-

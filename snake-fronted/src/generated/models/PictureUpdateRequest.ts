@@ -3,10 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type PictureUpdateRequest = {
-    category?: string;
-    id?: number;
-    introduction?: string;
-    name?: string;
-    tags?: Array<string>;
+  category?: string;
+  id?: string;
+  introduction?: string;
+  name?: string;
+  tags?: Array<string>;
 };
-

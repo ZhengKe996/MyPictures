@@ -5,6 +5,7 @@
 export type PictureUploadRequest = {
   fileUrl?: string;
   id?: string;
+  picColor?: string;
   picName?: string;
   spaceId?: string;
 };

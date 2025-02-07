@@ -9,6 +9,7 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { BaseResponse_boolean_ } from './models/BaseResponse_boolean_';
 export type { BaseResponse_int_ } from './models/BaseResponse_int_';
+export type { BaseResponse_List_PictureVO_ } from './models/BaseResponse_List_PictureVO_';
 export type { BaseResponse_List_SpaceLevel_ } from './models/BaseResponse_List_SpaceLevel_';
 export type { BaseResponse_LoginUserVO_ } from './models/BaseResponse_LoginUserVO_';
 export type { BaseResponse_long_ } from './models/BaseResponse_long_';
@@ -41,6 +42,7 @@ export type { PictureUpdateRequest } from './models/PictureUpdateRequest';
 export type { PictureUploadByBatchRequest } from './models/PictureUploadByBatchRequest';
 export type { PictureUploadRequest } from './models/PictureUploadRequest';
 export type { PictureVO } from './models/PictureVO';
+export type { SearchPictureByColorRequest } from './models/SearchPictureByColorRequest';
 export type { Space } from './models/Space';
 export type { SpaceAddRequest } from './models/SpaceAddRequest';
 export type { SpaceEditRequest } from './models/SpaceEditRequest';

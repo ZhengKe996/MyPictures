@@ -273,7 +273,7 @@ const total = ref<number>(0);
 interface SpaceInfoInterface {
   current: number;
   pageSize: number;
-  userId?: number;
+  userId?: string;
   spaceLevel?: number;
   spaceName?: string;
 }

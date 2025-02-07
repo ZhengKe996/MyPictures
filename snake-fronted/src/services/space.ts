@@ -16,7 +16,7 @@ import { SpaceControllerService as Service } from "@/generated";
 export const GetSpaceList = async (form: {
   current: number;
   pageSize: number;
-  userId?: number;
+  userId?: string;
   spaceLevel?: number;
   spaceName?: string;
 }) => {

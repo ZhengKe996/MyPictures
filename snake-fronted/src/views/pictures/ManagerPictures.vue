@@ -360,7 +360,7 @@ interface PictureInfoInterface {
   current: number;
   pageSize: number;
   category?: string;
-  id?: number;
+  id?: string;
   name?: string;
   userId?: string;
   picFormat?: string;

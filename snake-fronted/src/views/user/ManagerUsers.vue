@@ -241,7 +241,7 @@ const total = ref<number>(0); // 题目总数
 interface UserInfoInterface {
   current: number;
   pageSize: number;
-  id?: number;
+  id?: string;
   sortField?: string;
   sortOrder?: string;
   userAccount?: string;

@@ -85,7 +85,7 @@ export const UserLogout = async () => {
 export const AdminGetUserList = async (form: {
   current: number;
   pageSize: number;
-  id?: number;
+  id?: string;
   sortField?: string;
   sortOrder?: string;
   userAccount?: string;

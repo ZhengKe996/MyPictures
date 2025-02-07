@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type SpaceEditRequest = {
-  id?: string;
-  spaceName?: string;
+export type SearchPictureByColorRequest = {
+  picColor?: string;
+  spaceId?: string;
 };

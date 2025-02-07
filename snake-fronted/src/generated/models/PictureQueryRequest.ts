@@ -6,11 +6,12 @@ export type PictureQueryRequest = {
   category?: string;
   current?: number;
   endEditTime?: string;
-  id?: number;
+  id?: string;
   introduction?: string;
   name?: string;
   nullSpaceId?: boolean;
   pageSize?: number;
+  picColor?: string;
   picFormat?: string;
   picHeight?: number;
   picScale?: number;

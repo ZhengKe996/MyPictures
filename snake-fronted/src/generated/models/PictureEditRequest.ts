@@ -4,7 +4,7 @@
 /* eslint-disable */
 export type PictureEditRequest = {
   category?: string;
-  id?: number;
+  id?: string;
   introduction?: string;
   name?: string;
   tags?: Array<string>;

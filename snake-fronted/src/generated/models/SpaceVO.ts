@@ -15,5 +15,5 @@ export type SpaceVO = {
   totalSize?: number;
   updateTime?: string;
   user?: UserVO;
-  userId?: number;
+  userId?: string;
 };
