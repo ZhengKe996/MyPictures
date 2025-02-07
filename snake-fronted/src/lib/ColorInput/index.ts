@@ -1,4 +1,5 @@
 import ColorInput from "./ColorInput.vue";
+import { type ColorFormat, type ColorUtilsOptions } from "./colorUtils";
 
 export interface ColorInputProps {
   modelValue: string;
@@ -9,6 +10,9 @@ export interface ColorInputProps {
   allowCustom?: boolean;
   /** 默认颜色 */
   defaultColor?: string;
+  // 新增配置项
+  outputFormat?: ColorFormat;
+  colorOptions?: ColorUtilsOptions;
 }
 
 export interface ColorInputEmits {
@@ -61,6 +65,10 @@ export const validateAndFormatColors = (
 };
 
 export type ColorInputInstance = InstanceType<typeof ColorInput>;
+
+// 修改验证函数，使用新的验证工具
+export { isValidColor } from "./colorUtils";
+export type { ColorFormat, ColorUtilsOptions };
 
 // 导出组件
 export { default } from "./ColorInput.vue";

@@ -2,7 +2,7 @@
   <div class="relative" ref="colorPickerRef">
     <div
       class="color-input group relative w-12 h-12 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 ring-2 ring-gray-200 hover:ring-offset-2 hover:ring-blue-400 shadow-lg"
-      :style="{ backgroundColor: modelValue }"
+      :style="{ backgroundColor: displayColor }"
       @click="togglePalette"
     >
       <div
@@ -25,7 +25,7 @@
           <span class="text-xs text-gray-500 font-mono">{{ modelValue }}</span>
           <div
             class="w-8 h-8 rounded-lg shadow-inner"
-            :style="{ backgroundColor: modelValue }"
+            :style="{ backgroundColor: displayColor }"
           ></div>
         </div>
       </div>
@@ -83,7 +83,6 @@
             v-model="currentCustomColor"
             class="w-full px-3 py-2 text-sm font-mono border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
             placeholder="#ffffff"
-            @focus="onCustomColorFocus"
             @keydown.enter.prevent="handleInputEnter"
             @click.stop
           />
@@ -119,12 +118,15 @@ import {
   type ColorInputProps,
   type ColorInputEmits,
 } from "./index";
+import { formatColor, isValidColor as validateColor } from "./colorUtils";
 
 const props = withDefaults(defineProps<ColorInputProps>(), {
   modelValue: "#000000",
   position: "bottom",
   colors: () => DEFAULT_COLORS,
   allowCustom: true,
+  outputFormat: "hex",
+  colorOptions: () => ({ outputFormat: "hex" }),
 });
 
 const emit = defineEmits<ColorInputEmits>();
@@ -240,13 +242,10 @@ const togglePalette = () => {
   showPalette.value = !showPalette.value;
 };
 
+// 修改 isValidColor 计算属性
 const isValidColor = computed(() => {
-  return isValidHexColor(currentCustomColor.value);
+  return validateColor(currentCustomColor.value);
 });
-
-const onCustomColorFocus = () => {
-  currentCustomColor.value = props.modelValue;
-};
 
 // 验证并格式化传入的颜色列表
 const colorList = computed(() => {
@@ -255,19 +254,20 @@ const colorList = computed(() => {
 
 // 修改 selectColor 和 applyCustomColor 函数，添加保存功能
 const selectColor = (color: string) => {
-  if (isValidHexColor(color)) {
-    emit("update:modelValue", color);
-    emit("change", color);
-    currentCustomColor.value = color;
-    showPalette.value = false; // 确保选中后关闭调色板
+  if (validateColor(color)) {
+    const formattedColor = formatColor(color, props.colorOptions);
+    emit("update:modelValue", formattedColor);
+    emit("change", formattedColor);
+    currentCustomColor.value = formattedColor;
+    showPalette.value = false;
   }
 };
 
 const applyCustomColor = () => {
   if (!props.allowCustom) return;
 
-  if (isValidHexColor(currentCustomColor.value)) {
-    const color = currentCustomColor.value.toLowerCase();
+  if (validateColor(currentCustomColor.value)) {
+    const color = formatColor(currentCustomColor.value, props.colorOptions);
     emit("update:modelValue", color);
     emit("change", color);
     showPalette.value = false;
@@ -288,4 +288,9 @@ const handleBlur = (index: number) => {
     focusedIndex.value = -1;
   }
 };
+
+// 添加计算属性用于显示
+const displayColor = computed(() => {
+  return formatColor(props.modelValue, { outputFormat: "hex" });
+});
 </script>

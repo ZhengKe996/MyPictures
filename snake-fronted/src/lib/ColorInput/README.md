@@ -19,7 +19,9 @@
 npm install @vueuse/core
 ```
 
-## 基础用法
+## 使用示例
+
+### 基础用法
 
 ```vue
 <template>
@@ -34,7 +36,32 @@ const color = ref("#2196f3");
 </script>
 ```
 
-## 进阶用法
+### 不同颜色格式输出
+
+```vue
+<template>
+  <div class="space-y-4">
+    <!-- 输出十六进制格式 -->
+    <ColorInput v-model="hexColor" :color-options="{ outputFormat: 'hex' }" />
+
+    <!-- 输出 0x 格式 -->
+    <ColorInput v-model="oxColor" :color-options="{ outputFormat: '0x' }" />
+
+    <!-- 输出 RGB 格式 -->
+    <ColorInput v-model="rgbColor" :color-options="{ outputFormat: 'rgb' }" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+import ColorInput from "./path/to/ColorInput";
+import type { ColorFormat } from "./path/to/ColorInput";
+
+const hexColor = ref("#2196f3");
+const oxColor = ref("0x2196f3");
+const rgbColor = ref("rgb(33, 150, 243)");
+</script>
+```
 
 ### 自定义颜色列表
 
@@ -43,7 +70,7 @@ const color = ref("#2196f3");
   <ColorInput
     v-model="color"
     :colors="customColors"
-    :allow-custom="false"
+    :color-options="{ outputFormat: '0x' }"
     @change="handleColorChange"
   />
 </template>
@@ -52,18 +79,18 @@ const color = ref("#2196f3");
 import { ref } from "vue";
 import ColorInput from "./path/to/ColorInput";
 
-const color = ref("#ff0000");
+const color = ref("0xff0000");
 const customColors = [
-  "#ff0000",
-  "#00ff00",
-  "#0000ff",
+  "0xff0000",
+  "0x00ff00",
+  "0x0000ff",
   "#ffff00",
-  "#ff00ff",
-  "#00ffff",
+  "rgb(255, 0, 255)",
+  "0x00ffff",
 ];
 
 const handleColorChange = (color: string) => {
-  console.log("Selected color:", color);
+  console.log("Selected color:", color); // 将输出 0x 格式的颜色值
 };
 </script>
 ```
@@ -88,12 +115,25 @@ const handleColorChange = (color: string) => {
 
 ### Props
 
-| 属性名      | 类型              | 默认值    | 说明                   |
-| ----------- | ----------------- | --------- | ---------------------- |
-| modelValue  | string            | '#000000' | 当前选中的颜色值       |
-| position    | 'top' \| 'bottom' | 'bottom'  | 弹出位置               |
-| colors      | string[]          | [...]     | 自定义颜色列表         |
-| allowCustom | boolean           | true      | 是否允许自定义颜色输入 |
+| 属性名       | 类型                             | 默认值                  | 说明                   |
+| ------------ | -------------------------------- | ----------------------- | ---------------------- |
+| modelValue   | string                           | '#000000'               | 当前选中的颜色值       |
+| position     | 'top' \| 'bottom'                | 'bottom'                | 弹出位置               |
+| colors       | string[]                         | [...]                   | 自定义颜色列表         |
+| allowCustom  | boolean                          | true                    | 是否允许自定义颜色输入 |
+| outputFormat | 'hex' \| 'rgb' \| '0x' \| 'rgba' | 'hex'                   | 输出的颜色格式         |
+| colorOptions | ColorUtilsOptions                | { outputFormat: 'hex' } | 颜色格式化选项         |
+
+### ColorUtilsOptions
+
+```typescript
+interface ColorUtilsOptions {
+  /** 输出的颜色格式 */
+  outputFormat: "hex" | "rgb" | "0x" | "rgba";
+  /** 是否包含 alpha 通道 */
+  includeAlpha?: boolean;
+}
+```
 
 ### Events
 
@@ -114,11 +154,22 @@ const handleColorChange = (color: string) => {
 import type { ColorInputProps, ColorInputEmits } from "./path/to/ColorInput";
 ```
 
+## 支持的颜色格式
+
+组件支持以下格式的颜色输入：
+
+- Hex 格式：`#ff0000`
+- 0x 格式：`0xff0000`
+- RGB 格式：`rgb(255, 0, 0)`
+
+所有格式都会根据 `outputFormat` 配置转换为指定的输出格式。
+
 ## 注意事项
 
-1. 颜色值必须是 6 位十六进制格式，例如 `#ff0000`
-2. 自定义颜色列表中的无效颜色值会被过滤
-3. 使用 `position="top"` 时，确保组件上方有足够空间
+1. 颜色值会自动转换为配置的输出格式
+2. 自定义颜色列表支持混合格式的颜色值
+3. 使用 `0x` 格式时，确保输入完整的 6 位颜色值
+4. RGB 格式支持空格，如 `rgb(255, 0, 0)` 或 `rgb(255,0,0)`
 
 ## 贡献
 
