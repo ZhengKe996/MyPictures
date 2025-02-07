@@ -1,35 +1,22 @@
 <template>
   <div class="w-full animated animated-duration-500 animated-fade-in">
-    <div class="flex flex-1 justify-between items-center px-2">
-      <div
-        class="grid w-full max-w-xl lg:max-w-xs flex justify-start items-center"
-      >
-        <div class="flex w-full justify-start items-center">
-          <label for="search" class="block text-sm/6 font-medium text-gray-900"
-            >Name:
-          </label>
-          <div class="mx-2">
-            <div
-              class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600"
-            >
-              <input
-                type="text"
-                name="search"
-                v-model="PageInfo.name"
-                class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
-                @keypress="handleKeyPress"
-              />
-              <Button
-                @click="LoadList"
-                :icon="'i-tabler:pointer-search'"
-                size="md"
-              ></Button>
-            </div>
-          </div>
+    <!-- 修改这部分布局 -->
+    <div class="flex flex-col gap-4 mb-4">
+      <!-- 搜索区域居中 -->
+      <div class="flex w-full justify-center items-center">
+        <div class="w-full max-w-xl">
+          <SearchInput
+            v-model="PageInfo.name"
+            label="Name:"
+            @search="LoadList"
+            @keypress="handleKeyPress"
+            @clear="handleClear"
+          />
         </div>
       </div>
 
-      <div class="flex items-center">
+      <!-- 添加按钮右对齐 -->
+      <div class="flex justify-end px-2">
         <Button
           @click="handleAdd"
           :icon="'i-tabler:plus'"
@@ -311,6 +298,7 @@
 </template>
 
 <script setup lang="ts">
+import SearchInput from "@/lib/SearchInput";
 import TableList from "@/components/TableList";
 import Pagination from "@/lib/Pagination";
 import { PictureManagerColumns, type PictureType } from "@/config";
@@ -446,6 +434,12 @@ const handleDelete = (id: number | string) => {
   }
 };
 const handleAdd = () => router.push(`/add/picture`);
+
+// 添加清除搜索处理函数
+const handleClear = () => {
+  PageInfo.value.name = ""; // 清空搜索内容
+  LoadList(); // 重新加载列表
+};
 
 // Add dialog control states
 const showDeleteDialog = ref(false);

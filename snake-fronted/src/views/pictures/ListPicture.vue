@@ -3,30 +3,13 @@
     class="w-full h-full animate-fade-in animate-duration-500 animate-ease-out"
   >
     <div class="flex w-full mb-4 flex-1 justify-center items-center">
-      <div class="mx-auto w-full max-w-xl flex justify-start items-center">
-        <div class="flex w-full justify-start items-center">
-          <label for="search" class="block text-sm/6 font-medium text-gray-900"
-            >Name:
-          </label>
-          <div class="mx-2">
-            <div
-              class="flex min-w-xl rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600"
-            >
-              <input
-                type="text"
-                name="search"
-                v-model="PageInfo.name"
-                class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
-                @keypress="handleKeyPress"
-              />
-              <Button
-                @click="handleSearch"
-                :icon="'i-tabler:pointer-search'"
-                size="md"
-              ></Button>
-            </div>
-          </div>
-        </div>
+      <div class="mx-auto w-full max-w-xl">
+        <SearchInput
+          v-model="PageInfo.name"
+          label="Name:"
+          @search="handleSearch"
+          @keypress="handleKeyPress"
+        />
       </div>
     </div>
     <div
@@ -106,8 +89,8 @@ import dayjs from "dayjs";
 import { Message } from "@/lib/Message";
 import Waterfall from "@/lib/Waterfall";
 import Infinite from "@/lib/Infinite";
-import Button from "@/lib/Button";
 import { Item } from "@/components/ListItem";
+import SearchInput from "@/lib/SearchInput";
 
 // Tabs
 import Tabs, { type TabItem } from "@/lib/Tabs";
