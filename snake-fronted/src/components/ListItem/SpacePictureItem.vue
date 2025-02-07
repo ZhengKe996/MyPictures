@@ -69,7 +69,7 @@
       <div class="flex items-center mt-2">
         <img
           class="h-5 w-5 rounded-full transition-transform duration-300 hover:scale-110 animate-hover"
-          :src="picture.user?.userProfile"
+          :src="picture.user?.userAvatar"
           alt=""
         />
         <span
