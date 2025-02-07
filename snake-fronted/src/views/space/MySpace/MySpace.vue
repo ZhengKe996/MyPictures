@@ -15,17 +15,34 @@
         <div class="max-w-6xl mx-auto">
           <!-- 头部信息 -->
           <div
-            class="flex items-center justify-between mb-8 animate-fade-in-up animate-duration-700"
+            class="flex flex-col gap-6 mb-8 animate-fade-in-up animate-duration-700"
           >
-            <div class="flex items-center gap-3">
-              <h1 class="text-2xl font-bold text-gray-800">
-                {{ username }}
-                <span class="text-sm font-normal text-gray-500 ml-2">
-                  (私有空间)
-                </span>
-              </h1>
+            <!-- 标题行 -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <h1 class="text-2xl font-bold text-gray-800">
+                  {{ username }}
+                  <span class="text-sm font-normal text-gray-500 ml-2">
+                    (私有空间)
+                  </span>
+                </h1>
+              </div>
             </div>
-            <div class="flex items-center gap-3 justify-end flex-1 ml-8">
+
+            <!-- 搜索和操作行 -->
+            <div class="flex items-center justify-between gap-4">
+              <!-- 搜索框 -->
+              <div class="flex-1 max-w-md">
+                <SearchInput
+                  v-model="PageInfo.name"
+                  :showLabel="false"
+                  placeholder="搜索图片名称..."
+                  @search="handleSearch"
+                  @clear="handleClear"
+                />
+              </div>
+
+              <!-- 筛选和操作按钮组 -->
               <div class="flex items-center gap-3">
                 <SelectMenus
                   v-model="selectedCategory"
@@ -62,17 +79,45 @@
                     />
                   </div>
                 </Popover>
+
+                <!-- 重置按钮 - 更新样式 -->
+                <button
+                  type="button"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-white border border-gray-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 active:bg-indigo-100 transition-all duration-200 ease-out group shadow-sm"
+                  @click="handleReset"
+                  title="重置所有筛选"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 transition-all duration-300 ease-out group-hover:rotate-180 group-hover:text-indigo-500"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                    stroke="currentColor"
+                    fill="none"
+                  >
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                    <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+                  </svg>
+                  <span class="text-sm">重置筛选</span>
+                  <span
+                    class="absolute -top-1 -right-1 size-2 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    aria-hidden="true"
+                  ></span>
+                </button>
+
+                <div class="w-px h-8 bg-gray-200/80"></div>
+
+                <Button
+                  type="primary"
+                  icon="i-tabler:photo-plus"
+                  @click="handleCreatePhoto"
+                  :isActiveAnim="true"
+                  class="w-[140px]"
+                >
+                  创建图片
+                </Button>
               </div>
-              <div class="w-px h-8 bg-gray-200/80"></div>
-              <Button
-                type="primary"
-                icon="i-tabler:photo-plus"
-                @click="handleCreatePhoto"
-                :isActiveAnim="true"
-                class="w-[140px]"
-              >
-                创建图片
-              </Button>
             </div>
           </div>
 
@@ -231,6 +276,7 @@ import Calendars from "@/lib/Calendars";
 import Popover from "@/lib/Popover";
 import SelectMenus from "@/lib/SelectMenus";
 import type { SelectOption } from "@/lib/SelectMenus";
+import SearchInput from "@/lib/SearchInput";
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -485,7 +531,7 @@ const LoadList = useThrottleFn(async () => {
       isFinished.value = true;
     }
   } else Message.error(`获取失败, 原因: ${message}`);
-}, 3000);
+}, 500);
 
 const formatRecords = (records: PictureType[]) => {
   return records.map((item: PictureType) => ({
@@ -503,4 +549,42 @@ onMounted(async () => {
     categoryOptions.value.unshift({ id: "all", name: "全部分类" });
   } else Message.error(`获取标签和分类选项失败${message}`);
 });
+
+// 添加搜索处理函数
+const handleSearch = () => {
+  PageInfo.value.current = 1;
+  isFinished.value = false;
+  LoadList();
+};
+
+// 添加清除搜索处理函数
+const handleClear = () => {
+  PageInfo.value.name = "";
+  LoadList();
+};
+
+// 添加重置所有筛选条件的函数
+const handleReset = () => {
+  // 重置所有筛选条件
+  PageInfo.value = {
+    current: 1,
+    pageSize: 20,
+    spaceId: spaceId.value,
+    userId: userStore.getUserID,
+    name: "",
+  };
+
+  // 重置日期选择
+  startDate.value = "";
+  endDate.value = "";
+
+  // 重置选择器状态
+  selectedDateRange.value = undefined;
+  selectedCategory.value = undefined;
+
+  // 重新加载列表
+  LoadList();
+
+  Message.success("已重置所有筛选条件");
+};
 </script>
