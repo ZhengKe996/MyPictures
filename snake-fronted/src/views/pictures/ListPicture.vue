@@ -2,81 +2,115 @@
   <div
     class="w-full h-full animate-fade-in animate-duration-500 animate-ease-out"
   >
-    <div class="flex w-full mb-4 flex-1 justify-center items-center">
-      <div class="mx-auto w-full max-w-xl">
-        <SearchInput
-          v-model="PageInfo.name"
-          label="Name:"
-          @search="handleSearch"
-          @keypress="handleKeyPress"
-        />
+    <!-- 搜索和筛选区域 - 添加最大宽度和居中对齐 -->
+    <div class="max-w-6xl mx-auto w-full px-6 space-y-6 mb-8">
+      <!-- 搜索和颜色选择行 - 优化布局和间距 -->
+      <div
+        class="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-xl shadow-sm"
+      >
+        <div class="w-full sm:w-2/3">
+          <SearchInput
+            v-model="PageInfo.name"
+            label="Name:"
+            @search="handleSearch"
+            @keypress="handleKeyPress"
+            class="w-full"
+          />
+        </div>
+        <div class="flex items-center gap-4 w-full sm:w-1/3 justify-end">
+          <ColorInput
+            v-model="oxColor"
+            :colors="customColors"
+            :color-options="{ outputFormat: '0x' }"
+            @change="handleColorChange"
+            class="min-w-[120px]"
+          />
+          <button
+            type="button"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-white border border-gray-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 active:bg-indigo-100 transition-all duration-200 ease-out group"
+            @click="handleReset"
+            title="重置所有筛选"
+          >
+            <i
+              class="i-tabler:refresh h-5 w-5 transition-all duration-300 ease-out group-hover:rotate-180"
+            ></i>
+            <span class="text-sm">重置筛选</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 分类标签区域 -->
+      <div class="space-y-3">
+        <div
+          class="w-full border-b border-gray-200 transition-all duration-300 ease-in-out"
+        >
+          <Tabs
+            v-model="activeTab"
+            :tabs="categoryOptions"
+            @change="handleTabChange"
+            class="transition-all duration-300 ease-in-out"
+          />
+        </div>
+        <div
+          class="w-full border-b border-gray-200 transition-all duration-300 ease-in-out"
+        >
+          <TagsList
+            :tags="tagOptions"
+            v-model="selectedTags"
+            @change="handleChange"
+            :multiple="true"
+          />
+        </div>
       </div>
     </div>
-    <div
-      class="w-full mb-2 border-b border-gray-200 transition-all duration-300 ease-in-out"
-    >
-      <Tabs
-        v-model="activeTab"
-        :tabs="categoryOptions"
-        @change="handleTabChange"
-        class="transition-all duration-300 ease-in-out"
+
+    <!-- 瀑布流内容区域 - 同样添加最大宽度和居中对齐 -->
+    <div class="max-w-6xl mx-auto">
+      <infinite
+        v-model="loading"
+        :isFinished="isFinished"
+        @on-load="getLoadData"
+        :threshold="100"
+        :immediate-check="true"
+        loading-text="玩命加载中..."
+        finished-text="我是有底线的"
       >
-      </Tabs>
-    </div>
-    <div
-      class="w-full mb-4 border-b border-gray-200 transition-all duration-300 ease-in-out"
-    >
-      <TagsList
-        :tags="tagOptions"
-        v-model="selectedTags"
-        @change="handleChange"
-        :multiple="true"
-      ></TagsList>
-    </div>
-    <infinite
-      v-model="loading"
-      :isFinished="isFinished"
-      @on-load="getLoadData"
-      :threshold="100"
-      :immediate-check="true"
-      loading-text="玩命加载中..."
-      finished-text="我是有底线的"
-    >
-      <waterfall
-        class="px-1 w-full animate-fade-in animate-duration-300 animate-ease-out"
-        :data="PictureListInfo"
-        nodeKey="id"
-        :column="4"
-        :picturePreReading="false"
-      >
-        <template v-slot="{ item, width }">
+        <waterfall
+          class="px-1 w-full animate-fade-in animate-duration-300 animate-ease-out"
+          :data="PictureListInfo"
+          nodeKey="id"
+          :column="4"
+          :picturePreReading="false"
+        >
+          <template v-slot="{ item, width }">
+            <div
+              class="overflow-hidden rounded-lg bg-white shadow-sm animate-fade-in-up animate-duration-500"
+            >
+              <Item :picture="(item as PictureType)" :width="width"></Item>
+            </div>
+          </template>
+        </waterfall>
+
+        <!-- 添加空状态展示 -->
+        <template v-if="!loading && PictureListInfo.length === 0">
           <div
-            class="overflow-hidden rounded-lg bg-white shadow-sm animate-fade-in-up animate-duration-500"
+            class="flex flex-col items-center justify-center py-16 space-y-4 animate-fade-in"
           >
-            <Item :picture="(item as PictureType)" :width="width"></Item>
+            <div
+              class="rounded-full bg-gray-50 p-4 animate-hover-scale animate-duration-300"
+            >
+              <i class="i-tabler:photo-off size-8 text-gray-400"></i>
+            </div>
+            <div class="text-center">
+              <h3 class="text-base font-semibold text-gray-900 mb-1">
+                暂无图片数据
+              </h3>
+              <p class="text-sm text-gray-500 mb-4">请尝试更换搜索条件</p>
+            </div>
           </div>
         </template>
-      </waterfall>
-
-      <!-- 添加空状态展示 -->
-      <template v-if="!loading && PictureListInfo.length === 0">
-        <div
-          class="flex flex-col items-center justify-center py-16 space-y-4 animate-fade-in"
-        >
-          <div
-            class="rounded-full bg-gray-50 p-4 animate-hover-scale animate-duration-300"
-          >
-            <i class="i-tabler:photo-off size-8 text-gray-400"></i>
-          </div>
-          <div class="text-center">
-            <h3 class="text-base font-semibold text-gray-900 mb-1">
-              暂无图片数据
-            </h3>
-            <p class="text-sm text-gray-500 mb-4">请尝试更换搜索条件</p>
-          </div>
-        </div>
-      </template>
-    </infinite>
+      </infinite>
+    </div>
   </div>
 </template>
 
@@ -91,6 +125,7 @@ import Waterfall from "@/lib/Waterfall";
 import Infinite from "@/lib/Infinite";
 import { Item } from "@/components/ListItem";
 import SearchInput from "@/lib/SearchInput";
+import ColorInput from "@/lib/ColorInput";
 
 // Tabs
 import Tabs, { type TabItem } from "@/lib/Tabs";
@@ -129,6 +164,7 @@ interface PictureInfoInterface {
   userId?: string;
   picFormat?: string;
   tags?: Array<string>;
+  picColor?: string; // 添加颜色字段
 }
 const PageInfo = ref<PictureInfoInterface>({
   current: 1,
@@ -197,6 +233,7 @@ const handleKeyPress = useThrottleFn((event: KeyboardEvent) => {
 // Get Tag and Category Options
 const categoryOptions = ref<string[]>([]);
 const tagOptions = ref<{ id: number; name: string }[]>([]);
+const customColors = ref<string[]>();
 const getTagCategoryOptions = useThrottleFn(async () => {
   const { data, code, message } = await GetTagCategory();
   if (code === 0 && data) {
@@ -206,9 +243,48 @@ const getTagCategoryOptions = useThrottleFn(async () => {
     }));
     tagOptions.value.unshift({ id: 0, name: ALLCategory });
     categoryOptions.value = [ALLCategory, ...(data.categoryList ?? [])];
+
+    // 添加颜色列表处理
+    customColors.value = (data.colorList ?? []).map((data: string) => {
+      return data;
+    });
   } else {
     Message.error(`获取标签和分类选项失败${message}`);
   }
 }, 1000);
 watchEffect(() => getTagCategoryOptions());
+
+// 添加颜色选择相关的响应式变量
+const oxColor = ref();
+
+// 添加颜色变化处理函数
+const handleColorChange = (color: string) => {
+  PageInfo.value = {
+    ...PageInfo.value,
+    current: 1,
+    picColor: color || undefined,
+  };
+  isFinished.value = false;
+  LoadList();
+};
+
+// 添加重置功能
+const handleReset = () => {
+  // 重置所有筛选条件
+  PageInfo.value = {
+    current: 1,
+    pageSize: 10,
+  };
+
+  // 重置选中的标签和分类
+  selectedTags.value = [];
+  activeTab.value = "";
+  oxColor.value = undefined;
+
+  // 重新加载列表
+  isFinished.value = false;
+  LoadList();
+
+  Message.success("已重置所有筛选条件");
+};
 </script>
