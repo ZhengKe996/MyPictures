@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-6">
+  <div class="min-h-screen p-6">
     <Transition
       enter-active-class="transition-all duration-300 ease-out"
       enter-from-class="opacity-0 transform -translate-y-4"
@@ -13,12 +13,14 @@
         class="space-content animate-fade-in animate-duration-500"
       >
         <div class="max-w-6xl mx-auto">
-          <!-- 头部信息 -->
+          <!-- 头部信息 - 改为两行布局 -->
           <div
             class="flex flex-col gap-6 mb-8 animate-fade-in-up animate-duration-700"
           >
-            <!-- 标题行 -->
-            <div class="flex items-center justify-between">
+            <!-- 第一行：标题和基本信息 -->
+            <div
+              class="flex items-center justify-between border-b border-gray-200 pb-4"
+            >
               <div class="flex items-center gap-3">
                 <h1 class="text-2xl font-bold text-gray-800">
                   {{ username }}
@@ -27,12 +29,22 @@
                   </span>
                 </h1>
               </div>
+              <!-- 创建图片按钮移到右侧 -->
+              <Button
+                type="primary"
+                icon="i-tabler:photo-plus"
+                @click="handleCreatePhoto"
+                :isActiveAnim="true"
+                class="min-w-[140px]"
+              >
+                Create Image
+              </Button>
             </div>
 
-            <!-- 搜索和操作行 -->
-            <div class="flex items-center justify-between gap-4">
-              <!-- 搜索框 -->
-              <div class="flex-1 max-w-md">
+            <!-- 第二行：搜索和筛选工具栏 -->
+            <div class="flex flex-wrap items-center gap-4">
+              <!-- 搜索框占据左侧 -->
+              <div class="flex-1 min-w-[240px]">
                 <SearchInput
                   v-model="PageInfo.name"
                   :showLabel="false"
@@ -42,14 +54,20 @@
                 />
               </div>
 
-              <!-- 筛选和操作按钮组 -->
-              <div class="flex items-center gap-3">
+              <!-- 筛选工具组 -->
+              <div class="flex flex-wrap items-center gap-3">
                 <SelectMenus
                   v-model="selectedCategory"
                   :options="categoryOptions"
                   placeholder="Select Category"
                   @update:modelValue="handleCategorySelect"
                   class="w-[140px]"
+                />
+                <ColorInput
+                  v-model="oxColor"
+                  :colors="customColors"
+                  :color-options="{ outputFormat: '0x' }"
+                  @change="handleColorChange"
                 />
                 <SelectMenus
                   v-model="selectedDateRange"
@@ -58,6 +76,7 @@
                   @update:modelValue="handleDateRangeOptionSelect"
                   class="w-[140px]"
                 />
+
                 <Popover trigger="click" placement="bottom-end">
                   <template #reference>
                     <Button
@@ -80,14 +99,6 @@
                   </div>
                 </Popover>
 
-                <ColorInput
-                  v-model="oxColor"
-                  :colors="customColors"
-                  :color-options="{ outputFormat: '0x' }"
-                  @change="handleColorChange"
-                />
-
-                <!-- 重置按钮 - 更新样式 -->
                 <button
                   type="button"
                   class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-white border border-gray-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 active:bg-indigo-100 transition-all duration-200 ease-out group shadow-sm"
@@ -112,18 +123,6 @@
                     aria-hidden="true"
                   ></span>
                 </button>
-
-                <div class="w-px h-8 bg-gray-200/80"></div>
-
-                <Button
-                  type="primary"
-                  icon="i-tabler:photo-plus"
-                  @click="handleCreatePhoto"
-                  :isActiveAnim="true"
-                  class="w-[140px]"
-                >
-                  Create Image
-                </Button>
               </div>
             </div>
           </div>
