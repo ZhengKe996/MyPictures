@@ -155,6 +155,14 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/demo",
+    name: "Demo",
+    component: () => import("@/views/Demo.vue"),
+    meta: {
+      layout: LayoutMenu.UserLayout,
+    },
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "mian",
     component: () => import("@/views/Error.vue"),

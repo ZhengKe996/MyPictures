@@ -14,6 +14,7 @@ import fun.timu.init.config.CosClientConfig;
 import fun.timu.init.exception.BusinessException;
 import fun.timu.init.manager.CosManager;
 import fun.timu.init.model.dto.file.UploadPictureResult;
+import fun.timu.init.utils.ColorTransformUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -128,7 +129,9 @@ public abstract class PictureUploadTemplate {
         uploadPictureResult.setPicHeight(picHeight);
         uploadPictureResult.setPicScale(picScale);
         uploadPictureResult.setPicFormat(compressedCiObject.getFormat());
-        uploadPictureResult.setPicColor(imageInfo.getAve());
+        String aveColor = imageInfo.getAve();
+        String formattedColor = ColorTransformUtils.getStandardColor(aveColor);
+        uploadPictureResult.setPicColor(formattedColor);
         // 设置缩略图地址
         uploadPictureResult.setThumbnailUrl(cosClientConfig.getHost() + "/" + thumbnailCiObject.getKey());
         // 返回可访问的地址

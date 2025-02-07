@@ -80,6 +80,13 @@
                   </div>
                 </Popover>
 
+                <ColorInput
+                  v-model="oxColor"
+                  :colors="customColors"
+                  :color-options="{ outputFormat: '0x' }"
+                  @change="handleColorChange"
+                />
+
                 <!-- 重置按钮 - 更新样式 -->
                 <button
                   type="button"
@@ -121,10 +128,6 @@
             </div>
           </div>
 
-          <!-- 内容区域 -->
-          <!-- <div
-            class="bg-white rounded-xl shadow-sm p-6 animate-fade-in-up animate-delay-200"
-          ></div> -->
           <infinite
             v-model="loading"
             :isFinished="isFinished"
@@ -277,6 +280,7 @@ import Popover from "@/lib/Popover";
 import SelectMenus from "@/lib/SelectMenus";
 import type { SelectOption } from "@/lib/SelectMenus";
 import SearchInput from "@/lib/SearchInput";
+import ColorInput from "@/lib/ColorInput";
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -284,6 +288,7 @@ const route = useRoute();
 const isExit = ref(false);
 const spaceId = ref<string>("");
 const total = ref<number>(0);
+const oxColor = ref();
 
 const handleEdit = async (picture: PictureType) =>
   router.push(`/update/picture/${picture.id}?spaceId=${spaceId.value}`);
@@ -477,7 +482,7 @@ const selectedCategory = ref<SelectOption | undefined>(undefined);
 
 // 分类选项数据
 const categoryOptions = ref<SelectOption[]>([]);
-
+const customColors = ref<string[]>();
 // 处理分类选择
 const handleCategorySelect = (option: SelectOption | null) => {
   PageInfo.value = {
@@ -498,6 +503,7 @@ interface SpaceInfoInterface {
   picFormat?: string;
   tags?: Array<string>;
   spaceId?: string;
+  picColor?: string;
   startEditTime?: string;
   endEditTime?: string;
 }
@@ -547,6 +553,9 @@ onMounted(async () => {
       return { id: data, name: data };
     });
     categoryOptions.value.unshift({ id: "all", name: "全部分类" });
+    customColors.value = (data.colorList ?? []).map((data: string) => {
+      return data;
+    });
   } else Message.error(`获取标签和分类选项失败${message}`);
 });
 
@@ -560,6 +569,15 @@ const handleSearch = () => {
 // 添加清除搜索处理函数
 const handleClear = () => {
   PageInfo.value.name = "";
+  LoadList();
+};
+
+const handleColorChange = (color: string) => {
+  PageInfo.value = {
+    ...PageInfo.value,
+    current: 1,
+    picColor: color || undefined,
+  };
   LoadList();
 };
 

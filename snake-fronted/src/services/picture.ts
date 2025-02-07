@@ -106,6 +106,7 @@ export const GetPictureList = async (form: {
   picFormat?: string;
   tags?: Array<string>;
   spaceId?: string;
+  picColor?: string;
   startEditTime?: string;
   endEditTime?: string;
 }) => {
