@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative w-full group outline-none focus-visible:outline-none"
+    class="relative w-[140px] group outline-none focus-visible:outline-none"
     @keydown.down.prevent="navigateOptions('next')"
     @keydown.up.prevent="navigateOptions('prev')"
     @keydown.enter.prevent="selectHighlighted"
@@ -67,15 +67,15 @@
 
     <!-- Dropdown with improved focus effects -->
     <Transition
-      enter="transition-all duration-300 ease-out"
-      enter-from="opacity-0 translate-y-2 scale-95"
-      enter-to="opacity-100 translate-y-0 scale-100"
-      leave="transition-all duration-200 ease-in"
-      leave-from="opacity-100 translate-y-0 scale-100"
-      leave-to="opacity-0 translate-y-2 scale-95"
+      enter-active-class="transform-gpu transition-all duration-300 ease-out-back"
+      enter-from-class="opacity-0 -translate-y-1 scale-95 blur-sm"
+      enter-to-class="opacity-100 translate-y-0 scale-100 blur-0"
+      leave-active-class="transform-gpu transition-all duration-200 ease-in-back"
+      leave-from-class="opacity-100 translate-y-0 scale-100 blur-0"
+      leave-to-class="opacity-0 -translate-y-1 scale-95 blur-sm"
     >
       <div v-if="isOpen" class="absolute z-50 w-full mt-2">
-        <div class="relative">
+        <div class="relative select-menu-container">
           <!-- Top shadow -->
           <div
             class="absolute top-0 inset-x-0 h-4 bg-gradient-to-b from-white to-transparent pointer-events-none z-10 rounded-t-xl"
@@ -186,12 +186,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  useSelectMenu,
-  type SelectOption,
-  type SelectMenuProps,
-  type SelectMenuEmits,
-} from ".";
+import { useSelectMenu, type SelectMenuProps, type SelectMenuEmits } from ".";
 
 const props = defineProps<SelectMenuProps>();
 const emit = defineEmits<SelectMenuEmits>();
@@ -213,17 +208,34 @@ const {
 </script>
 
 <style scoped>
-.highlighted-indicator {
-  transform-origin: left;
-  animation: slideIn 0.2s ease-out forwards;
+.select-menu-container {
+  will-change: transform, opacity;
+  animation: menuAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-@keyframes slideIn {
-  0% {
+@keyframes menuAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 高亮指示器动画 */
+.highlighted-indicator {
+  transform-origin: left;
+  animation: indicatorSlide 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes indicatorSlide {
+  from {
     transform: scaleY(0);
     opacity: 0;
   }
-  100% {
+  to {
     transform: scaleY(1);
     opacity: 1;
   }

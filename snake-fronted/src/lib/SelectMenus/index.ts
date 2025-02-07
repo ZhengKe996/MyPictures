@@ -18,7 +18,7 @@ export interface SelectMenuProps {
 }
 
 export interface SelectMenuEmits {
-  (e: "update:modelValue", value: SelectOption): void;
+  (e: "update:modelValue", value: SelectOption | null): void;
 }
 
 export function useSelectMenu(props: SelectMenuProps, emit: SelectMenuEmits) {

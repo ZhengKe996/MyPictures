@@ -25,32 +25,44 @@
                 </span>
               </h1>
             </div>
-            <div class="flex items-center gap-4">
-              <!-- 添加日期选择器 -->
-              <Popover trigger="click" placement="bottom-end">
-                <template #reference>
-                  <Button
-                    type="primary"
-                    icon="i-tabler:calendar"
-                    :isActiveAnim="true"
-                  >
-                    {{ dateLabel }}
-                  </Button>
-                </template>
-                <div class="w-[320px]">
-                  <Calendars
-                    mode="range"
-                    :start-date="startDate"
-                    :end-date="endDate"
-                    @range-select="handleDateRangeSelect"
-                  />
-                </div>
-              </Popover>
+            <div class="flex items-center gap-3 justify-end flex-1 ml-8">
+              <div class="flex items-center gap-3">
+                <SelectMenus
+                  v-model="selectedDateRange"
+                  :options="dateRangeOptions"
+                  placeholder="选择时间范围"
+                  @update:modelValue="handleDateRangeOptionSelect"
+                  class="w-[140px]"
+                />
+                <Popover trigger="click" placement="bottom-end">
+                  <template #reference>
+                    <Button
+                      type="primary"
+                      icon="i-tabler:calendar"
+                      :isActiveAnim="true"
+                      class="min-w-[180px]"
+                    >
+                      {{ dateLabel }}
+                    </Button>
+                  </template>
+                  <div class="w-[320px]">
+                    <Calendars
+                      mode="range"
+                      :start-date="startDate"
+                      :end-date="endDate"
+                      @range-select="handleDateRangeSelect"
+                      class="w-full"
+                    />
+                  </div>
+                </Popover>
+              </div>
+              <div class="w-px h-8 bg-gray-200/80"></div>
               <Button
                 type="primary"
                 icon="i-tabler:photo-plus"
                 @click="handleCreatePhoto"
                 :isActiveAnim="true"
+                class="w-[140px]"
               >
                 创建图片
               </Button>
@@ -209,6 +221,8 @@ import { SpaceItem } from "@/components/ListItem";
 import Dialog from "@/lib/Dialog/Dialog.vue";
 import Calendars from "@/lib/Calendars";
 import Popover from "@/lib/Popover";
+import SelectMenus from "@/lib/SelectMenus";
+import type { SelectOption } from "@/lib/SelectMenus";
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -327,31 +341,80 @@ const endDate = ref("");
 // 日期展示标签
 const dateLabel = computed(() => {
   if (!startDate.value && !endDate.value) {
-    return "选择日期";
+    return "选择日期范围";
   }
-  if (startDate.value && endDate.value) {
-    return `${dayjs(startDate.value).format("MM/DD")} - ${dayjs(
-      endDate.value
-    ).format("MM/DD")}`;
-  }
-  return dayjs(startDate.value).format("YYYY/MM/DD");
+  const start = dayjs(startDate.value).format("MM/DD");
+  const end = dayjs(endDate.value).format("MM/DD");
+  const year = dayjs(startDate.value).format("YYYY");
+  return `${year}年 ${start} - ${end}`;
 });
 
 // 处理日期范围选择
 const handleDateRangeSelect = (start: string, end: string) => {
+  selectedDateRange.value = undefined; // 清空预设日期选择的状态
   startDate.value = start;
   endDate.value = end;
-  console.log("日期范围选择成功", startDate.value, endDate.value);
 
-  // 更新 PageInfo
   PageInfo.value = {
     ...PageInfo.value,
-    current: 1, // 重置页码
+    current: 1,
     startEditTime: start ? dayjs(start).startOf("day").format() : undefined,
     endEditTime: end ? dayjs(end).endOf("day").format() : undefined,
   };
 
-  // 重新加载列表
+  LoadList();
+};
+
+// 添加预设日期范围选择相关的响应式变量
+const selectedDateRange = ref<SelectOption | undefined>(undefined);
+
+// 添加预设日期范围选项
+const dateRangeOptions = ref<SelectOption[]>([
+  {
+    id: "7",
+    name: "过去7天",
+  },
+  {
+    id: "14",
+    name: "过去14天",
+  },
+  {
+    id: "30",
+    name: "过去30天",
+  },
+  {
+    id: "90",
+    name: "过去90天",
+  },
+]);
+
+// 修改处理预设日期范围选择的方法
+const handleDateRangeOptionSelect = (option: SelectOption | null) => {
+  if (!option) {
+    selectedDateRange.value = undefined; // 清空选择器状态
+    startDate.value = "";
+    endDate.value = "";
+    PageInfo.value = {
+      ...PageInfo.value,
+      current: 1,
+      startEditTime: undefined,
+      endEditTime: undefined,
+    };
+  } else {
+    const days = parseInt(String(option.id));
+    const end = dayjs();
+    const start = end.subtract(days, "day");
+
+    startDate.value = start.format("YYYY-MM-DD");
+    endDate.value = end.format("YYYY-MM-DD");
+
+    PageInfo.value = {
+      ...PageInfo.value,
+      current: 1,
+      startEditTime: start.startOf("day").format(),
+      endEditTime: end.endOf("day").format(),
+    };
+  }
   LoadList();
 };
 

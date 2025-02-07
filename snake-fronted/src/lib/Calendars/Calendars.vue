@@ -1,13 +1,22 @@
 <template>
-  <div
-    class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-300 max-w-md sm:max-w-lg md:max-w-xl mx-auto"
-  >
+  <div class="relative overflow-hidden rounded-xl calendar-container">
     <div class="flex items-center justify-between p-4 md:p-6">
-      <h2
-        class="text-base md:text-lg font-medium text-gray-800 dark:text-gray-200"
+      <TransitionGroup
+        enter-active-class="transition-all duration-300 ease-out-back transform-gpu"
+        enter-from-class="opacity-0 -translate-x-4 blur-sm"
+        enter-to-class="opacity-100 translate-x-0 blur-0"
+        leave-active-class="transition-all duration-200 ease-in-back transform-gpu"
+        leave-from-class="opacity-100 translate-x-0 blur-0"
+        leave-to-class="opacity-0 translate-x-4 blur-sm"
+        move-class="transition-all duration-500 ease-in-out"
       >
-        {{ currentMonthLabel }}
-      </h2>
+        <h2
+          :key="currentMonthLabel"
+          class="text-base md:text-lg font-medium calendar-title"
+        >
+          {{ currentMonthLabel }}
+        </h2>
+      </TransitionGroup>
       <div class="flex space-x-2">
         <button
           type="button"
@@ -43,7 +52,17 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-7 gap-1 md:gap-2">
+      <TransitionGroup
+        tag="div"
+        class="grid grid-cols-7 gap-1 md:gap-2"
+        enter-active-class="transition-all duration-300 ease-out-back transform-gpu"
+        enter-from-class="opacity-0 scale-90 blur-sm"
+        enter-to-class="opacity-100 scale-100 blur-0"
+        leave-active-class="transition-all duration-200 ease-in-back transform-gpu"
+        leave-from-class="opacity-100 scale-100 blur-0"
+        leave-to-class="opacity-0 scale-90 blur-sm"
+        move-class="transition-all duration-300 ease-in-out"
+      >
         <div
           v-for="day in calendarDays"
           :key="day.date"
@@ -103,7 +122,7 @@
             </time>
           </button>
         </div>
-      </div>
+      </TransitionGroup>
     </div>
   </div>
 </template>
@@ -209,3 +228,31 @@ onMounted(() => {
   }
 });
 </script>
+
+<style scoped>
+.calendar-container {
+  will-change: transform, opacity;
+  animation: calendarAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.calendar-title {
+  will-change: transform, opacity;
+}
+
+@keyframes calendarAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 确保硬件加速和性能优化 */
+* {
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+</style>
