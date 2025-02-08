@@ -13,12 +13,12 @@ export const DefaultPictureInfo = {
   picScale: 0,
   picSize: 0,
   picWidth: 0,
-  spaceId: 0,
+  spaceId: undefined,
   tags: [],
   thumbnailUrl: "",
   updateTime: "",
   url: "",
-  userId: 0,
+  userId: undefined,
 };
 
 export const DefaultPictureEditInfo = {

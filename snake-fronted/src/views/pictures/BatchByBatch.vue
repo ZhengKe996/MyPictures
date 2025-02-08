@@ -13,7 +13,7 @@
           class="bg-white/90 backdrop-blur-xl rounded-xl p-8 space-y-8 shadow-[0_0_15px_rgba(0,0,0,0.1),0_0_6px_rgba(0,0,0,0.05)] border border-white/40 hover:shadow-[0_0_20px_rgba(0,0,0,0.12),0_0_8px_rgba(0,0,0,0.06)] transition-all duration-300 ease-out"
         >
           <h2
-            class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-8"
+            class="text-3xl font-bold text-transparent bg-clip-text gradient-primary mb-8"
           >
             Batch By {{ isBatchMode ? "Pexels" : "Bing" }}
           </h2>
@@ -66,13 +66,13 @@
               </div>
               <button
                 @click="decrementNumber"
-                class="px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 active:scale-95"
+                class="px-4 py-3 gradient-primary text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 active:scale-95"
               >
                 -
               </button>
               <button
                 @click="incrementNumber"
-                class="px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 active:scale-95"
+                class="px-4 py-3 gradient-primary text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 active:scale-95"
               >
                 +
               </button>
@@ -100,7 +100,7 @@
           <div class="pt-4">
             <button
               @click="handleSubmit"
-              class="w-full px-6 py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 disabled:hover:shadow-md"
+              class="w-full px-6 py-4 gradient-primary text-white text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:scale-100 disabled:hover:shadow-md"
               :disabled="!searchText || !count || !namePrefix || isLoading"
             >
               <span class="flex items-center justify-center space-x-2">
