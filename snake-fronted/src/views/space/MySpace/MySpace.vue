@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen p-6">
+  <div class="min-h-screen p-6 bg-gray-50">
     <Transition
-      enter-active-class="transition-all duration-300 ease-out"
+      enter-active-class="transition-all duration-500 ease-out"
       enter-from-class="opacity-0 transform -translate-y-4"
       enter-to-class="opacity-100 transform translate-y-0"
-      leave-active-class="transition-all duration-300 ease-in"
+      leave-active-class="transition-all duration-500 ease-in"
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
@@ -13,37 +13,37 @@
         class="space-content animate-fade-in animate-duration-500"
       >
         <div class="max-w-6xl mx-auto">
-          <!-- 头部信息 - 改为两行布局 -->
           <div
             class="flex flex-col gap-6 mb-8 animate-fade-in-up animate-duration-700"
           >
-            <!-- 第一行：标题和基本信息 -->
+            <!-- Header with Gradient Title -->
             <div
               class="flex items-center justify-between border-b border-gray-200 pb-4"
             >
               <div class="flex items-center gap-3">
-                <h1 class="text-2xl font-bold text-gray-800">
+                <h1
+                  class="text-2xl font-bold bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end bg-clip-text text-transparent"
+                >
                   {{ username }}
                   <span class="text-sm font-normal text-gray-500 ml-2">
                     (Private Space)
                   </span>
                 </h1>
               </div>
-              <!-- 创建图片按钮移到右侧 -->
+              <!-- Gradient Create Image Button -->
               <Button
                 type="primary"
                 icon="i-tabler:photo-plus"
                 @click="handleCreatePhoto"
-                :isActiveAnim="true"
-                class="min-w-[140px]"
+                class="bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
               >
                 Create Image
               </Button>
             </div>
 
-            <!-- 第二行：搜索和筛选工具栏 -->
+            <!-- Search and Filter Section -->
             <div class="flex flex-wrap items-center gap-4">
-              <!-- 搜索框占据左侧 -->
+              <!-- Existing search and filter components with updated styles -->
               <div class="flex-1 min-w-[240px]">
                 <SearchInput
                   v-model="PageInfo.name"
@@ -54,8 +54,8 @@
                 />
               </div>
 
-              <!-- 筛选工具组 -->
               <div class="flex flex-wrap items-center gap-3">
+                <!-- Existing select menus with gradient hover effects -->
                 <SelectMenus
                   v-model="selectedCategory"
                   :options="categoryOptions"
@@ -69,21 +69,13 @@
                   :color-options="{ outputFormat: '0x' }"
                   @change="handleColorChange"
                 />
-                <SelectMenus
-                  v-model="selectedDateRange"
-                  :options="dateRangeOptions"
-                  placeholder="Select Time Range"
-                  @update:modelValue="handleDateRangeOptionSelect"
-                  class="w-[140px]"
-                />
-
                 <Popover trigger="click" placement="bottom-end">
                   <template #reference>
                     <Button
                       type="primary"
                       icon="i-tabler:calendar"
                       :isActiveAnim="true"
-                      class="min-w-[180px]"
+                      class="min-w-[180px] flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105 group"
                     >
                       {{ dateLabel }}
                     </Button>
@@ -98,35 +90,31 @@
                     />
                   </div>
                 </Popover>
+                <SelectMenus
+                  v-model="selectedDateRange"
+                  :options="dateRangeOptions"
+                  placeholder="Select Time Range"
+                  @update:modelValue="handleDateRangeOptionSelect"
+                  class="w-[140px]"
+                />
 
+                <!-- Gradient Reset Button -->
                 <button
                   type="button"
-                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-white border border-gray-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 active:bg-indigo-100 transition-all duration-200 ease-out group shadow-sm"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105 group"
                   @click="handleReset"
                   title="Reset all filters"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 transition-all duration-300 ease-out group-hover:rotate-180 group-hover:text-indigo-500"
-                    viewBox="0 0 24 24"
-                    stroke-width="2"
-                    stroke="currentColor"
-                    fill="none"
-                  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-                    <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-                  </svg>
+                  <i
+                    class="i-tabler:refresh h-5 w-5 transition-all duration-300 ease-out group-hover:rotate-180"
+                  ></i>
                   <span class="text-sm">Reset Filters</span>
-                  <span
-                    class="absolute -top-1 -right-1 size-2 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    aria-hidden="true"
-                  ></span>
                 </button>
               </div>
             </div>
           </div>
 
+          <!-- Waterfall and Empty State with Gradient Styles -->
           <infinite
             v-model="loading"
             :isFinished="isFinished"
@@ -145,7 +133,7 @@
             >
               <template v-slot="{ item, width }">
                 <div
-                  class="overflow-hidden rounded-lg bg-white shadow-sm animate-fade-in-up animate-duration-500"
+                  class="overflow-hidden rounded-lg bg-white shadow-sm animate-fade-in-up animate-duration-500 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
                 >
                   <SpaceItem
                     :picture="(item as PictureType)"
@@ -159,15 +147,15 @@
               </template>
             </waterfall>
 
-            <!-- 添加空状态展示 -->
+            <!-- Empty State with Gradient Icon -->
             <template v-if="!loading && PictureListInfo.length === 0">
               <div
                 class="flex flex-col items-center justify-center py-16 space-y-4 animate-fade-in"
               >
                 <div
-                  class="rounded-full bg-gray-50 p-4 animate-hover-scale animate-duration-300"
+                  class="rounded-full bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end p-4 animate-hover-scale animate-duration-300"
                 >
-                  <i class="i-tabler:photo-off size-8 text-gray-400"></i>
+                  <i class="i-tabler:photo-off size-8 text-white"></i>
                 </div>
                 <div class="text-center">
                   <h3 class="text-base font-semibold text-gray-900 mb-1">
@@ -188,16 +176,18 @@
           @change="ChangeCurrentPageHandle"
         />
       </div>
+
+      <!-- No Space Created Section with Gradient Button -->
       <div
         v-else
-        class="flex flex-col items-center justify-center min-h-[400px]"
+        class="flex flex-col items-center justify-center min-h-[400px] animate-fade-in animate-duration-500"
       >
         <div class="text-center space-y-8">
           <div
             class="animate-bounce-alt animate-duration-3000 animate-infinite animate-ease-in-out"
           >
             <div
-              class="i-tabler:database-off text-8xl text-gray-400/80 mb-4 transform transition duration-300 hover:text-blue-500/80"
+              class="i-tabler:database-off text-8xl text-gray-400/80 mb-4 transform transition duration-300 hover:text-custom-gradient-end"
             ></div>
           </div>
           <div class="space-y-3">
@@ -209,7 +199,7 @@
             </p>
             <button
               @click="handleCreateSpace"
-              class="mt-4 px-6 py-2.5 bg-blue-500 text-white rounded-lg transform transition-all duration-200 hover:bg-blue-600 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 active:scale-95"
+              class="mt-4 px-6 py-2.5 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white rounded-lg transform transition-all duration-200 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-custom-gradient-end focus:ring-opacity-50 active:scale-95"
             >
               Create Space
             </button>
@@ -217,7 +207,8 @@
         </div>
       </div>
     </Transition>
-    <!-- 删除确认对话框 -->
+
+    <!-- Existing Dialog Component -->
     <Dialog
       v-model="showDeleteDialog"
       title="Delete Confirmation"

@@ -2,11 +2,11 @@
   <div
     class="w-full h-full animate-fade-in animate-duration-500 animate-ease-out"
   >
-    <!-- 搜索和筛选区域 - 添加最大宽度和居中对齐 -->
+    <!-- Search and Filter Area - Centered with Max Width -->
     <div class="max-w-6xl mx-auto w-full px-6 space-y-6 mb-8">
-      <!-- 搜索和颜色选择行 - 优化布局和间距 -->
+      <!-- Search and Color Selection Row - Optimized Layout -->
       <div
-        class="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-xl shadow-sm"
+        class="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-200"
       >
         <div class="w-full sm:w-2/3">
           <SearchInput
@@ -27,19 +27,19 @@
           />
           <button
             type="button"
-            class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-white border border-gray-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 active:bg-indigo-100 transition-all duration-200 ease-out group"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105 group"
             @click="handleReset"
-            title="重置所有筛选"
+            title="Reset all filters"
           >
             <i
               class="i-tabler:refresh h-5 w-5 transition-all duration-300 ease-out group-hover:rotate-180"
             ></i>
-            <span class="text-sm">重置筛选</span>
+            <span class="text-sm">Reset</span>
           </button>
         </div>
       </div>
 
-      <!-- 分类标签区域 -->
+      <!-- Category and Tag Sections -->
       <div class="space-y-3">
         <div
           class="w-full border-b border-gray-200 transition-all duration-300 ease-in-out"
@@ -64,7 +64,7 @@
       </div>
     </div>
 
-    <!-- 瀑布流内容区域 - 同样添加最大宽度和居中对齐 -->
+    <!-- Waterfall Content Area -->
     <div class="max-w-6xl mx-auto">
       <infinite
         v-model="loading"
@@ -72,8 +72,8 @@
         @on-load="getLoadData"
         :threshold="100"
         :immediate-check="true"
-        loading-text="玩命加载中..."
-        finished-text="我是有底线的"
+        loading-text="Loading..."
+        finished-text="No more data"
       >
         <waterfall
           class="px-1 w-full animate-fade-in animate-duration-300 animate-ease-out"
@@ -84,28 +84,39 @@
         >
           <template v-slot="{ item, width }">
             <div
-              class="overflow-hidden rounded-lg bg-white shadow-sm animate-fade-in-up animate-duration-500"
+              class="overflow-hidden rounded-lg bg-white shadow-sm animate-fade-in-up animate-duration-500 hover:shadow-lg transition-all duration-300"
             >
               <Item :picture="(item as PictureType)" :width="width"></Item>
             </div>
           </template>
         </waterfall>
 
-        <!-- 添加空状态展示 -->
+        <!-- Empty State Display -->
         <template v-if="!loading && PictureListInfo.length === 0">
           <div
             class="flex flex-col items-center justify-center py-16 space-y-4 animate-fade-in"
           >
             <div
-              class="rounded-full bg-gray-50 p-4 animate-hover-scale animate-duration-300"
+              class="rounded-full bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end p-4 animate-hover-scale animate-duration-300"
             >
-              <i class="i-tabler:photo-off size-8 text-gray-400"></i>
+              <i class="i-tabler:photo-off size-8 text-white"></i>
             </div>
             <div class="text-center">
               <h3 class="text-base font-semibold text-gray-900 mb-1">
-                暂无图片数据
+                No Images Found
               </h3>
-              <p class="text-sm text-gray-500 mb-4">请尝试更换搜索条件</p>
+              <p class="text-sm text-gray-500 mb-4">
+                Try adjusting your search criteria
+              </p>
+              <Button
+                type="primary"
+                size="sm"
+                :icon="'i-tabler:refresh'"
+                class="bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
+                @click="handleReset"
+              >
+                Reset Filters
+              </Button>
             </div>
           </div>
         </template>
@@ -126,7 +137,7 @@ import Infinite from "@/lib/Infinite";
 import { Item } from "@/components/ListItem";
 import SearchInput from "@/lib/SearchInput";
 import ColorInput from "@/lib/ColorInput";
-
+import Button from "@/lib/Button";
 // Tabs
 import Tabs, { type TabItem } from "@/lib/Tabs";
 const activeTab = ref("");

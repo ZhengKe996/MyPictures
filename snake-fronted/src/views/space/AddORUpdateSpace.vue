@@ -1,11 +1,15 @@
 <template>
-  <div class="min-h-[640px] flex items-center justify-center bg-gray-100">
+  <div
+    class="min-h-[640px] flex items-center justify-center bg-gray-100 animate-fade-in animate-duration-500"
+  >
     <div
-      class="max-w-2xl w-full mx-4 max-h-[640px] bg-white rounded-xl shadow-lg transform transition-all duration-300 hover:shadow-xl"
+      class="max-w-2xl w-full mx-4 max-h-[640px] bg-white rounded-xl shadow-lg transform transition-all duration-300 hover:shadow-xl border border-gray-200"
     >
       <div class="p-6">
-        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
-          {{ isUpdateMode ? " Update Space" : " Create New Space" }}
+        <h2
+          class="text-2xl font-bold text-center text-gray-800 mb-6 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end bg-clip-text text-transparent"
+        >
+          {{ isUpdateMode ? "Update Space" : "Create New Space" }}
         </h2>
 
         <div class="space-y-6">
@@ -15,7 +19,7 @@
               v-model="spaceName"
               type="text"
               placeholder="Enter your space name"
-              class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none hover:bg-white"
+              class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-custom-gradient-end transition-all duration-200 hover:border-custom-gradient-start"
               :class="{ 'border-red-500': errors.spaceName }"
             />
             <p v-if="errors.spaceName" class="text-red-500 text-xs mt-1">
@@ -30,18 +34,20 @@
                 v-for="level in spaceLevels"
                 :key="level.level"
                 @click="spaceLevel = level.level"
-                class="p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md"
+                class="p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md group"
                 :class="
                   spaceLevel === level.level
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-blue-300'
+                    ? 'border-custom-gradient-end bg-gradient-to-r from-custom-gradient-start/10 to-custom-gradient-end/10'
+                    : 'border-gray-200 hover:border-custom-gradient-start'
                 "
               >
                 <div class="flex justify-between items-center mb-2">
                   <h3 class="font-semibold text-gray-800">{{ level.name }}</h3>
-                  <span class="text-sm text-gray-500"
-                    >Level {{ level.level }}</span
+                  <span
+                    class="text-sm text-gray-500 group-hover:text-custom-gradient-end transition-colors"
                   >
+                    Level {{ level.level }}
+                  </span>
                 </div>
                 <div class="space-y-2 text-sm text-gray-600">
                   <p class="flex items-center">
@@ -66,6 +72,7 @@
             block
             :disabled="isButtonDisabled"
             @click="handleSubmit"
+            class="bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
           >
             {{ isUpdateMode ? "Update Space" : "Create Space" }}
           </Button>
