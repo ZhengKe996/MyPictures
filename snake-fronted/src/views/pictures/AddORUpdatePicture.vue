@@ -96,15 +96,39 @@
           placeholder="请输入分类"
         />
       </a-form-item>
-      <a-form-item label="标签" name="tags">
-        <a-select
-          v-model:value="pictureForm.tags"
-          :options="tagOptions"
-          mode="tags"
-          placeholder="请输入标签"
-          allowClear
-        />
-      </a-form-item>
+      <div>
+        <a-form-item label="标签" name="tags">
+          <div class="w-full p-3 border border-gray-200 rounded-md">
+            <div class="mb-4 flex items-center justify-between">
+              <span class="text-sm text-gray-500">
+                已选择 {{ selectedTagsCount }} / {{ tagOptions.length }}
+              </span>
+              <CheckBox
+                v-if="tagOptions.length > 0"
+                v-model="selectAllTags"
+                id="select-all-tags"
+                label="全选"
+                color="orange"
+                :indeterminate="hasTagSelection && !allTagsSelected"
+                @change="handleSelectAllChange"
+              />
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <CheckBox
+                v-for="tag in tagOptions"
+                :key="tag.value"
+                v-model="selectedTags[tag.value]"
+                :id="`tag-${tag.value}`"
+                :label="tag.label"
+                color="blue"
+                size="sm"
+                inline
+                @change="handleTagChange"
+              />
+            </div>
+          </div>
+        </a-form-item>
+      </div>
 
       <a-form-item>
         <a-button
@@ -118,9 +142,8 @@
     </a-form>
   </div>
 </template>
-
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 const route = useRoute();
 const router = useRouter();
@@ -138,6 +161,7 @@ import { type PictureType, type PictureEditType } from "@/config";
 import { DefaultPictureInfo, DefaultPictureEditInfo } from "./config";
 import { convertTagsToStringArray } from "@/utils";
 import URLUpload from "@/components/URLUpload";
+import CheckBox from "@/lib/CheckBox";
 
 import Tabs, { type TabItem } from "@/lib/Tabs";
 
@@ -156,7 +180,7 @@ const handleTabChange = (tab: TabItem) => (activeTab.value = tab.name);
 
 /**
  * 异步上传图片函数。
- * 该函数通过 UploadImageFileByUrl API 根据提供的 URL 上传图片，并在成功上传后更新图片信息或在失败时显示错误消息。
+ * 该函数通过 UploadImageFileByUrl API根据提供的 URL 上传图片，并在成功上传后更新图片信息或在失败时显示错误消息。
  *
  * @param {string} url - 要上传的图片的 URL。
  */
@@ -238,21 +262,133 @@ const removeFileHandle = () => {
 // 定义为对象数组类型
 const categoryOptions = ref<{ value: string; label: string }[]>([]);
 const tagOptions = ref<{ value: string; label: string }[]>([]);
+const selectedTags = ref<{ [key: string]: boolean }>({});
 
-// 获取标签和分类选项
+// 计算属性来获取已选中的标签
+const pictureFormTags = computed({
+  get() {
+    return Object.keys(selectedTags.value).filter(
+      (tag) => selectedTags.value[tag]
+    );
+  },
+  set(newTags: string[]) {
+    const newSelectedTags: { [key: string]: boolean } = {};
+    tagOptions.value.forEach((tag) => {
+      newSelectedTags[tag.value] = newTags.includes(tag.value);
+    });
+    selectedTags.value = newSelectedTags;
+  },
+});
+
+// 更新 pictureForm.tags 的逻辑
+watch(
+  pictureFormTags,
+  (newTags) => {
+    pictureForm.value.tags = newTags;
+    console.log("pictureFormTags", pictureForm.value.tags);
+  },
+  { immediate: true }
+);
+
+// 计算已选择的标签数量
+const selectedTagsCount = computed(
+  () => Object.values(selectedTags.value).filter((v) => v).length
+);
+
+// 是否有标签被选中
+const hasTagSelection = computed(() => selectedTagsCount.value > 0);
+
+// 是否所有标签都被选中
+const allTagsSelected = computed(
+  () =>
+    tagOptions.value.length > 0 &&
+    selectedTagsCount.value === tagOptions.value.length
+);
+
+// 全选状态计算属性
+const selectAllTags = computed({
+  get: () => allTagsSelected.value,
+  set: (value) =>
+    handleSelectAllChange({ target: { checked: value } } as unknown as Event),
+});
+
+// 处理全选/取消全选
+const handleSelectAllChange = (event: Event) => {
+  const checked = (event.target as HTMLInputElement).checked;
+  tagOptions.value.forEach((tag) => {
+    selectedTags.value[tag.value] = checked;
+  });
+  updatePictureFormTags();
+};
+
+// 处理单个标签变化
+const handleTagChange = () => {
+  updatePictureFormTags();
+};
+
+// 更新表单中的标签数组
+const updatePictureFormTags = () => {
+  pictureForm.value.tags = Object.entries(selectedTags.value)
+    .filter(([_, selected]) => selected)
+    .map(([tag]) => tag);
+};
+
+// 修改初始化选中状态方法
+const initializeSelectedTags = () => {
+  selectedTags.value = Object.fromEntries(
+    tagOptions.value.map((tag) => [tag.value, false])
+  );
+
+  // 如果是编辑模式，设置已选中的标签
+  if (pictureForm.value.tags) {
+    pictureForm.value.tags.forEach((tag) => {
+      if (tag in selectedTags.value) {
+        selectedTags.value[tag] = true;
+      }
+    });
+  }
+};
+
+// 修改获取标签和分类选项的方法
 const getTagCategoryOptions = async () => {
   const { data, code, message } = await GetTagCategory();
   if (code === 0 && data) {
-    tagOptions.value = (data.tagList ?? []).map((data: string) => {
-      return { value: data, label: data };
-    });
-    categoryOptions.value = (data.categoryList ?? []).map((data: string) => {
-      return { value: data, label: data };
-    });
+    tagOptions.value = (data.tagList ?? []).map((data: string) => ({
+      value: data,
+      label: data,
+    }));
+    categoryOptions.value = (data.categoryList ?? []).map((data: string) => ({
+      value: data,
+      label: data,
+    }));
+    // 初始化选中状态
+    initializeSelectedTags();
   } else {
     Message.error(`获取标签和分类选项失败${message}`);
   }
 };
+
+// 修改重置表单方法
+const resetForm = () => {
+  picture.value = JSON.parse(JSON.stringify(DefaultPictureInfo));
+  pictureForm.value = {
+    id: undefined,
+    name: "",
+    introduction: "",
+    category: "",
+    tags: [],
+  };
+
+  // 重置 selectedTags
+  const initialSelectedTags: { [key: string]: boolean } = {};
+  tagOptions.value.forEach((tag) => {
+    initialSelectedTags[tag.value] = false;
+  });
+  selectedTags.value = initialSelectedTags;
+};
+
+// 路由离开时重置表单
+onBeforeRouteLeave(() => resetForm());
 
 onMounted(() => nextTick(() => getTagCategoryOptions()));
 
@@ -271,21 +407,18 @@ const getOldPicture = async (id: string) => {
     pictureForm.value.introduction = data.introduction;
     pictureForm.value.category = data.category;
     pictureForm.value.tags = convertTagsToStringArray(data.tags);
+    console.log("getOldPicture pictureForm", pictureForm.value.tags);
+    // 更新 selectedTags 以反映已选中的标签
+    const initialSelectedTags: { [key: string]: boolean } = {};
+    tagOptions.value.forEach((tag) => {
+      initialSelectedTags[tag.value] = (pictureForm.value.tags || []).includes(
+        tag.value
+      );
+    });
+    selectedTags.value = initialSelectedTags;
   } else {
     Message.error(`获取图片信息失败${message}`);
   }
-};
-
-// 重置表单方法
-const resetForm = () => {
-  picture.value = JSON.parse(JSON.stringify(DefaultPictureInfo));
-  pictureForm.value = {
-    id: undefined,
-    name: "",
-    introduction: "",
-    category: "",
-    tags: [],
-  };
 };
 
 // 路由离开时重置表单
