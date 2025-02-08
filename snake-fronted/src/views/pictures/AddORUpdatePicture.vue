@@ -280,7 +280,7 @@ const getOldPicture = async (id: string) => {
 const resetForm = () => {
   picture.value = JSON.parse(JSON.stringify(DefaultPictureInfo));
   pictureForm.value = {
-    id: -1,
+    id: undefined,
     name: "",
     introduction: "",
     category: "",

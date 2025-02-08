@@ -62,7 +62,7 @@ export const GetTagCategory = async () => {
  * @returns 返回一个Promise，解析为图片信息
  */
 export const GetPictureById = async (id: string) => {
-  return await Service.getPictureByIdUsingGet(id);
+  return await Service.getPictureVoByIdUsingGet(id);
 };
 
 /**
