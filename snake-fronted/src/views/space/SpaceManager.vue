@@ -1,117 +1,120 @@
 <template>
   <div class="w-full animated animated-duration-500 animated-fade-in">
-    <div class="flex flex-1 justify-between items-center px-2">
-      <div
-        class="grid w-full max-w-lg lg:max-w-xs flex justify-start items-center"
-      >
-        <div class="flex justify-start items-center">
-          <label
-            for="search"
-            class="block text-sm/6 font-medium text-gray-900 whitespace-nowrap"
-            >Space Name:
-          </label>
-          <div class="mx-2">
-            <div
-              class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600"
+    <!-- Search and Add Section -->
+    <div class="flex flex-col gap-4 mb-4">
+      <!-- Search Area Centered -->
+      <div class="flex w-full justify-center items-center">
+        <div class="w-full max-w-5xl grid grid-cols-3 gap-4">
+          <div class="flex justify-start items-center">
+            <label
+              for="spaceName"
+              class="block text-sm/6 font-medium text-gray-900 mr-2"
             >
-              <input
-                type="text"
-                name="search"
-                v-model="PageInfo.spaceName"
-                class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
-                @keypress="handleKeyPress"
-              />
-              <div class="flex py-1.5 pr-1.5">
-                <kbd
-                  class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400"
-                  >↵</kbd
-                >
+              Space Name:
+            </label>
+            <div class="flex-grow">
+              <div
+                class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-custom-gradient-end"
+              >
+                <input
+                  type="text"
+                  id="spaceName"
+                  v-model="PageInfo.spaceName"
+                  class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
+                  @keypress="handleKeyPress"
+                />
+                <div class="flex py-1.5 pr-1.5">
+                  <kbd
+                    class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400"
+                  >
+                    ↵
+                  </kbd>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="flex justify-start items-center">
-          <label
-            for="search"
-            class="block text-sm/6 font-medium text-gray-900 whitespace-nowrap"
-            >Space Level:
-          </label>
-          <div class="mx-2">
-            <div
-              class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600"
+          <div class="flex justify-start items-center">
+            <label
+              for="spaceLevel"
+              class="block text-sm/6 font-medium text-gray-900 mr-2"
             >
-              <input
-                type="text"
-                name="search"
-                v-model="PageInfo.spaceLevel"
-                class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
-                @keypress="handleKeyPress"
-              />
-              <div class="flex py-1.5 pr-1.5">
-                <kbd
-                  class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400"
-                  >↵</kbd
-                >
+              Space Level:
+            </label>
+            <div class="flex-grow">
+              <div
+                class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-custom-gradient-end"
+              >
+                <input
+                  type="text"
+                  id="spaceLevel"
+                  v-model="PageInfo.spaceLevel"
+                  class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
+                  @keypress="handleKeyPress"
+                />
+                <div class="flex py-1.5 pr-1.5">
+                  <kbd
+                    class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400"
+                  >
+                    ↵
+                  </kbd>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="flex justify-start items-center">
-          <label
-            for="search"
-            class="block text-sm/6 font-medium text-gray-900 whitespace-nowrap"
-            >User ID:
-          </label>
-          <div class="mx-2">
-            <div
-              class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600"
+          <div class="flex justify-start items-center">
+            <label
+              for="userId"
+              class="block text-sm/6 font-medium text-gray-900 mr-2"
             >
-              <input
-                type="text"
-                name="search"
-                v-model="PageInfo.userId"
-                class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
-                @keypress="handleKeyPress"
-              />
-              <div class="flex py-1.5 pr-1.5">
-                <kbd
-                  class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400"
-                  >↵</kbd
-                >
+              User ID:
+            </label>
+            <div class="flex-grow">
+              <div
+                class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-custom-gradient-end"
+              >
+                <input
+                  type="text"
+                  id="userId"
+                  v-model="PageInfo.userId"
+                  class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
+                  @keypress="handleKeyPress"
+                />
+                <div class="flex py-1.5 pr-1.5">
+                  <kbd
+                    class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400"
+                  >
+                    ↵
+                  </kbd>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="flex justify-start items-center">
-          <Button
-            @click="LoadList"
-            :icon="'i-tabler:pointer-search'"
-            size="sm"
-            class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2"
-          >
-            搜索
-          </Button>
         </div>
       </div>
 
-      <div class="flex items-center">
+      <!-- Add Button Right-Aligned -->
+      <div class="flex justify-end px-2">
         <Button
           @click="handleAdd"
           :icon="'i-tabler:plus'"
           size="sm"
-          class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-500"
+          class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
         >
-          新增
+          Add New
         </Button>
       </div>
     </div>
+
     <TableList :columns="SpaceManagerColumns">
       <template #tr>
         <template v-if="ListInfo.length">
-          <tr v-for="item in ListInfo" :key="item.id" class="even:bg-gray-50">
+          <tr
+            v-for="item in ListInfo"
+            :key="item.id"
+            class="even:bg-gray-50 border-b border-gray-100 hover:bg-gray-50/60 transition-colors duration-200 group"
+          >
             <td
               class="whitespace-nowrap py-4 pl-4 px-3 text-sm font-medium text-gray-900 sm:pl-3 text-center"
             >
@@ -123,7 +126,7 @@
               {{ item.spaceName }}
             </td>
             <td
-              class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 max-w-12 overflow-hidden text-center"
+              class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
             >
               {{ item.spaceLevel }}
             </td>
@@ -157,7 +160,7 @@
               class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
             >
               <span
-                class="text-emerald-600 hover:text-emerald-700 cursor-pointer transition-colors hover:underline"
+                class="text-emerald-600 hover:text-emerald-700 cursor-pointer transition-colors hover:underline group-hover:scale-105 inline-block"
                 @click="item.id && EditSpace(item.id)"
               >
                 Edit
@@ -167,7 +170,7 @@
               class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
             >
               <span
-                class="text-red-600 hover:text-red-700 cursor-pointer transition-colors hover:underline"
+                class="text-red-600 hover:text-red-700 cursor-pointer transition-colors hover:underline group-hover:scale-105 inline-block"
                 @click="item.id && handleDelete(item.id)"
               >
                 Delete
@@ -181,25 +184,25 @@
               class="flex flex-col items-center justify-center space-y-4 animate-fade-in animate-duration-500 animate-ease-out"
             >
               <div
-                class="rounded-full bg-gray-50 p-4 animate-hover-scale animate-duration-300"
+                class="rounded-full bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end p-4 animate-hover-scale animate-duration-300"
               >
-                <i class="i-tabler:database-off size-8 text-gray-400"></i>
+                <i class="i-tabler:database-off size-8 text-white"></i>
               </div>
               <div class="text-center">
                 <h3 class="text-base font-semibold text-gray-900 mb-1">
-                  暂无数据
+                  No Space Data
                 </h3>
                 <p class="text-sm text-gray-500 mb-4">
-                  点击下方按钮添加新的空间
+                  Click the button below to add a new space
                 </p>
                 <Button
                   type="primary"
                   size="sm"
                   :icon="'i-tabler:plus'"
-                  class="animate-hover-scale animate-duration-300"
+                  class="animate-hover-scale animate-duration-300 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
                   @click="handleAdd"
                 >
-                  创建新空间
+                  Add New Space
                 </Button>
               </div>
             </div>
@@ -356,4 +359,42 @@ const handleCancelDelete = () => {
 const EditSpace = (id: number | string) => router.push(`/update/space/${id}`);
 </script>
 
-<style scoped></style>
+<style scoped>
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-hover-scale {
+  transition: transform 0.3s;
+}
+
+.animate-hover-scale:hover {
+  transform: scale(1.05);
+}
+
+@keyframes subtleGradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.active-button {
+  background-size: 200% auto;
+  animation: subtleGradient 3s ease infinite;
+}
+</style>

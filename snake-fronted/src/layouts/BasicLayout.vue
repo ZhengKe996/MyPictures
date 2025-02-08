@@ -16,7 +16,7 @@
         class="flex-1 overflow-y-auto scroll-smooth px-4 sm:px-6 lg:px-8 py-6 space-y-6 relative"
       >
         <router-view v-slot="{ Component }">
-          <transition
+          <Transition
             mode="out-in"
             enter-active-class="transition ease-out duration-200"
             enter-from-class="opacity-0 scale-95"
@@ -25,12 +25,15 @@
             leave-from-class="opacity-100 scale-100"
             leave-to-class="opacity-0 scale-95"
           >
-            <component
-              :is="Component"
-              :key="$route.path"
-              class="w-full h-full"
-            />
-          </transition>
+            <KeepAlive>
+              <component
+                :is="Component"
+                :key="$route.fullPath"
+                @hook:activated="handleActivated"
+                @hook:deactivated="handleDeactivated"
+              />
+            </KeepAlive>
+          </Transition>
         </router-view>
       </main>
 
@@ -44,10 +47,28 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
+import { ref } from "vue";
 import GlobalFooter from "@/components/GlobalFooter/GlobalFooter.vue";
 import GlobalHeader from "@/components/GlobalHeader/GlobalHeader.vue";
 import SideNav from "@/components/SideNav/SideNav.vue";
+
+const activeComponent = ref<any>(null);
+
+const handleActivated = (component: any) => {
+  activeComponent.value = component;
+  // 可以在这里执行组件激活时的性能优化逻辑
+  if (component.refreshData) {
+    component.refreshData();
+  }
+};
+
+const handleDeactivated = (component: any) => {
+  // 可以在这里执行组件失活时的清理逻辑
+  if (component.cleanup) {
+    component.cleanup();
+  }
+  activeComponent.value = null;
+};
 
 defineProps({
   title: {
