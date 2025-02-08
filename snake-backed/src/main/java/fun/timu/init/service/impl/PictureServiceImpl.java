@@ -38,7 +38,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -47,14 +46,11 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> implements PictureService {
-
-
     private final FilePictureUpload filePictureUpload;
     private final UrlPictureUpload urlPictureUpload;
     private final UserService userService;
@@ -65,7 +61,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     private final TransactionTemplate transactionTemplate;
     private String defaulCategory = "素材";
 
-    public PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService, SpaceService spaceService, PictureMapper pictureMapper, CosManager cosManager, PexelsManager pexelsManager, TransactionTemplate transactionTemplate, @Qualifier("customExecutor") ThreadPoolExecutor customExecutor) {
+    public PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService, SpaceService spaceService, PictureMapper pictureMapper, CosManager cosManager, PexelsManager pexelsManager, TransactionTemplate transactionTemplate) {
         this.filePictureUpload = filePictureUpload;
         this.urlPictureUpload = urlPictureUpload;
         this.userService = userService;
@@ -866,7 +862,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     @Transactional(rollbackFor = Exception.class)
     public void batchEditPictureMetadata(PictureBatchEditRequest request, User loginUser) {
         // 1. 参数校验
-        ThrowUtils.throwIf(request.getSpaceId() == null || CollUtil.isEmpty(request.getPictureIdList()), ErrorCode.PARAMS_ERROR, "空间ID或图片列表不能为空");
+        ThrowUtils.throwIf(request.getSpaceId() == null || CollUtil.isEmpty(request.getPictureIdList()), ErrorCode.PARAMS_ERROR, "空间ID或图片表不能为空");
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR, "用户未登录");
 
         Long spaceId = request.getSpaceId();
@@ -885,38 +881,38 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
 
         // 4. 使用并行流处理批次
         partitionedPictureIds.parallelStream().forEach(batchPictureIds -> {
-            // 查询当前批次的图片
-            List<Picture> batchPictures = this.lambdaQuery().eq(Picture::getSpaceId, spaceId).in(Picture::getId, batchPictureIds).list();
+            try {
+                List<Picture> batchPictures = this.lambdaQuery().eq(Picture::getSpaceId, spaceId).in(Picture::getId, batchPictureIds).list();
 
-            if (CollUtil.isEmpty(batchPictures)) {
-                return;
-            }
-
-            // 5. 更新图片元数据
-            batchPictures.forEach(picture -> {
-                // 更新分类
-                if (StrUtil.isNotBlank(category)) {
-                    picture.setCategory(category);
+                if (CollUtil.isEmpty(batchPictures)) {
+                    return;
                 }
 
-                // 更新标签
-                if (tags != null) {
-                    if (CollUtil.isNotEmpty(tags)) {
-                        picture.setTags(JSONUtil.toJsonStr(tags));
-                    } else {
-                        picture.setTags(null);
+                batchPictures.forEach(picture -> {
+                    if (StrUtil.isNotBlank(category)) {
+                        picture.setCategory(category);
                     }
+
+                    if (tags != null) {
+                        if (CollUtil.isNotEmpty(tags)) {
+                            picture.setTags(JSONUtil.toJsonStr(tags));
+                        } else {
+                            picture.setTags(null);
+                        }
+                    }
+                });
+
+                String nameRule = request.getNameRule();
+                if (nameRule != null) {
+                    fillPictureWithNameRule(batchPictures, nameRule);
                 }
 
-            });
-
-            // 批量重命名
-            String nameRule = request.getNameRule();
-            fillPictureWithNameRule(batchPictures, nameRule);
-
-            // 6. 批量更新
-            boolean updateResult = this.updateBatchById(batchPictures);
-            ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "批量更新图片失败");
+                boolean updateResult = this.updateBatchById(batchPictures);
+                ThrowUtils.throwIf(!updateResult, ErrorCode.OPERATION_ERROR, "批量更新图片失败");
+            } catch (Exception e) {
+                log.error("批量更新图片失败", e);
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "批量更新图片失败");
+            }
         });
     }
 }
