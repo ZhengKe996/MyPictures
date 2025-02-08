@@ -27,12 +27,12 @@
           />
           <button
             type="button"
-            class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105 group"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-white gradient-primary hover:shadow-lg transition-all duration-300 ease-out hover:scale-105 group"
             @click="handleReset"
             title="Reset all filters"
           >
             <i
-              class="i-tabler:refresh h-5 w-5 transition-all duration-300 ease-out group-hover:rotate-180"
+              class="i-tabler-refresh h-5 w-5 transition-all duration-300 ease-out group-hover:rotate-180"
             ></i>
             <span class="text-sm">Reset</span>
           </button>
@@ -97,7 +97,7 @@
             class="flex flex-col items-center justify-center py-16 space-y-4 animate-fade-in"
           >
             <div
-              class="rounded-full bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end p-4 animate-hover-scale animate-duration-300"
+              class="rounded-full gradient-primary p-4 animate-hover-scale animate-duration-300"
             >
               <i class="i-tabler:photo-off size-8 text-white"></i>
             </div>
@@ -111,8 +111,8 @@
               <Button
                 type="primary"
                 size="sm"
-                :icon="'i-tabler:refresh'"
-                class="bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
+                :icon="'i-tabler-refresh'"
+                class="gradient-primary text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
                 @click="handleReset"
               >
                 Reset Filters

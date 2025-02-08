@@ -27,14 +27,14 @@
           <!-- 左上角 - 编辑按钮 -->
           <Button
             class="absolute top-2 left-2 transform translate-y-2 opacity-0 group-hover/card:translate-y-0 group-hover/card:opacity-100 transition-all duration-300 hover:scale-110 active:scale-95 animate-hover"
-            :icon="'i-tabler:edit'"
+            :icon="'i-tabler-edit'"
             size="lg"
             @click.stop="onEdit"
           ></Button>
 
           <!-- 右上角 - 下载按钮 -->
           <Button
-            :icon="'i-tabler:download'"
+            :icon="'i-tabler-download'"
             class="absolute top-2 right-2 transform translate-y-2 opacity-0 group-hover/card:translate-y-0 group-hover/card:opacity-100 transition-all duration-300 delay-75 bg-zinc-100/70 hover:bg-zinc-200/70 hover:scale-110 active:scale-95 animate-hover"
             @click.stop="onDownload"
             size="lg"
@@ -42,7 +42,7 @@
 
           <!-- 左下角 - 删除按钮 -->
           <Button
-            :icon="'i-tabler:trash'"
+            :icon="'i-tabler-trash'"
             class="absolute bottom-2 left-2 transform translate-y-2 opacity-0 group-hover/card:translate-y-0 group-hover/card:opacity-100 transition-all duration-300 delay-150 bg-red-500/70 hover:bg-red-600 hover:scale-110 active:scale-95 animate-hover"
             @click.stop="onDelete"
             size="lg"
@@ -50,7 +50,7 @@
 
           <!-- 右下角 - 全屏按钮 -->
           <Button
-            :icon="'i-tabler:aspect-ratio'"
+            :icon="'i-tabler-aspect-ratio'"
             class="absolute bottom-2 right-2 transform translate-y-2 opacity-0 group-hover/card:translate-y-0 group-hover/card:opacity-100 transition-all duration-300 delay-200 bg-zinc-100/70 hover:bg-zinc-200/70 hover:scale-110 active:scale-95 animate-hover"
             @click.stop="onImgFullScreen"
             size="lg"

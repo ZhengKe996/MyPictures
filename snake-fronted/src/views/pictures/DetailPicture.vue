@@ -45,7 +45,7 @@
           <!-- 标题和用户信息区域 -->
           <div class="pb-5">
             <h1
-              class="text-2xl font-bold text-gray-800 tracking-tight mb-3 transition-colors duration-300"
+              class="text-2xl font-bold text-center text-gray-800 mb-6 gradient-primary bg-clip-text text-transparent"
             >
               {{ picture?.name || "未命名图片" }}
             </h1>
@@ -173,7 +173,7 @@
               <Button
                 type="primary"
                 size="md"
-                icon="i-tabler:download"
+                icon="i-tabler-download"
                 class="flex-1"
                 :is-active-anim="true"
                 :disabled="!picture?.url"

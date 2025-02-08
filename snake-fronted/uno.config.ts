@@ -1,8 +1,14 @@
-import { defineConfig, presetUno, presetIcons } from "unocss";
+import {
+  defineConfig,
+  presetUno,
+  presetAttributify,
+  presetIcons,
+} from "unocss";
 import { animatedUno } from "animated-unocss";
 export default defineConfig({
   presets: [
     presetUno(),
+    presetAttributify(),
     presetIcons({
       warn: true,
       prefix: ["i-"],
@@ -25,6 +31,14 @@ export default defineConfig({
       "error-100": "#ED7456",
       "error-200": "#f3471c",
       "error-300": "#ffffff",
+      "custom-gradient": {
+        start: "#4F46E5",
+        end: "#9333EA",
+      },
     },
+  },
+  shortcuts: {
+    "gradient-primary":
+      "bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end",
   },
 });

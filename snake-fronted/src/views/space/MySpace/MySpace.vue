@@ -22,7 +22,7 @@
             >
               <div class="flex items-center gap-3">
                 <h1
-                  class="text-2xl font-bold bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end bg-clip-text text-transparent"
+                  class="text-2xl font-bold gradient-primary bg-clip-text text-transparent"
                 >
                   {{ username }}
                   <span class="text-sm font-normal text-gray-500 ml-2">
@@ -35,7 +35,7 @@
                 type="primary"
                 icon="i-tabler:photo-plus"
                 @click="handleCreatePhoto"
-                class="bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
+                class="gradient-primary text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
               >
                 Create Image
               </Button>
@@ -106,7 +106,7 @@
                   title="Reset all filters"
                 >
                   <i
-                    class="i-tabler:refresh h-5 w-5 transition-all duration-300 ease-out group-hover:rotate-180"
+                    class="i-tabler-refresh h-5 w-5 transition-all duration-300 ease-out group-hover:rotate-180"
                   ></i>
                   <span class="text-sm">Reset Filters</span>
                 </button>
@@ -153,7 +153,7 @@
                 class="flex flex-col items-center justify-center py-16 space-y-4 animate-fade-in"
               >
                 <div
-                  class="rounded-full bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end p-4 animate-hover-scale animate-duration-300"
+                  class="rounded-full gradient-primary p-4 animate-hover-scale animate-duration-300"
                 >
                   <i class="i-tabler:photo-off size-8 text-white"></i>
                 </div>

@@ -7,7 +7,7 @@
     >
       <div class="p-6">
         <h2
-          class="text-2xl font-bold text-center text-gray-800 mb-6 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end bg-clip-text text-transparent"
+          class="text-2xl font-bold text-center text-gray-800 mb-6 gradient-primary bg-clip-text text-transparent"
         >
           {{ isUpdateMode ? "Update Space" : "Create New Space" }}
         </h2>
@@ -37,7 +37,7 @@
                 class="p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md group"
                 :class="
                   spaceLevel === level.level
-                    ? 'border-custom-gradient-end bg-gradient-to-r from-custom-gradient-start/10 to-custom-gradient-end/10'
+                    ? 'border-custom-gradient-end gradient-primary/10'
                     : 'border-gray-200 hover:border-custom-gradient-start'
                 "
               >
@@ -72,7 +72,7 @@
             block
             :disabled="isButtonDisabled"
             @click="handleSubmit"
-            class="bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
+            class="gradient-primary text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
           >
             {{ isUpdateMode ? "Update Space" : "Create Space" }}
           </Button>

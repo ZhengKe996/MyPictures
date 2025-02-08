@@ -21,7 +21,7 @@
           @click="handleAdd"
           :icon="'i-tabler:plus'"
           size="sm"
-          class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
+          class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2 gradient-primary text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
         >
           新增
         </Button>
@@ -233,7 +233,7 @@
               class="flex flex-col items-center justify-center space-y-4 animate-fade-in animate-duration-500 animate-ease-out"
             >
               <div
-                class="rounded-full bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end p-4 animate-hover-scale animate-duration-300"
+                class="rounded-full gradient-primary p-4 animate-hover-scale animate-duration-300"
               >
                 <i class="i-tabler:photo-off size-8 text-white"></i>
               </div>
@@ -248,7 +248,7 @@
                   type="primary"
                   size="sm"
                   :icon="'i-tabler:plus'"
-                  class="animate-hover-scale animate-duration-300 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
+                  class="animate-hover-scale animate-duration-300 gradient-primary text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
                   @click="handleAdd"
                 >
                   上传新图片

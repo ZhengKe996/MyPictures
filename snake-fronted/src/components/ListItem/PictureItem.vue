@@ -26,14 +26,14 @@
         <!-- 点赞 -->
         <Button
           class="absolute top-1.5 right-1.5"
-          :icon="'i-tabler:heart'"
+          :icon="'i-tabler-heart'"
           size="lg"
         ></Button>
 
         <!-- 下载 -->
         <Button
           class="absolute bottom-1.5 left-1.5 bg-zinc-100/70 hover:bg-zinc-200/70 transition-all duration-300"
-          :icon="'i-tabler:download'"
+          :icon="'i-tabler-download'"
           :loading="isDownloading"
           @click.stop="onDownload"
           size="lg"
@@ -42,7 +42,7 @@
 
         <!-- 全屏 -->
         <Button
-          :icon="'i-tabler:aspect-ratio'"
+          :icon="'i-tabler-aspect-ratio'"
           class="absolute bottom-1.5 right-1.5 bg-zinc-100/70"
           @click="onImgFullScreen"
           size="lg"
