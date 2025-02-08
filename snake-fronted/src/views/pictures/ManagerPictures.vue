@@ -8,7 +8,7 @@
           <SearchInput
             v-model="PageInfo.name"
             label="Name:"
-            @search="LoadList"
+            @search="handleSearch"
             @keypress="handleKeyPress"
             @clear="handleClear"
           />
@@ -31,8 +31,15 @@
       <template #tr>
         <template v-if="ListInfo.length">
           <tr
-            v-for="item in ListInfo"
+            v-for="item in processedListInfo"
             :key="item.id"
+            v-memo="[
+              item.id,
+              item.name,
+              item.thumbnailUrl,
+              item.category,
+              item.tags?.length,
+            ]"
             class="even:bg-gray-50 border-b border-gray-100 hover:bg-gray-50/60 transition-colors duration-200 group"
           >
             <!-- ID列 -->
@@ -61,6 +68,7 @@
                 :src="item.thumbnailUrl ?? item.url"
                 :alt="item.name || DefaultPictureTexts.UNNAMED_PICTURE"
                 @click="toggleFullscreen(item.id)"
+                @error="handleImageError"
               />
               <div
                 v-else
@@ -303,7 +311,7 @@ import SearchInput from "@/lib/SearchInput";
 import TableList from "@/components/TableList";
 import Pagination from "@/lib/Pagination";
 import { PictureManagerColumns, type PictureType } from "@/config";
-import { ref, watchEffect, onMounted } from "vue";
+import { ref, watchEffect, onMounted, computed, watch } from "vue";
 import { useThrottleFn } from "@vueuse/core";
 import { GetPictureList, DeletePictureById } from "@/services";
 import { Message } from "@/lib/Message";
@@ -377,48 +385,190 @@ const PageInfo = ref<PictureInfoInterface>({
 
 const ListInfo = ref<PictureType[]>([]);
 
-const ChangeCurrentPageHandle = (current: number) =>
-  (PageInfo.value = { ...PageInfo.value, current: current });
+// 使用 computed 创建响应式查询参数
+const queryParams = computed(() => ({
+  current: PageInfo.value.current,
+  pageSize: PageInfo.value.pageSize,
+  name: PageInfo.value.name || undefined,
+  category: PageInfo.value.category || undefined,
+  userId: PageInfo.value.userId || undefined,
+  tags: PageInfo.value.tags || undefined,
+}));
+
+// 使用 computed 创建缓存键
+const cacheKey = computed(() => JSON.stringify(queryParams.value));
+
+// 使用 computed 处理列表数据
+const processedListInfo = computed(() =>
+  ListInfo.value.map((item: PictureType) => ({
+    ...item,
+    displayName: item.name || DefaultPictureTexts.UNNAMED_PICTURE,
+    displayTags: item.tags?.length
+      ? item.tags.join(", ")
+      : DefaultPictureTexts.NO_TAGS,
+    displayCategory: item.category || DefaultPictureTexts.UNCLASSIFIED,
+    displayUser: item.user?.userName || DefaultPictureTexts.UNKNOWN_USER,
+  }))
+);
+
+// 使用 computed 判断是否需要重新加载
+const shouldReloadList = computed(() => {
+  const currentKey = cacheKey.value;
+  return !requestCache.has(currentKey);
+});
+
+// 使用 watch 精确监听查询参数变化
+watch(
+  () => ({
+    name: PageInfo.value.name,
+    current: PageInfo.value.current,
+    pageSize: PageInfo.value.pageSize,
+    category: PageInfo.value.category,
+    userId: PageInfo.value.userId,
+    tags: PageInfo.value.tags,
+  }),
+  (newParams, oldParams) => {
+    // 深度比较参数是否发生变化
+    const hasParamChanged = Object.keys(newParams).some(
+      (key) =>
+        newParams[key as keyof typeof newParams] !==
+        oldParams[key as keyof typeof oldParams]
+    );
+
+    if (hasParamChanged) {
+      // 如果参数发生变化，触发加载
+      LoadList();
+    }
+  },
+  {
+    deep: true, // 深度监听
+    immediate: false, // 不立即触发
+  }
+);
+
+// 优化搜索和清除逻辑
+const handleSearch = () => {
+  // 重置到第一页并触发加载
+  PageInfo.value = {
+    ...PageInfo.value,
+    current: 1,
+  };
+  LoadList();
+};
+
+const handleClear = () => {
+  // 重置所有查询参数
+  PageInfo.value = {
+    current: 1,
+    pageSize: 20,
+    name: "",
+    category: undefined,
+    userId: undefined,
+    tags: undefined,
+  };
+  LoadList();
+};
+
+// 优化分页处理
+const ChangeCurrentPageHandle = (current: number) => {
+  PageInfo.value = {
+    ...PageInfo.value,
+    current,
+  };
+  LoadList();
+};
 
 const handleKeyPress = useThrottleFn((event: KeyboardEvent) => {
   if (event.key === "Enter") LoadList();
 }, 1000);
 
+// 添加请求缓存
+const requestCache = new Map();
+
+// 重构 LoadList 方法
 const LoadList = useThrottleFn(async () => {
-  const { data, code, message } = await GetPictureList(PageInfo.value);
+  if (!shouldReloadList.value) {
+    ListInfo.value = requestCache.get(cacheKey.value);
+    return;
+  }
 
-  if (code === 0 && data) {
-    total.value = Number(data.total) ?? 0;
+  try {
+    const { data, code, message } = await GetPictureList(queryParams.value);
 
-    ListInfo.value = Array.isArray(data.records)
-      ? data.records.map((item: PictureType) => ({
-          ...item,
-          name: item.name || DefaultPictureTexts.UNNAMED_PICTURE,
-          introduction: item.introduction || "",
-          category: item.category || DefaultPictureTexts.UNCLASSIFIED,
-          tags: item.tags || [],
-          user: {
-            ...item.user,
-            userName: item.user?.userName || DefaultPictureTexts.UNKNOWN_USER,
-          },
-          createTime: item.createTime
-            ? dayjs(item.createTime).format("YYYY-MM-DD HH:mm:ss")
-            : DefaultPictureTexts.NO_CREATE_TIME,
-          editTime: item.editTime
-            ? dayjs(item.editTime).format("YYYY-MM-DD HH:mm:ss")
-            : DefaultPictureTexts.NO_UPDATE_TIME,
-          reviewMessage:
-            item.reviewMessage ||
-            (item.reviewStatus === 1
-              ? DefaultPictureTexts.REVIEW_PASS
-              : item.reviewStatus === 2
-              ? DefaultPictureTexts.REVIEW_REJECT
-              : DefaultPictureTexts.NO_REVIEW),
-        }))
-      : [];
-  } else Message.error(`获取失败, 原因: ${message}`);
-}, 1000);
-watchEffect(() => LoadList());
+    if (code === 0 && data) {
+      const processedRecords = processRecordsData(data.records);
+
+      // 更新缓存和列表
+      requestCache.set(cacheKey.value, processedRecords);
+      ListInfo.value = processedRecords;
+      total.value = Number(data.total) ?? 0;
+    } else {
+      handleRequestError(message);
+    }
+  } catch (error) {
+    handleNetworkError();
+  }
+}, 500);
+
+// 抽取数据处理逻辑
+const processRecordsData = (records: any[]) =>
+  Array.isArray(records)
+    ? records.map((item: PictureType) => ({
+        ...item,
+        name: item.name || DefaultPictureTexts.UNNAMED_PICTURE,
+        introduction: item.introduction || "",
+        category: item.category || DefaultPictureTexts.UNCLASSIFIED,
+        tags: item.tags || [],
+        user: {
+          ...item.user,
+          userName: item.user?.userName || DefaultPictureTexts.UNKNOWN_USER,
+        },
+        createTime: formatTime(item.createTime),
+        editTime: formatTime(item.editTime),
+        reviewMessage: getReviewMessage(item.reviewMessage, item.reviewStatus),
+      }))
+    : [];
+
+// 时间格式化函数
+const formatTime = (time: string | undefined) =>
+  time
+    ? dayjs(time).format("YYYY-MM-DD HH:mm:ss")
+    : DefaultPictureTexts.NO_CREATE_TIME;
+
+// 审核状态处理函数
+const getReviewMessage = (
+  reviewMessage: string | undefined,
+  reviewStatus: number | undefined
+) =>
+  reviewMessage ||
+  (reviewStatus === 1
+    ? DefaultPictureTexts.REVIEW_PASS
+    : reviewStatus === 2
+    ? DefaultPictureTexts.REVIEW_REJECT
+    : DefaultPictureTexts.NO_REVIEW);
+
+// 错误处理函数
+const handleRequestError = (message: string) => {
+  const cachedData = requestCache.get(cacheKey.value);
+
+  if (cachedData) {
+    ListInfo.value = cachedData;
+    Message.warning("使用缓存数据，请检查网络");
+  } else {
+    Message.error(`获取失败, 原因: ${message}`);
+  }
+};
+
+const handleNetworkError = () => {
+  const cachedData = requestCache.get(cacheKey.value);
+
+  if (cachedData) {
+    ListInfo.value = cachedData;
+    Message.warning("网络错误，使用缓存数据");
+  } else {
+    Message.error("网络请求发生错误");
+  }
+};
 
 const EditPicture = (id: number | string) =>
   router.push(`/update/picture/${id}`);
@@ -434,12 +584,6 @@ const handleDelete = (id: number | string) => {
   }
 };
 const handleAdd = () => router.push(`/add/picture`);
-
-// 添加清除搜索处理函数
-const handleClear = () => {
-  PageInfo.value.name = ""; // 清空搜索内容
-  LoadList(); // 重新加载列表
-};
 
 // Add dialog control states
 const showDeleteDialog = ref(false);
@@ -470,6 +614,15 @@ const handleCancelDelete = () => {
   showDeleteDialog.value = false;
   currentItem.value = null;
   Message.warning("已取消删除操作");
+};
+
+// 在 script setup 中添加图片错误处理函数
+const defaultPlaceholderImage = "/path/to/placeholder.png";
+
+const handleImageError = (event: Event) => {
+  const imgElement = event.target as HTMLImageElement;
+  imgElement.src = defaultPlaceholderImage;
+  imgElement.classList.add("opacity-50");
 };
 </script>
 
