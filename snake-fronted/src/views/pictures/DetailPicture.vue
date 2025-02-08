@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-center">
     <div
-      class="w-full max-w-5xl h-[75vh] bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl scroll-smooth"
+      class="w-full max-w-5xl h-[80vh] bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl scroll-smooth"
     >
       <div class="flex h-full">
         <!-- 左侧图片区域 -->
@@ -116,34 +116,41 @@
 
           <!-- 分类和标签区域 -->
           <div class="py-5 space-y-4">
-            <!-- 主色调显示区域 -->
-            <div class="space-y-2">
-              <h2 class="text-sm font-medium text-gray-500">主色调</h2>
-              <div class="flex items-center gap-2">
-                <div
-                  v-if="picture?.picColor"
-                  class="w-12 h-6 rounded-md shadow-sm border border-gray-200"
-                  :style="{ backgroundColor: convertOxToHex(picture.picColor) }"
-                  :title="picture.picColor"
-                ></div>
-                <span class="text-xs text-gray-600">{{
-                  picture?.picColor || "未获取"
-                }}</span>
+            <!-- 主色调和分类显示区域 -->
+            <div class="flex gap-8">
+              <!-- 主色调显示 -->
+              <div class="space-y-2 flex-1">
+                <h2 class="text-sm font-medium text-gray-500">主色调</h2>
+                <div class="flex items-center gap-2">
+                  <div
+                    v-if="picture?.picColor"
+                    class="w-12 h-6 rounded-md shadow-sm border border-gray-200"
+                    :style="{
+                      backgroundColor: convertOxToHex(picture.picColor),
+                    }"
+                    :title="picture.picColor"
+                  ></div>
+                  <span class="text-xs text-gray-600">{{
+                    picture?.picColor || "未获取"
+                  }}</span>
+                </div>
+              </div>
+
+              <!-- 分类显示 -->
+              <div class="space-y-2 flex-1">
+                <h2 class="text-sm font-medium text-gray-500">分类</h2>
+                <div class="flex items-center gap-2">
+                  <Badges
+                    :text="picture?.category || '未分类'"
+                    :color="getRandomUnoColor()"
+                    variant="soft"
+                    size="sm"
+                  />
+                </div>
               </div>
             </div>
 
-            <div class="space-y-2">
-              <h2 class="text-sm font-medium text-gray-500">分类</h2>
-              <div class="flex items-center gap-2">
-                <Badges
-                  :text="picture?.category || '未分类'"
-                  :color="getRandomUnoColor()"
-                  variant="soft"
-                  size="sm"
-                />
-              </div>
-            </div>
-
+            <!-- 标签区域 -->
             <div class="space-y-2">
               <h2 class="text-sm font-medium text-gray-500">标签</h2>
               <div class="flex flex-wrap gap-2">
@@ -169,6 +176,7 @@
 
           <!-- 操作按钮区域 -->
           <div class="pt-5 mt-auto">
+            <!-- 下载和分享按钮 -->
             <div class="flex gap-4">
               <Button
                 type="primary"
@@ -193,18 +201,30 @@
                 分享
               </Button>
             </div>
-            <!-- 审核按钮（仅管理员可见） -->
+            <!-- 审核和裁剪按钮（仅管理员可见） -->
             <div v-if="isAdmin" class="mt-4">
-              <Button
-                type="warning"
-                size="md"
-                icon="i-tabler:checklist"
-                class="w-full"
-                :is-active-anim="true"
-                @click="openReviewDialog"
-              >
-                审核图片
-              </Button>
+              <div class="flex gap-4">
+                <Button
+                  type="warning"
+                  size="md"
+                  icon="i-tabler:checklist"
+                  class="flex-1"
+                  :is-active-anim="true"
+                  @click="openReviewDialog"
+                >
+                  审核图片
+                </Button>
+                <Button
+                  type="primary"
+                  size="md"
+                  icon="i-tabler:cut"
+                  class="flex-1"
+                  :is-active-anim="true"
+                  @click="openCropDialog"
+                >
+                  裁剪图片
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -234,6 +254,23 @@
         </div>
       </div>
     </Dialog>
+
+    <!-- 裁剪对话框 -->
+    <Dialog
+      v-model="showCropDialog"
+      title="裁剪图片"
+      confirmText="确定"
+      :showClose="true"
+      :confirmButtonColor="'blue'"
+    >
+      <ImageCropper
+        v-if="showCropDialog"
+        :imageUrl="picture?.url"
+        :fileName="picture?.name"
+        @crop="handleCropComplete"
+        @error="(error) => Message.error(error.message)"
+      />
+    </Dialog>
   </div>
 </template>
 
@@ -249,6 +286,7 @@ import dayjs from "dayjs";
 import { useFullscreen } from "@vueuse/core";
 import Dialog from "@/lib/Dialog/Dialog.vue";
 import { convertOxToHex } from "@/utils/colorConverter";
+import ImageCropper from "@/components/ImageCropper/ImageCropper.vue";
 
 import { AdminReviewPicture } from "@/services";
 
@@ -500,6 +538,51 @@ const handleReview = async (status: number) => {
     Message.error("审核操作失败");
   } finally {
     showReviewDialog.value = false;
+  }
+};
+
+// 裁剪相关的状态
+const showCropDialog = ref(false);
+
+/**
+ * 打开裁剪对话框
+ */
+const openCropDialog = () => {
+  if (!picture.value?.url) {
+    Message.warning("无法获取图片");
+    return;
+  }
+  showCropDialog.value = true;
+};
+
+/**
+ * 处理裁剪完成事件
+ * @param file 裁剪后的文件
+ */
+const handleCropComplete = async (file: File) => {
+  if (!picture.value?.id) return;
+
+  try {
+    // TODO: 实现网络请求
+    // 需要实现：
+    // 1. 上传裁剪后的图片文件
+    // 2. 更新图片信息
+    // const { code, message, data } = await UpdatePictureById({
+    //   id: picture.value.id,
+    //   file: file
+    // });
+    // if (code === 0) {
+    //   Message.success("更新成功");
+    //   // 重新加载图片信息
+    //   await LoadInfo();
+    // } else {
+    //   Message.error(`更新失败: ${message}`);
+    // }
+  } catch (error) {
+    Message.error("更新失败");
+    console.error(error);
+  } finally {
+    showCropDialog.value = false;
   }
 };
 
