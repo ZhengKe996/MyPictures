@@ -1,46 +1,37 @@
 <template>
-  <div
-    class="w-full h-full flex flex-col animated animated-duration-500 animated-fade-in"
-  >
-    <!-- Add Space ID Banner -->
+  <div class="w-full min-h-screen bg-gray-50/30 p-6">
+    <!-- Space ID Banner with improved design -->
     <div
       v-if="spaceID"
-      class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r flex items-center justify-between"
+      class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-all duration-300"
     >
       <div class="flex items-center">
-        <span class="text-blue-700 font-medium">保存到空间：</span>
+        <span class="text-blue-700 font-medium">Save to Space:</span>
         <span class="text-blue-600 ml-2">{{ spaceID }}</span>
       </div>
-      <a-tooltip title="将在保存后添加到指定空间">
-        <div
-          class="w-4 h-4 rounded-full border-2 border-blue-500 flex items-center justify-center cursor-help group hover:bg-blue-500 transition-colors duration-200"
-        >
-          <span
-            class="text-blue-500 text-xs font-serif italic font-bold group-hover:text-white"
-            >i</span
-          >
-        </div>
-      </a-tooltip>
     </div>
 
-    <h2 class="mb-4 text-xl">{{ isUpdateMode ? "更新图片" : "创建图片" }}</h2>
-    <div
-      class="w-full mb-2 border-b border-gray-200 transition-all duration-300 ease-in-out"
-    >
-      <Tabs
-        v-model="activeTab"
-        :tabs="['File', 'URL']"
-        @change="handleTabChange"
-        class="transition-all duration-300 ease-in-out"
+    <!-- Main Content Container -->
+    <div class="max-w-4xl mx-auto space-y-8 bg-white rounded-xl shadow-sm p-6">
+      <!-- Header -->
+      <div
+        class="flex items-center justify-between border-b border-gray-100 pb-4"
       >
+        <h2
+          class="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent"
+        >
+          {{ isUpdateMode ? "Update Image" : "Create Image" }}
+        </h2>
+      </div>
+
+      <!-- Upload Tabs -->
+      <Tabs v-model="activeTab" :tabs="['File', 'URL']" class="mb-8">
         <template #File>
-          <a-spin :spinning="loadding" :delay="delayTime">
-            <FileUpload
-              :file="picture"
-              @upload="uploadFileHandle"
-              @remove="removeFileHandle"
-            />
-          </a-spin>
+          <FileUpload
+            :file="picture"
+            @upload="uploadFileHandle"
+            @remove="removeFileHandle"
+          />
         </template>
         <template #URL>
           <div class="container mx-auto px-4 py-8">
@@ -75,39 +66,52 @@
           </div>
         </template>
       </Tabs>
-    </div>
-    <a-form class="my-2" layout="vertical" :model="pictureForm">
-      <a-form-item label="名称" name="name">
-        <a-input v-model:value="pictureForm.name" placeholder="请输入名称" />
-      </a-form-item>
-      <a-form-item label="简介" name="introduction">
-        <a-textarea
-          v-model:value="pictureForm.introduction"
-          placeholder="请输入简介"
-          :rows="2"
-          autoSize
-          allowClear
+
+      <!-- Form Section with validation -->
+      <form @submit.prevent="handleSubmit" class="space-y-6">
+        <TextInput
+          v-model="pictureForm.name"
+          id="picture-name"
+          label="Name"
+          placeholder="Enter image name"
+          required
+          :error="formErrors.name"
         />
-      </a-form-item>
-      <a-form-item label="分类" name="category">
-        <a-auto-complete
-          v-model:value="pictureForm.category"
-          :options="categoryOptions"
-          placeholder="请输入分类"
+
+        <TextInput
+          v-model="pictureForm.introduction"
+          id="picture-introduction"
+          label="Description"
+          placeholder="Enter image description"
+          :multiline="true"
+          :rows="3"
         />
-      </a-form-item>
-      <div>
-        <a-form-item label="标签" name="tags">
-          <div class="w-full p-3 border border-gray-200 rounded-md">
+
+        <SelectMenus
+          v-model="selectedCategory"
+          :options="transformedCategoryOptions"
+          label="Category"
+          placeholder="Select a category"
+          :error="formErrors.category"
+        />
+
+        <!-- Tags Selection with validation -->
+        <div class="space-y-4">
+          <div
+            class="w-full p-4 bg-white border border-gray-200 rounded-lg shadow-sm"
+          >
             <div class="mb-4 flex items-center justify-between">
-              <span class="text-sm text-gray-500">
-                已选择 {{ selectedTagsCount }} / {{ tagOptions.length }}
-              </span>
+              <div>
+                <span class="text-sm font-medium text-gray-700">Tags</span>
+                <span class="ml-2 text-sm text-gray-500">
+                  (Selected {{ selectedTagsCount }} / {{ tagOptions.length }})
+                </span>
+              </div>
               <CheckBox
                 v-if="tagOptions.length > 0"
                 v-model="selectAllTags"
                 id="select-all-tags"
-                label="全选"
+                label="Select All"
                 color="orange"
                 :indeterminate="hasTagSelection && !allTagsSelected"
                 @change="handleSelectAllChange"
@@ -120,28 +124,35 @@
                 v-model="selectedTags[tag.value]"
                 :id="`tag-${tag.value}`"
                 :label="tag.label"
-                color="blue"
+                color="orange"
                 size="sm"
                 inline
                 @change="handleTagChange"
               />
             </div>
           </div>
-        </a-form-item>
-      </div>
+          <p v-if="formErrors.tags" class="text-sm text-red-500 mt-1">
+            {{ formErrors.tags }}
+          </p>
+        </div>
 
-      <a-form-item>
-        <a-button
-          @click="handleSubmit"
-          type="primary"
-          html-type="submit"
-          class="w-full"
-          >{{ isUpdateMode ? "更新" : "创建" }}</a-button
+        <!-- Submit Button with loading state -->
+        <button
+          type="submit"
+          class="w-full py-3 px-4 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          :disabled="isSubmitting || !isFormValid"
         >
-      </a-form-item>
-    </a-form>
+          <span v-if="isSubmitting" class="inline-flex items-center">
+            <i class="i-tabler:loader-2 animate-spin mr-2"></i>
+            {{ isUpdateMode ? "Updating..." : "Creating..." }}
+          </span>
+          <span v-else>{{ isUpdateMode ? "Update" : "Create" }}</span>
+        </button>
+      </form>
+    </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
@@ -162,21 +173,25 @@ import { DefaultPictureInfo, DefaultPictureEditInfo } from "./config";
 import { convertTagsToStringArray } from "@/utils";
 import URLUpload from "@/components/URLUpload";
 import CheckBox from "@/lib/CheckBox";
-
-import Tabs, { type TabItem } from "@/lib/Tabs";
+import TextInput from "@/lib/TextInput";
+import SelectMenus, { type SelectOption } from "@/lib/SelectMenus";
+import Tabs from "@/lib/Tabs";
 
 const imageUrl = ref("");
 const activeTab = ref("File");
 
 const currentImage = ref<string>("");
 const loadding = ref<boolean>(false);
-const delayTime = 500;
 
 const picture = ref<PictureType>(DefaultPictureInfo);
-const pictureForm = ref<PictureEditType>(DefaultPictureEditInfo);
+const pictureForm = ref<
+  PictureEditType & { name: string; introduction: string }
+>({
+  ...DefaultPictureEditInfo,
+  name: "",
+  introduction: "", // 确保这里是空字符串而不是 null
+});
 const spaceID = ref<string>("");
-
-const handleTabChange = (tab: TabItem) => (activeTab.value = tab.name);
 
 /**
  * 异步上传图片函数。
@@ -202,7 +217,10 @@ const handleUpload = async (url: string) => {
           category: picture.value.category,
           tags: picture.value.tags,
         };
-      picture.value = pictureForm.value = temp;
+      picture.value = pictureForm.value = {
+        ...temp,
+        introduction: temp.introduction ?? "", // 确保 introduction 为字符串
+      };
       imageUrl.value = data.url;
     } else {
       throw new Error(message || "上传失败");
@@ -226,7 +244,22 @@ const { id } = defineProps<{
 const uploadFileHandle = async (file: File) => {
   loadding.value = true;
   try {
-    console.log("uploadFileHandle", spaceID.value);
+    if (!file) {
+      throw new Error("Please select an image to upload");
+    }
+
+    // Add file type validation
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error("Only JPG, PNG, and GIF formats are supported");
+    }
+
+    // Add file size validation (e.g., 10MB limit)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      throw new Error("Image size cannot exceed 10MB");
+    }
+
     const id = picture.value.id ? String(picture.value.id) : undefined;
     const { data, code, message } = await UploadImageFile(file, {
       id: id,
@@ -242,14 +275,17 @@ const uploadFileHandle = async (file: File) => {
           category: picture.value.category,
           tags: picture.value.tags,
         };
-      picture.value = pictureForm.value = temp;
-      Message.success("上传成功");
+      picture.value = pictureForm.value = {
+        ...temp,
+        introduction: temp.introduction ?? "", // 确保 introduction 为字符串
+      };
+      Message.success("Upload successful");
     } else {
-      Message.error(`上传失败, ${message}`);
+      Message.error(`Upload failed: ${message}`);
     }
     // TODO 使用AI识别图片，自动填充标签和分类
   } catch (error) {
-    Message.error(`上传失败, ${error}`);
+    Message.error(`Upload failed: ${error}`);
   } finally {
     loadding.value = false;
   }
@@ -285,7 +321,6 @@ watch(
   pictureFormTags,
   (newTags) => {
     pictureForm.value.tags = newTags;
-    console.log("pictureFormTags", pictureForm.value.tags);
   },
   { immediate: true }
 );
@@ -364,20 +399,25 @@ const getTagCategoryOptions = async () => {
     // 初始化选中状态
     initializeSelectedTags();
   } else {
-    Message.error(`获取标签和分类选项失败${message}`);
+    Message.error(`Failed to get tags and categories: ${message}`);
   }
 };
 
 // 修改重置表单方法
 const resetForm = () => {
-  picture.value = JSON.parse(JSON.stringify(DefaultPictureInfo));
+  picture.value = {
+    ...JSON.parse(JSON.stringify(DefaultPictureInfo)),
+    introduction: "", // 确保 introduction 为字符串
+  };
   pictureForm.value = {
     id: undefined,
     name: "",
-    introduction: "",
+    introduction: "", // 确保 introduction 为字符串
     category: "",
     tags: [],
   };
+  formErrors.value = {};
+  imageUrl.value = "";
 
   // 重置 selectedTags
   const initialSelectedTags: { [key: string]: boolean } = {};
@@ -401,13 +441,15 @@ const getOldPicture = async (id: string) => {
     picture.value = {
       ...data,
       tags: convertTagsToStringArray(data.tags),
+      introduction: data.introduction ?? "", // 确保 introduction 为字符串
     };
-    pictureForm.value.id = data.id;
-    pictureForm.value.name = data.name;
-    pictureForm.value.introduction = data.introduction;
-    pictureForm.value.category = data.category;
-    pictureForm.value.tags = convertTagsToStringArray(data.tags);
-    console.log("getOldPicture pictureForm", pictureForm.value.tags);
+    pictureForm.value = {
+      id: data.id,
+      name: data.name ?? "",
+      introduction: data.introduction ?? "", // 确保 introduction 为字符串
+      category: data.category,
+      tags: convertTagsToStringArray(data.tags),
+    };
     // 更新 selectedTags 以反映已选中的标签
     const initialSelectedTags: { [key: string]: boolean } = {};
     tagOptions.value.forEach((tag) => {
@@ -417,7 +459,7 @@ const getOldPicture = async (id: string) => {
     });
     selectedTags.value = initialSelectedTags;
   } else {
-    Message.error(`获取图片信息失败${message}`);
+    Message.error(`Failed to get image information: ${message}`);
   }
 };
 
@@ -430,7 +472,7 @@ onMounted(() => {
       if (typeof id === "string") {
         getOldPicture(id);
       } else {
-        Message.error("无效的图片ID");
+        Message.error("Invalid image ID");
       }
     } else resetForm();
 
@@ -442,13 +484,137 @@ onMounted(() => {
   });
 });
 
+// Form validation state
+const formErrors = ref<Record<string, string>>({});
+const isSubmitting = ref(false);
+
+// Transform category options for SelectMenus component
+const transformedCategoryOptions = computed(() =>
+  categoryOptions.value.map((option) => ({
+    id: option.value,
+    name: option.label,
+    value: option.value,
+  }))
+);
+
+// Handle category selection with proper type conversion
+const selectedCategory = computed({
+  get: () =>
+    transformedCategoryOptions.value.find(
+      (opt) => opt.value === pictureForm.value.category
+    ) || undefined,
+  set: (option: SelectOption | undefined) => {
+    pictureForm.value.category = option?.value || "";
+  },
+});
+
+// Validate form
+const validateForm = () => {
+  const errors: Record<string, string> = {};
+
+  if (!pictureForm.value.name?.trim()) {
+    errors.name = "Please enter an image name";
+  }
+
+  if (!pictureForm.value.category?.trim()) {
+    errors.category = "Please select a category";
+  }
+
+  if (!pictureForm.value.tags?.length) {
+    errors.tags = "Please select at least one tag";
+  }
+
+  formErrors.value = errors;
+  return Object.keys(errors).length === 0;
+};
+
+// Computed property for form validity
+const isFormValid = computed(() => {
+  return (
+    !!pictureForm.value.name?.trim() &&
+    !!pictureForm.value.category?.trim() &&
+    !!pictureForm.value.tags?.length
+  );
+});
+
+// Modified submit handler
 const handleSubmit = async () => {
-  const pictureId = picture.value.id;
-  if (!pictureId) return;
-  const { data, code, message } = await EditPictureInfo(pictureForm.value);
-  if (code === 0 && data) {
-    Message.success("成功");
-    router.push(`/detail/picture/${pictureId}`);
-  } else Message.error(`失败, ${message}`);
+  if (!validateForm()) {
+    Message.error("Please fill in all required fields");
+    return;
+  }
+
+  try {
+    isSubmitting.value = true;
+    const pictureId = picture.value.id;
+
+    if (!pictureId && !isUpdateMode.value) {
+      Message.error("Please upload an image first");
+      return;
+    }
+
+    const { data, code, message } = await EditPictureInfo(pictureForm.value);
+
+    if (code === 0 && data) {
+      Message.success(
+        isUpdateMode.value ? "Update successful" : "Create successful"
+      );
+      router.push(`/detail/picture/${pictureId}`);
+    } else {
+      throw new Error(message);
+    }
+  } catch (error) {
+    Message.error(`Operation failed: ${error}`);
+  } finally {
+    isSubmitting.value = false;
+  }
+  selectedTags.value = {};
 };
 </script>
+
+<style scoped>
+/* Add loading animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Improve form transitions */
+.form-field {
+  transition: all 0.3s ease-out;
+}
+
+.form-field:focus-within {
+  transform: translateY(-1px);
+}
+
+/* Error state animations */
+.error-message {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-4px);
+  }
+  40%,
+  60% {
+    transform: translateX(4px);
+  }
+}
+</style>

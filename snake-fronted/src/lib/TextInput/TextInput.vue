@@ -21,43 +21,77 @@
         <div v-if="$slots.prefix" class="flex items-center pl-3 text-gray-400">
           <slot name="prefix" />
         </div>
-        <input
-          :id="id"
-          :type="type"
-          :name="name"
-          :value="modelValue"
-          :disabled="disabled"
-          :placeholder="placeholder"
-          :required="required"
-          @input="handleInput"
-          @focus="handleFocus"
-          @blur="handleBlur"
-          class="block min-w-0 flex-1 border-0 bg-transparent focus:ring-0 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          :class="[
-            sizeClasses.input,
-            'text-gray-900 placeholder:text-gray-400',
-            'placeholder:transition-opacity placeholder:duration-200',
-            'placeholder:select-none',
-            // 调整 placeholder 的间距和样式
-            'placeholder:tracking-wide',
-            $slots.prefix && 'pl-2',
-            modelValue && $slots.suffix
-              ? 'pr-16'
-              : modelValue
-              ? 'pr-8'
-              : $slots.suffix
-              ? 'pr-10'
-              : 'pr-3',
-            disabled && 'text-gray-500',
-            // 添加焦点状态下的 placeholder 样式
-            'focus:placeholder:opacity-50',
-          ]"
-          :style="{
-            ...(modelValue ? { color: colorStyle['--input-focus-color'] } : {}),
-            // 添加自定义 placeholder 样式
-            '--placeholder-start-space': '0.1em',
-          }"
-        />
+
+        <!-- 根据 multiline 属性选择渲染 input 或 textarea -->
+        <template v-if="multiline">
+          <textarea
+            :id="id"
+            :name="name"
+            :value="modelValue"
+            :disabled="disabled"
+            :placeholder="placeholder"
+            :required="required"
+            :rows="rows"
+            @input="handleInput"
+            @focus="handleFocus"
+            @blur="handleBlur"
+            class="block min-w-0 flex-1 border-0 bg-transparent focus:ring-0 disabled:cursor-not-allowed resize-none"
+            :class="[
+              sizeClasses.input,
+              'text-gray-900 placeholder:text-gray-400',
+              'placeholder:transition-opacity placeholder:duration-200',
+              'placeholder:select-none',
+              'placeholder:tracking-wide',
+              $slots.prefix && 'pl-2',
+              $slots.suffix && 'pr-10',
+              disabled && 'text-gray-500',
+              'focus:placeholder:opacity-50',
+            ]"
+            :style="colorStyle"
+          />
+        </template>
+        <template v-else>
+          <input
+            :id="id"
+            :type="type"
+            :name="name"
+            :value="modelValue"
+            :disabled="disabled"
+            :placeholder="placeholder"
+            :required="required"
+            @input="handleInput"
+            @focus="handleFocus"
+            @blur="handleBlur"
+            class="block min-w-0 flex-1 border-0 bg-transparent focus:ring-0 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            :class="[
+              sizeClasses.input,
+              'text-gray-900 placeholder:text-gray-400',
+              'placeholder:transition-opacity placeholder:duration-200',
+              'placeholder:select-none',
+              // 调整 placeholder 的间距和样式
+              'placeholder:tracking-wide',
+              $slots.prefix && 'pl-2',
+              modelValue && $slots.suffix
+                ? 'pr-16'
+                : modelValue
+                ? 'pr-8'
+                : $slots.suffix
+                ? 'pr-10'
+                : 'pr-3',
+              disabled && 'text-gray-500',
+              // 添加焦点状态下的 placeholder 样式
+              'focus:placeholder:opacity-50',
+            ]"
+            :style="{
+              ...(modelValue
+                ? { color: colorStyle['--input-focus-color'] }
+                : {}),
+              // 添加自定义 placeholder 样式
+              '--placeholder-start-space': '0.1em',
+            }"
+          />
+        </template>
+
         <!-- 清除按钮 -->
         <button
           v-if="modelValue && !disabled"
@@ -143,6 +177,8 @@ interface Props {
   size?: "sm" | "md" | "lg";
   wrapperClass?: string;
   labelClass?: string;
+  multiline?: boolean;
+  rows?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -155,6 +191,8 @@ const props = withDefaults(defineProps<Props>(), {
   size: "md",
   wrapperClass: "",
   labelClass: "",
+  multiline: false,
+  rows: 3,
 });
 
 const emit = defineEmits<{
