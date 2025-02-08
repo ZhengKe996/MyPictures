@@ -21,7 +21,7 @@
           @click="handleAdd"
           :icon="'i-tabler:plus'"
           size="sm"
-          class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-500"
+          class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
         >
           新增
         </Button>
@@ -33,7 +33,7 @@
           <tr
             v-for="item in ListInfo"
             :key="item.id"
-            class="even:bg-gray-50 border-b border-gray-100 hover:bg-gray-50/60 transition-colors duration-200"
+            class="even:bg-gray-50 border-b border-gray-100 hover:bg-gray-50/60 transition-colors duration-200 group"
           >
             <!-- ID列 -->
             <td
@@ -191,7 +191,7 @@
               class="whitespace-nowrap px-2 py-2 text-sm font-medium text-center max-w-[50px]"
             >
               <span
-                class="text-blue-600 hover:text-blue-700 cursor-pointer transition-colors hover:underline"
+                class="text-blue-600 hover:text-blue-700 cursor-pointer transition-colors hover:underline group-hover:scale-105 inline-block"
                 @click="item.id && DetailPicture(item.id)"
               >
                 Detail
@@ -201,7 +201,7 @@
               class="whitespace-nowrap px-2 py-2 text-sm font-medium text-center max-w-[50px]"
             >
               <span
-                class="text-emerald-600 hover:text-emerald-700 cursor-pointer transition-colors hover:underline"
+                class="text-emerald-600 hover:text-emerald-700 cursor-pointer transition-colors hover:underline group-hover:scale-105 inline-block"
                 @click="item.id && EditPicture(item.id)"
               >
                 Edit
@@ -211,7 +211,7 @@
               class="whitespace-nowrap px-2 py-2 text-sm font-medium text-center max-w-[50px]"
             >
               <span
-                class="text-red-600 hover:text-red-700 cursor-pointer transition-colors hover:underline"
+                class="text-red-600 hover:text-red-700 cursor-pointer transition-colors hover:underline group-hover:scale-105 inline-block"
                 @click="item.id && handleDelete(item.id)"
               >
                 Delete
@@ -225,9 +225,9 @@
               class="flex flex-col items-center justify-center space-y-4 animate-fade-in animate-duration-500 animate-ease-out"
             >
               <div
-                class="rounded-full bg-gray-50 p-4 animate-hover-scale animate-duration-300"
+                class="rounded-full bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end p-4 animate-hover-scale animate-duration-300"
               >
-                <i class="i-tabler:photo-off size-8 text-gray-400"></i>
+                <i class="i-tabler:photo-off size-8 text-white"></i>
               </div>
               <div class="text-center">
                 <h3 class="text-base font-semibold text-gray-900 mb-1">
@@ -240,7 +240,7 @@
                   type="primary"
                   size="sm"
                   :icon="'i-tabler:plus'"
-                  class="animate-hover-scale animate-duration-300"
+                  class="animate-hover-scale animate-duration-300 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
                   @click="handleAdd"
                 >
                   上传新图片
@@ -257,6 +257,7 @@
       :current="PageInfo.current"
       :page-size="PageInfo.pageSize"
       @change="ChangeCurrentPageHandle"
+      class="mt-6"
     />
 
     <!-- 删除确认对话框 -->
@@ -323,7 +324,7 @@ const imageRefs = ref<HTMLImageElement[]>([]);
  *
  * @param id 图片的唯一标识符，用于定位要切换全屏的特定图片。如果为 undefined，则函数不执行任何操作。
  */
-const toggleFullscreen = (id: number | undefined) => {
+const toggleFullscreen = (id: string | undefined) => {
   // 如果未提供 ID，则不执行任何操作
   if (id === undefined) return;
 
@@ -419,9 +420,8 @@ const LoadList = useThrottleFn(async () => {
 }, 1000);
 watchEffect(() => LoadList());
 
-const EditPicture = (id: number | string) => {
+const EditPicture = (id: number | string) =>
   router.push(`/update/picture/${id}`);
-};
 const DetailPicture = (id: number | string) =>
   router.push(`/detail/picture/${id}`);
 
@@ -495,5 +495,20 @@ const handleCancelDelete = () => {
 
 .animate-hover-scale:hover {
   transform: scale(1.05);
+}
+
+@keyframes subtleGradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.active-button {
+  background-size: 200% auto;
+  animation: subtleGradient 3s ease infinite;
 }
 </style>

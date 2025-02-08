@@ -1,75 +1,88 @@
 <template>
   <div class="w-full animated animated-duration-500 animated-fade-in">
-    <div class="flex flex-1 justify-between items-center px-2">
-      <div
-        class="grid w-full max-w-lg lg:max-w-xs flex justify-start items-center"
-      >
-        <div class="flex justify-start items-center">
-          <label for="search" class="block text-sm/6 font-medium text-gray-900"
-            >Account:
-          </label>
-          <div class="mx-2">
-            <div
-              class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600"
+    <div class="flex flex-col gap-4 mb-4">
+      <div class="flex w-full justify-center items-center">
+        <div class="w-full max-w-xl grid grid-cols-2 gap-4">
+          <div class="flex justify-start items-center">
+            <label
+              for="account"
+              class="block text-sm/6 font-medium text-gray-900 mr-2"
             >
-              <input
-                type="text"
-                name="search"
-                v-model="PageInfo.userAccount"
-                class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
-                @keypress="handleKeyPress"
-              />
-              <div class="flex py-1.5 pr-1.5">
-                <kbd
-                  class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400"
-                  >↵</kbd
-                >
+              Account:
+            </label>
+            <div class="flex-grow">
+              <div
+                class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-custom-gradient-end"
+              >
+                <input
+                  type="text"
+                  id="account"
+                  v-model="PageInfo.userAccount"
+                  class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
+                  @keypress="handleKeyPress"
+                />
+                <div class="flex py-1.5 pr-1.5">
+                  <kbd
+                    class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400"
+                  >
+                    ↵
+                  </kbd>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="flex justify-start items-center mx-4">
-          <label for="search" class="block text-sm/6 font-medium text-gray-900"
-            >UserName:
-          </label>
-          <div class="mx-2">
-            <div
-              class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600"
+          <div class="flex justify-start items-center">
+            <label
+              for="username"
+              class="block text-sm/6 font-medium text-gray-900 mr-2"
             >
-              <input
-                type="text"
-                name="search"
-                v-model="PageInfo.userName"
-                class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
-                @keypress="handleKeyPress"
-              />
-              <div class="flex py-1.5 pr-1.5">
-                <kbd
-                  class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400"
-                  >↵</kbd
-                >
+              UserName:
+            </label>
+            <div class="flex-grow">
+              <div
+                class="flex rounded-md bg-white outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-custom-gradient-end"
+              >
+                <input
+                  type="text"
+                  id="username"
+                  v-model="PageInfo.userName"
+                  class="block min-w-0 grow px-3 py-1.5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
+                  @keypress="handleKeyPress"
+                />
+                <div class="flex py-1.5 pr-1.5">
+                  <kbd
+                    class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400"
+                  >
+                    ↵
+                  </kbd>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center">
+      <div class="flex justify-end px-2">
         <Button
           @click="handleAdd"
           :icon="'i-tabler:plus'"
           size="sm"
-          class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-500"
+          class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
         >
           Add New
         </Button>
       </div>
     </div>
+
     <TableList :columns="UserManagerColumns">
       <template #tr>
         <template v-if="ListInfo.length">
-          <tr v-for="item in ListInfo" :key="item.id" class="even:bg-gray-50">
+          <tr
+            v-for="item in ListInfo"
+            :key="item.id"
+            class="even:bg-gray-50 border-b border-gray-100 hover:bg-gray-50/60 transition-colors duration-200 group"
+          >
             <td
               class="whitespace-nowrap py-4 pl-4 px-3 text-sm font-medium text-gray-900 sm:pl-3 text-center"
             >
@@ -114,7 +127,7 @@
             >
               <button
                 type="button"
-                class="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                class="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all duration-300 ease-out hover:scale-105 group-hover:scale-105 inline-block"
                 @click=""
               >
                 Edit
@@ -126,7 +139,7 @@
             >
               <button
                 type="button"
-                class="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                class="inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 transition-all duration-300 ease-out hover:scale-105 group-hover:scale-105 inline-block"
                 @click="item.id && handleDelete(item.id)"
               >
                 Delete
@@ -141,9 +154,9 @@
               class="flex flex-col items-center justify-center space-y-4 animate-fade-in animate-duration-500 animate-ease-out"
             >
               <div
-                class="rounded-full bg-gray-50 p-4 animate-hover-scale animate-duration-300"
+                class="rounded-full bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end p-4 animate-hover-scale animate-duration-300"
               >
-                <i class="i-tabler:users-off size-8 text-gray-400"></i>
+                <i class="i-tabler:users-off size-8 text-white"></i>
               </div>
               <div class="text-center">
                 <h3 class="text-base font-semibold text-gray-900 mb-1">
@@ -156,7 +169,7 @@
                   type="primary"
                   size="sm"
                   :icon="'i-tabler:plus'"
-                  class="animate-hover-scale animate-duration-300"
+                  class="animate-hover-scale animate-duration-300 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
                   @click="handleAdd"
                 >
                   Add New User
@@ -173,6 +186,7 @@
       :current="PageInfo.current"
       :page-size="PageInfo.pageSize"
       @change="ChangeCurrentPageHandle"
+      class="mt-6"
     />
 
     <!-- 删除确认对话框 -->
@@ -265,5 +279,28 @@ const {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.animate-hover-scale {
+  transition: transform 0.3s;
+}
+
+.animate-hover-scale:hover {
+  transform: scale(1.05);
+}
+
+@keyframes subtleGradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.active-button {
+  background-size: 200% auto;
+  animation: subtleGradient 3s ease infinite;
 }
 </style>

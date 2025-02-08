@@ -1,53 +1,76 @@
 <template>
   <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-48 lg:flex-col">
     <div
-      class="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4"
+      class="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-6 pb-4 transition-colors duration-300"
     >
       <div class="flex h-16 shrink-0 items-center">
-        <a href="#" class="-m-1.5 p-1.5">
-          <span class="text-sm/6 mx-2 font-semibold text-gray-900">
-            <span class="text-4xl">Snake</span>Images
+        <router-link
+          to="/"
+          class="flex items-center space-x-2 group transition-all duration-300"
+        >
+          <span
+            class="text-4xl font-bold text-custom-gradient-start transition-transform duration-300 group-hover:scale-105 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end bg-clip-text text-transparent"
+          >
+            Snake
           </span>
-        </a>
+          <span
+            class="text-base/6 font-semibold text-gray-900 dark:text-gray-100 transition-all duration-200 group-hover:text-custom-gradient-end"
+          >
+            Images
+          </span>
+        </router-link>
       </div>
+
       <nav class="flex flex-1 flex-col">
-        <ul role="list" class="flex flex-1 flex-col gap-y-7">
+        <ul role="list" class="flex flex-1 flex-col gap-y-4">
           <li>
             <ul role="list" class="-mx-2 space-y-1">
-              <li v-for="item in filteredNavigation" :key="item.name">
+              <li
+                v-for="item in filteredNavigation"
+                :key="item.name"
+                class="group"
+              >
                 <router-link
                   :to="item.route"
                   :class="[
                     isActiveRoute(item.route)
-                      ? 'bg-gray-50 text-indigo-600'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
-                    'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold transition-all duration-200 ease-in-out',
+                      ? 'bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg py-1.5 px-3'
+                      : 'text-base/6 font-semibold text-gray-900 dark:text-gray-100 hover:text-custom-gradient-end relative group',
+                    'flex items-center gap-x-3 transition-all duration-300 ease-in-out',
                   ]"
                 >
                   <div
                     :class="[
                       item.icon,
                       isActiveRoute(item.route)
-                        ? 'text-indigo-600'
-                        : 'text-gray-400',
-                      'size-6 transition-colors duration-200 ease-in-out group-hover:text-indigo-600',
+                        ? 'text-white'
+                        : 'text-gray-400 dark:text-gray-500 group-hover:text-custom-gradient-end',
+                      'size-6 transition-colors duration-300 ease-in-out',
                     ]"
                   ></div>
                   {{ item.name }}
+                  <span
+                    v-if="!isActiveRoute(item.route)"
+                    class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end transition-all duration-300 group-hover:w-full"
+                  ></span>
                 </router-link>
               </li>
             </ul>
           </li>
-          <li class="mt-auto">
-            <a
-              href="#"
-              class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
+
+          <li class="mt-auto group">
+            <router-link
+              to="/settings"
+              class="group flex gap-x-3 rounded-md p-2 text-base/6 font-semibold text-gray-900 dark:text-gray-100 hover:text-custom-gradient-end transition-all duration-300 relative"
             >
               <i
-                class="i-tabler:settings size-6 shrink-0 text-gray-400 group-hover:text-indigo-600"
+                class="i-tabler:settings size-6 shrink-0 text-gray-400 dark:text-gray-500 transition-colors duration-300 group-hover:text-custom-gradient-end"
               ></i>
               Settings
-            </a>
+              <span
+                class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end transition-all duration-300 group-hover:w-full"
+              ></span>
+            </router-link>
           </li>
         </ul>
       </nav>
@@ -58,7 +81,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useUserStore } from "@/store/user"; // Assume you have a user store
+import { useUserStore } from "@/store/user";
 import { ACCESSENUM } from "@/access";
 
 const route = useRoute();
@@ -79,15 +102,44 @@ const navigation = [
   },
 ];
 
-const filteredNavigation = computed(() => {
-  return navigation.filter(
+const filteredNavigation = computed(() =>
+  navigation.filter(
     (item) =>
       !item.requiresAuth ||
       (item.requiresAuth && userStore.getUserRole !== ACCESSENUM.NOLOGIN)
-  );
-});
+  )
+);
 
-const isActiveRoute = (path: string): boolean => {
-  return route.path === path;
-};
+const isActiveRoute = (path: string): boolean => route.path === path;
 </script>
+
+<style scoped>
+@keyframes subtleFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.group:hover .nav-icon {
+  animation: subtleFloat 0.5s ease-in-out;
+}
+
+@keyframes subtleGradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.active-nav-item {
+  background-size: 200% auto;
+  animation: subtleGradient 3s ease infinite;
+}
+</style>
