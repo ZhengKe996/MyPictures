@@ -3,6 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BaseResponse_boolean_ } from "../models/BaseResponse_boolean_";
+import type { BaseResponse_CreateOutPaintingTaskResponse_ } from "../models/BaseResponse_CreateOutPaintingTaskResponse_";
+import type { BaseResponse_GetOutPaintingTaskResponse_ } from "../models/BaseResponse_GetOutPaintingTaskResponse_";
 import type { BaseResponse_int_ } from "../models/BaseResponse_int_";
 import type { BaseResponse_List_PictureVO_ } from "../models/BaseResponse_List_PictureVO_";
 import type { BaseResponse_Page_Picture_ } from "../models/BaseResponse_Page_Picture_";
@@ -10,7 +12,10 @@ import type { BaseResponse_Page_PictureVO_ } from "../models/BaseResponse_Page_P
 import type { BaseResponse_Picture_ } from "../models/BaseResponse_Picture_";
 import type { BaseResponse_PictureTagCategory_ } from "../models/BaseResponse_PictureTagCategory_";
 import type { BaseResponse_PictureVO_ } from "../models/BaseResponse_PictureVO_";
+import type { CreatePictureOutPaintingTaskRequest } from "../models/CreatePictureOutPaintingTaskRequest";
 import type { DeleteRequest } from "../models/DeleteRequest";
+import type { PictureBatchEditRequest } from "../models/PictureBatchEditRequest";
+import type { PictureEditByBatchRequest } from "../models/PictureEditByBatchRequest";
 import type { PictureEditRequest } from "../models/PictureEditRequest";
 import type { PictureQueryRequest } from "../models/PictureQueryRequest";
 import type { PictureReviewRequest } from "../models/PictureReviewRequest";
@@ -57,6 +62,48 @@ export class PictureControllerService {
       method: "POST",
       url: "/api/picture/edit",
       body: pictureEditRequest,
+      errors: {
+        401: `Unauthorized`,
+        403: `Forbidden`,
+        404: `Not Found`,
+      },
+    });
+  }
+  /**
+   * editPictureByBatch
+   * @param pictureEditByBatchRequest pictureEditByBatchRequest
+   * @returns BaseResponse_boolean_ OK
+   * @returns any Created
+   * @throws ApiError
+   */
+  public static editPictureByBatchUsingPost(
+    pictureEditByBatchRequest: PictureEditByBatchRequest
+  ): CancelablePromise<BaseResponse_boolean_ | any> {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/picture/edit/batch",
+      body: pictureEditByBatchRequest,
+      errors: {
+        401: `Unauthorized`,
+        403: `Forbidden`,
+        404: `Not Found`,
+      },
+    });
+  }
+  /**
+   * editPictureByBatchParallel
+   * @param pictureBatchEditRequest pictureBatchEditRequest
+   * @returns BaseResponse_boolean_ OK
+   * @returns any Created
+   * @throws ApiError
+   */
+  public static editPictureByBatchParallelUsingPost(
+    pictureBatchEditRequest: PictureBatchEditRequest
+  ): CancelablePromise<BaseResponse_boolean_ | any> {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/picture/edit/batch/parallel",
+      body: pictureBatchEditRequest,
       errors: {
         401: `Unauthorized`,
         403: `Forbidden`,
@@ -217,6 +264,49 @@ export class PictureControllerService {
     });
   }
   /**
+   * createPictureOutPaintingTask
+   * @param createPictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest
+   * @returns BaseResponse_CreateOutPaintingTaskResponse_ OK
+   * @returns any Created
+   * @throws ApiError
+   */
+  public static createPictureOutPaintingTaskUsingPost(
+    createPictureOutPaintingTaskRequest: CreatePictureOutPaintingTaskRequest
+  ): CancelablePromise<BaseResponse_CreateOutPaintingTaskResponse_ | any> {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/picture/out_painting/create_task",
+      body: createPictureOutPaintingTaskRequest,
+      errors: {
+        401: `Unauthorized`,
+        403: `Forbidden`,
+        404: `Not Found`,
+      },
+    });
+  }
+  /**
+   * getPictureOutPaintingTask
+   * @param taskId taskId
+   * @returns BaseResponse_GetOutPaintingTaskResponse_ OK
+   * @throws ApiError
+   */
+  public static getPictureOutPaintingTaskUsingGet(
+    taskId?: string
+  ): CancelablePromise<BaseResponse_GetOutPaintingTaskResponse_> {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/picture/out_painting/get_task",
+      query: {
+        taskId: taskId,
+      },
+      errors: {
+        401: `Unauthorized`,
+        403: `Forbidden`,
+        404: `Not Found`,
+      },
+    });
+  }
+  /**
    * doPictureReview
    * @param pictureReviewRequest pictureReviewRequest
    * @returns BaseResponse_boolean_ OK
@@ -313,7 +403,7 @@ export class PictureControllerService {
     id?: string,
     picColor?: string,
     picName?: string,
-    spaceId?: number
+    spaceId?: string
   ): CancelablePromise<BaseResponse_PictureVO_ | any> {
     return __request(OpenAPI, {
       method: "POST",
