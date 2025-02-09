@@ -151,11 +151,11 @@
             >
               {{ item.createTime }}
             </td>
-            <td
+            <!-- <td
               class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
             >
               {{ item.editTime }}
-            </td>
+            </td> -->
             <td
               class="whitespace-nowrap truncate px-3 py-4 text-sm text-gray-500 text-center"
             >

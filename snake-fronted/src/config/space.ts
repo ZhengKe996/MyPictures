@@ -34,7 +34,7 @@ export const SpaceManagerColumns: CustomColumn[] = [
   { key: "condition", label: "Condition" },
   { key: "user", label: "User" },
   { key: "createTime", label: "CreateTime" },
-  { key: "editTime", label: "EditTime" },
+  // { key: "editTime", label: "EditTime" },
   { key: "edit", label: "Edit" },
   { key: "remove", label: "Remove" },
 ];

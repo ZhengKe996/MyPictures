@@ -9,7 +9,7 @@ export const PictureManagerColumns: CustomColumn[] = [
   { key: "id", label: "ID" },
   { key: "picture", label: "Picture" },
   { key: "name", label: "Name" },
-  { key: "introduction", label: "Introduction" },
+  // { key: "introduction", label: "Introduction" },
   { key: "category", label: "Category" },
   { key: "tags", label: "Tags" },
   // { key: "picInfo", label: "Info" },

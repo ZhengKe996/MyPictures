@@ -44,7 +44,7 @@
           >
             <!-- ID列 -->
             <td
-              class="whitespace-nowrap py-2 pl-6 pr-4 text-sm font-medium text-gray-900 border-r border-gray-100/50 text-center max-w-[80px] truncate"
+              class="whitespace-nowrap py-2 pl-6 pr-4 text-sm font-medium text-gray-900 border-r border-gray-100/50 text-center truncate"
             >
               <GenericTooltip :content="String(item.id) || '-'">
                 <template #trigger>
@@ -94,7 +94,7 @@
             </td>
 
             <!-- 描述列 -->
-            <td
+            <!-- <td
               class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px]"
             >
               <GenericTooltip
@@ -113,7 +113,7 @@
                   </div>
                 </template>
               </GenericTooltip>
-            </td>
+            </td> -->
 
             <!-- 分类列 -->
             <td
@@ -125,7 +125,7 @@
             </td>
 
             <!-- 标签列 -->
-            <td
+            <!-- <td
               class="whitespace-nowrap truncate px-2 py-2 text-sm text-gray-500 max-w-[80px] overflow-hidden border-r border-gray-100/50 text-center"
             >
               <GenericTooltip
@@ -145,7 +145,7 @@
                   </span>
                 </template>
               </GenericTooltip>
-            </td>
+            </td> -->
 
             <!-- 用户列 -->
             <td
@@ -170,7 +170,7 @@
 
             <!-- 时间列 -->
             <td
-              class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[80px] truncate"
+              class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center truncate"
             >
               <GenericTooltip
                 :content="item.editTime || DefaultPictureTexts.NO_TIME"
@@ -190,7 +190,14 @@
               class="whitespace-nowrap px-2 py-2 text-sm text-gray-500 border-r border-gray-100/50 text-center max-w-[100px] truncate"
             >
               <span :class="{ 'text-gray-400 italic': !item.editTime }">
-                {{ item.reviewMessage || DefaultPictureTexts.NO_REVIEW }}
+                <!-- {{ item.reviewMessage || DefaultPictureTexts.NO_REVIEW }} -->
+                {{
+                  item.reviewStatus === 1
+                    ? DefaultPictureTexts.REVIEW_PASS
+                    : item.reviewStatus === 2
+                    ? DefaultPictureTexts.REVIEW_REJECT
+                    : DefaultPictureTexts.NO_REVIEW
+                }}
               </span>
             </td>
 
@@ -311,7 +318,7 @@ import SearchInput from "@/lib/SearchInput";
 import TableList from "@/components/TableList";
 import Pagination from "@/lib/Pagination";
 import { PictureManagerColumns, type PictureType } from "@/config";
-import { ref, watchEffect, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useThrottleFn } from "@vueuse/core";
 import { GetPictureList, DeletePictureById } from "@/services";
 import { Message } from "@/lib/Message";
