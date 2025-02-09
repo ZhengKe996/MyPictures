@@ -1,122 +1,74 @@
 <template>
-  <div
-    class="w-full space-y-6 animated animated-duration-500 animated-fade-in px-4"
-  >
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Storage Space Card -->
-      <div
-        class="bg-white rounded-xl border border-gray-100 shadow-xs hover:shadow-sm transition-all duration-500 group"
-      >
-        <div class="p-6 border-b border-gray-100">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">存储空间</h3>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <BaseAnalyze
+      title="存储空间"
+      icon="database"
+      icon-color="indigo"
+      :loading="loading"
+      :error-message="errorMessage"
+    >
+      <template #default>
+        <div class="text-center space-y-6">
+          <div class="flex flex-col items-center justify-center gap-2">
             <div
-              class="bg-indigo-50/70 rounded-full p-2 group-hover:bg-indigo-50 transition-colors duration-500"
+              class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
             >
-              <i class="i-tabler:database text-indigo-500 size-5"></i>
+              {{ formatSize(data.usedSize) }}
+            </div>
+            <div class="text-sm text-gray-500">
+              总容量: {{ data.maxSize ? formatSize(data.maxSize) : "无限制" }}
             </div>
           </div>
-        </div>
 
-        <div class="p-6">
-          <div class="text-center space-y-6">
-            <div class="flex flex-col items-center justify-center gap-2">
-              <div
-                class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
-              >
-                {{ formatSize(data.usedSize) }}
-              </div>
-              <div class="text-sm text-gray-500">
-                总容量: {{ data.maxSize ? formatSize(data.maxSize) : "无限制" }}
-              </div>
-            </div>
-
-            <div class="relative w-48 h-48 mx-auto">
-              <div
-                v-if="loading"
-                class="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full z-10"
-              >
-                <div
-                  class="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin"
-                ></div>
-              </div>
-              <a-progress
-                type="dashboard"
-                :percent="data.sizeUsageRatio ?? 0"
-                :stroke-width="10"
-                :stroke-color="{
-                  '0%': baseColors[0].start,
-                  '100%': baseColors[0].end,
-                }"
-              />
-            </div>
+          <div class="relative w-48 h-48 mx-auto">
+            <a-progress
+              type="dashboard"
+              :percent="data.sizeUsageRatio ?? 0"
+              :stroke-width="10"
+              :stroke-color="{
+                '0%': baseColors[0].start,
+                '100%': baseColors[0].end,
+              }"
+            />
           </div>
         </div>
-      </div>
+      </template>
+    </BaseAnalyze>
 
-      <!-- Image Count Card -->
-      <div
-        class="bg-white rounded-xl border border-gray-100 shadow-xs hover:shadow-sm transition-all duration-500 group"
-      >
-        <div class="p-6 border-b border-gray-100">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">图片数量</h3>
+    <BaseAnalyze
+      title="图片数量"
+      icon="photo"
+      icon-color="purple"
+      :loading="loading"
+      :error-message="errorMessage"
+    >
+      <template #default>
+        <div class="text-center space-y-6">
+          <div class="flex flex-col items-center justify-center gap-2">
             <div
-              class="bg-purple-50/70 rounded-full p-2 group-hover:bg-purple-50 transition-colors duration-500"
+              class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
             >
-              <i class="i-tabler:photo text-purple-500 size-5"></i>
+              {{ data.usedCount }}
+            </div>
+            <div class="text-sm text-gray-500">
+              总数量: {{ data.maxCount ?? "无限制" }}
             </div>
           </div>
-        </div>
 
-        <div class="p-6">
-          <div class="text-center space-y-6">
-            <div class="flex flex-col items-center justify-center gap-2">
-              <div
-                class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
-              >
-                {{ data.usedCount }}
-              </div>
-              <div class="text-sm text-gray-500">
-                总数量: {{ data.maxCount ?? "无限制" }}
-              </div>
-            </div>
-
-            <div class="relative w-48 h-48 mx-auto">
-              <div
-                v-if="loading"
-                class="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full z-10"
-              >
-                <div
-                  class="w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin"
-                ></div>
-              </div>
-              <a-progress
-                type="dashboard"
-                :percent="data.countUsageRatio ?? 0"
-                :stroke-width="10"
-                :stroke-color="{
-                  '0%': baseColors[2].start,
-                  '100%': baseColors[2].end,
-                }"
-              />
-            </div>
+          <div class="relative w-48 h-48 mx-auto">
+            <a-progress
+              type="dashboard"
+              :percent="data.countUsageRatio ?? 0"
+              :stroke-width="10"
+              :stroke-color="{
+                '0%': baseColors[2].start,
+                '100%': baseColors[2].end,
+              }"
+            />
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Status Message -->
-    <TransitionGroup name="message" tag="div">
-      <div
-        v-if="errorMessage"
-        :key="errorMessage"
-        class="p-4 rounded-lg border bg-error-50 text-error-700 border-error-200 flex items-center gap-3 animated animated-faster animated-fade-in"
-      >
-        <i class="i-tabler:alert-circle size-5 text-error-400" />
-        <span class="font-medium">{{ errorMessage }}</span>
-      </div>
-    </TransitionGroup>
+      </template>
+    </BaseAnalyze>
   </div>
 </template>
 
@@ -126,6 +78,7 @@ import { formatSize } from "@/utils";
 import { getSpaceUsageAnalyze } from "@/services";
 import type { UsageAnalyzeeType, AnalyzeProps } from "@/config";
 import { baseColors } from "./config";
+import BaseAnalyze from "./BaseAnalyze.vue";
 
 const props = withDefaults(defineProps<AnalyzeProps>(), {
   queryAll: false,
