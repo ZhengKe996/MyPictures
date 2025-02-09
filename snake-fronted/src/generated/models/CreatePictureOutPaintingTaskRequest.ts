@@ -2,8 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Parameters } from "./Parameters";
+import type { Parameters } from './Parameters';
 export type CreatePictureOutPaintingTaskRequest = {
-  parameters?: Parameters;
-  pictureId?: string;
+    parameters?: Parameters;
+    pictureId?: number;
 };
+
