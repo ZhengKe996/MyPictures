@@ -11,7 +11,7 @@ export const PictureManagerColumns: CustomColumn[] = [
   { key: "name", label: "Name" },
   // { key: "introduction", label: "Introduction" },
   { key: "category", label: "Category" },
-  { key: "tags", label: "Tags" },
+  // { key: "tags", label: "Tags" },
   // { key: "picInfo", label: "Info" },
   { key: "user", label: "Author" },
   { key: "editTime", label: "EditTime" },
