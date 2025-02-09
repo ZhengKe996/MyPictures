@@ -31,6 +31,15 @@ export interface SpaceInfoInterface {
   endEditTime?: string;
 }
 
+export interface SpaceStats {
+  maxCount: number;
+  maxSize: number;
+  totalCount: number;
+  totalSize: number;
+  countUsagePercent: number;
+  sizeUsagePercent: number;
+}
+
 /**
  * 用于空间管理的自定义钩子
  * 它提供了检查用户是否有空间、创建空间和创建照片所需的方法和属性
@@ -44,13 +53,25 @@ export const useSpaceManagement = () => {
   const isExit = ref(false);
   // 空间ID，用于存储用户空间的唯一标识
   const spaceId = ref<string>("");
+  // 空间统计信息
+  const spaceStats = ref<SpaceStats | null>(null);
 
   // 计算属性，用于获取当前用户的用户名，如果获取失败，则默认为"Unknown User"
   const username = computed(() => userStore.getUserName || "Unknown User");
 
+  // 格式化文件大小
+  const formatSize = (bytes: number) => {
+    if (bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
+  };
+
   /**
    * 检查用户是否有空间的方法
    * 它根据用户ID获取空间信息，并更新isExit和spaceId的值
+   * 同时初始化空间统计信息
    * @returns {Promise<string | undefined>} 如果用户有空间，则返回空间ID，否则返回undefined
    */
   const CheckSpace = async () => {
@@ -58,10 +79,29 @@ export const useSpaceManagement = () => {
     const { data, code } = await GetSpaceByUserId(userId);
     if (code !== 0 && data === null) {
       isExit.value = false;
+      spaceStats.value = null;
     } else {
       isExit.value = true;
       if (data && data.id) {
         spaceId.value = data.id;
+
+        // 计算使用率
+        const countUsagePercent = Math.round(
+          ((data.totalCount ?? 0) / (data.maxCount ?? 1)) * 100
+        );
+        const sizeUsagePercent = Math.round(
+          ((data.totalSize ?? 0) / (data.maxSize ?? 1)) * 100
+        );
+
+        // 更新空间统计信息
+        spaceStats.value = {
+          maxCount: data.maxCount ?? 0,
+          maxSize: data.maxSize ?? 0,
+          totalCount: data.totalCount ?? 0,
+          totalSize: data.totalSize ?? 0,
+          countUsagePercent,
+          sizeUsagePercent,
+        };
 
         return data.id;
       }
@@ -81,11 +121,19 @@ export const useSpaceManagement = () => {
   const handleCreatePhoto = () =>
     router.push(`/add/picture?spaceId=${spaceId.value}`);
 
+  // 添加格式化时间的计算属性
+  const formatTime = computed(() => {
+    return dayjs().format("YYYY-MM-DD HH:mm:ss");
+  });
+
   // 返回用于空间管理的相关属性和方法
   return {
     isExit,
     spaceId,
     username,
+    spaceStats, // 添加到返回值中
+    formatSize, // 添加到返回值中
+    formatTime, // 添加到返回值中
     CheckSpace,
     handleCreateSpace,
     handleCreatePhoto,
