@@ -26,6 +26,9 @@ importers:
       echarts:
         specifier: ^5.6.0
         version: 5.6.0
+      echarts-wordcloud:
+        specifier: ^2.1.0
+        version: 2.1.0(echarts@5.6.0)
       file-saver:
         specifier: ^2.0.5
         version: 2.0.5
@@ -1067,6 +1070,11 @@ packages:
 
   duplexer@0.1.2:
     resolution: {integrity: sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==}
+
+  echarts-wordcloud@2.1.0:
+    resolution: {integrity: sha512-Kt1JmbcROgb+3IMI48KZECK2AP5lG6bSsOEs+AsuwaWJxQom31RTNd6NFYI01E/YaI1PFZeueaupjlmzSQasjQ==}
+    peerDependencies:
+      echarts: ^5.0.1
 
   echarts@5.6.0:
     resolution: {integrity: sha512-oTbVTsXfKuEhxftHqL5xprgLoc0k7uScAwtryCgWF6hPYFLRwOUHiFmHGCBKP5NPFNkDVopOieyUqYGH8Fa3kA==}
@@ -2774,6 +2782,10 @@ snapshots:
   dotenv@16.4.7: {}
 
   duplexer@0.1.2: {}
+
+  echarts-wordcloud@2.1.0(echarts@5.6.0):
+    dependencies:
+      echarts: 5.6.0
 
   echarts@5.6.0:
     dependencies:
