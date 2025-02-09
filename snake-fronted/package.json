@@ -16,6 +16,7 @@
     "ant-design-vue": "4.x",
     "axios": "^1.7.9",
     "dayjs": "^1.11.13",
+    "echarts": "^5.6.0",
     "file-saver": "^2.0.5",
     "form-data": "^4.0.1",
     "lodash-es": "^4.17.21",
@@ -23,6 +24,7 @@
     "pinia-plugin-persistedstate": "^4.2.0",
     "vue": "^3.5.13",
     "vue-cropper": "^1.1.4",
+    "vue-echarts": "^7.0.3",
     "vue-router": "4"
   },
   "devDependencies": {
