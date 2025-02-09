@@ -187,7 +187,7 @@
                 :disabled="!picture?.url"
                 @click="handleDownload"
               >
-                下载
+                Download
               </Button>
               <Button
                 type="secondary"
@@ -198,7 +198,7 @@
                 :disabled="!picture?.url"
                 @click="handleShare"
               >
-                分享
+                Share
               </Button>
             </div>
             <!-- 审核和裁剪按钮（仅管理员可见） -->
@@ -212,7 +212,7 @@
                   :is-active-anim="true"
                   @click="openReviewDialog"
                 >
-                  审核图片
+                  Review
                 </Button>
                 <Button
                   type="primary"
@@ -222,7 +222,7 @@
                   :is-active-anim="true"
                   @click="openCropDialog"
                 >
-                  裁剪图片
+                  Crop
                 </Button>
               </div>
             </div>
@@ -234,22 +234,22 @@
     <!-- 审核对话框 -->
     <Dialog
       v-model="showReviewDialog"
-      :title="'审核图片 - ' + (picture?.name || '未命名图片')"
-      confirmText="通过"
-      cancelText="不通过"
+      :title="'Review Picture - ' + (picture?.name || 'Unnamed Picture')"
+      confirmText="Approve"
+      cancelText="Reject"
       :confirmButtonColor="'green'"
       :cancelButtonColor="'red'"
       :confirmHandler="() => handleReview(1)"
       :cancelHandler="() => handleReview(2)"
     >
       <div class="space-y-4">
-        <p class="text-gray-600">请选择审核结果：</p>
+        <p class="text-gray-600">Please select review result:</p>
         <div class="space-y-2">
           <textarea
             v-model="reviewComment"
             rows="3"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="请输入审核意见（可选）"
+            placeholder="Enter review comments (optional)"
           ></textarea>
         </div>
       </div>
@@ -258,8 +258,8 @@
     <!-- 裁剪对话框 -->
     <Dialog
       v-model="showCropDialog"
-      title="裁剪图片"
-      confirmText="确定"
+      title="Crop Image"
+      confirmText="Confirm"
       :showClose="true"
       :confirmButtonColor="'blue'"
     >
@@ -555,6 +555,7 @@ const openCropDialog = () => {
   showCropDialog.value = true;
 };
 
+import { UploadImageFile } from "@/services";
 /**
  * 处理裁剪完成事件
  * @param file 裁剪后的文件
@@ -567,17 +568,16 @@ const handleCropComplete = async (file: File) => {
     // 需要实现：
     // 1. 上传裁剪后的图片文件
     // 2. 更新图片信息
-    // const { code, message, data } = await UpdatePictureById({
-    //   id: picture.value.id,
-    //   file: file
-    // });
-    // if (code === 0) {
-    //   Message.success("更新成功");
-    //   // 重新加载图片信息
-    //   await LoadInfo();
-    // } else {
-    //   Message.error(`更新失败: ${message}`);
-    // }
+    const { code, message, data } = await UploadImageFile(file, {
+      id: picture.value.id,
+    });
+    if (code === 0 && data) {
+      Message.success("更新成功");
+      // 重新加载图片信息
+      await LoadInfo();
+    } else {
+      Message.error(`更新失败: ${message}`);
+    }
   } catch (error) {
     Message.error("更新失败");
     console.error(error);

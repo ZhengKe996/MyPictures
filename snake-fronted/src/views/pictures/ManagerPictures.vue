@@ -23,7 +23,7 @@
           size="sm"
           class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2 gradient-primary text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
         >
-          新增
+          Add New
         </Button>
       </div>
     </div>
@@ -246,10 +246,10 @@
               </div>
               <div class="text-center">
                 <h3 class="text-base font-semibold text-gray-900 mb-1">
-                  暂无图片数据
+                  No Pictures Available
                 </h3>
                 <p class="text-sm text-gray-500 mb-4">
-                  点击下方按钮上传新的图片
+                  Click the button below to upload a new picture
                 </p>
                 <Button
                   type="primary"
@@ -258,7 +258,7 @@
                   class="animate-hover-scale animate-duration-300 gradient-primary text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
                   @click="handleAdd"
                 >
-                  上传新图片
+                  Upload New Picture
                 </Button>
               </div>
             </div>
@@ -278,9 +278,9 @@
     <!-- 删除确认对话框 -->
     <Dialog
       v-model="showDeleteDialog"
-      title="删除确认"
-      :confirmText="'删除'"
-      :cancelText="'取消删除'"
+      title="Delete Confirmation"
+      :confirmText="'Delete'"
+      :cancelText="'Cancel'"
       :confirmButtonColor="'red'"
       :cancelButtonColor="'gray'"
       :confirmHandler="confirmDelete"
@@ -288,7 +288,8 @@
     >
       <div class="space-y-4">
         <p class="text-gray-600 dark:text-gray-300">
-          确定要删除这张图片吗？此操作不可恢复。
+          Are you sure you want to delete this picture? This action cannot be
+          undone.
         </p>
         <div
           v-if="currentItem"
@@ -297,14 +298,14 @@
           <img
             :src="currentItem.thumbnailUrl ?? currentItem.url"
             class="w-16 h-16 object-cover rounded"
-            alt="预览图"
+            alt="Preview"
           />
           <div>
             <p class="font-medium text-gray-900 dark:text-gray-100">
               {{ currentItem.name }}
             </p>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              创建于 {{ currentItem.createTime }}
+              Created at {{ currentItem.createTime }}
             </p>
           </div>
         </div>
