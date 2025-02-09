@@ -25,6 +25,7 @@ import { getSpaceTagAnalyze } from "@/services";
 import type { AnalyzeProps, TagAnalyzeType } from "@/config";
 import { baseColors } from "./config";
 import BaseAnalyze from "./BaseAnalyze.vue";
+import type { EChartsOption } from "echarts";
 
 const props = withDefaults(defineProps<AnalyzeProps>(), {
   queryAll: false,
@@ -73,7 +74,7 @@ watchEffect(() => {
 });
 
 // 图表选项
-const options = computed(() => {
+const options = computed<EChartsOption>(() => {
   const tagData = dataList.value.map((item, index) => ({
     name: item.tag,
     value: item.count,

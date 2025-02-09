@@ -28,6 +28,7 @@ import { getSpaceRankAnalyze } from "@/services";
 import type { SpaceType } from "@/config";
 import { baseColors } from "./config";
 import BaseAnalyze from "./BaseAnalyze.vue";
+import type { EChartsOption } from "echarts";
 
 // 图表数据
 const dataList = ref<SpaceType[]>([]);
@@ -69,7 +70,7 @@ watchEffect(() => {
 });
 
 // 图表选项
-const options = computed(() => {
+const options = computed<EChartsOption>(() => {
   const spaceNames = dataList.value.map((item) => item.spaceName);
   const usageData = dataList.value.map((item, index) => ({
     value: parseFloat(((item.totalSize ?? 0) / (1024 * 1024)).toFixed(2)),

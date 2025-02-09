@@ -24,6 +24,7 @@ import { getSpaceCategoryAnalyze } from "@/services";
 import type { CategoryAnalyzeType, AnalyzeProps } from "@/config";
 import { baseColors } from "./config";
 import BaseAnalyze from "./BaseAnalyze.vue";
+import type { EChartsOption } from "echarts";
 
 const props = withDefaults(defineProps<AnalyzeProps>(), {
   queryAll: false,
@@ -72,7 +73,7 @@ watchEffect(() => {
 });
 
 // 图表选项
-const options = computed(() => {
+const options = computed<EChartsOption>(() => {
   const categories = (dataList.value ?? []).map((item) => item.category);
   const countData = (dataList.value ?? []).map((item) => item.count);
   const sizeData = (dataList.value ?? []).map((item) =>

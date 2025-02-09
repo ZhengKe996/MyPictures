@@ -21,15 +21,20 @@
           </div>
 
           <div class="relative w-48 h-48 mx-auto">
-            <a-progress
-              type="dashboard"
-              :percent="data.sizeUsageRatio ?? 0"
+            <RoundProgress
+              :progress="data.sizeUsageRatio ?? 0"
+              :size="192"
               :stroke-width="10"
-              :stroke-color="{
-                '0%': baseColors[0].start,
-                '100%': baseColors[0].end,
-              }"
-            />
+              :start-color="baseColors[0].start"
+              :end-color="baseColors[0].end"
+              show-decoration
+            >
+              <template #center="{ progress }">
+                <span class="text-2xl font-semibold text-gray-700">
+                  {{ progress }}%
+                </span>
+              </template>
+            </RoundProgress>
           </div>
         </div>
       </template>
@@ -56,15 +61,20 @@
           </div>
 
           <div class="relative w-48 h-48 mx-auto">
-            <a-progress
-              type="dashboard"
-              :percent="data.countUsageRatio ?? 0"
+            <RoundProgress
+              :progress="data.countUsageRatio ?? 0"
+              :size="192"
               :stroke-width="10"
-              :stroke-color="{
-                '0%': baseColors[2].start,
-                '100%': baseColors[2].end,
-              }"
-            />
+              :start-color="baseColors[2].start"
+              :end-color="baseColors[2].end"
+              show-decoration
+            >
+              <template #center="{ progress }">
+                <span class="text-2xl font-semibold text-gray-700">
+                  {{ progress }}%
+                </span>
+              </template>
+            </RoundProgress>
           </div>
         </div>
       </template>
@@ -79,6 +89,7 @@ import { getSpaceUsageAnalyze } from "@/services";
 import type { UsageAnalyzeeType, AnalyzeProps } from "@/config";
 import { baseColors } from "./config";
 import BaseAnalyze from "./BaseAnalyze.vue";
+import RoundProgress from "@/lib/RoundProgress/RoundProgress.vue";
 
 const props = withDefaults(defineProps<AnalyzeProps>(), {
   queryAll: false,
@@ -139,21 +150,7 @@ watchEffect(() => {
   transform: translateY(-10px);
 }
 
-:deep(.ant-progress-text) {
-  font-size: 1.5rem !important;
-  font-weight: 600 !important;
-  color: #374151 !important;
-  font-family: ui-monospace, monospace !important;
-}
-
-:deep(.ant-progress-circle-path) {
-  transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1),
-    stroke 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-:deep(.ant-progress-circle-trail) {
-  stroke: rgb(243 244 246) !important;
-}
+/* 删除 ant-progress 相关样式 */
 
 @keyframes pulse {
   0%,

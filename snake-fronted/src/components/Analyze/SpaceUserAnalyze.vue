@@ -36,6 +36,7 @@
 import { computed, ref, watchEffect } from "vue";
 import VChart from "vue-echarts";
 import "echarts";
+import type { EChartsOption } from "echarts";
 import { getSpaceUserAnalyze } from "@/services";
 import type { UserAnalyzeType, AnalyzeProps } from "@/config";
 import { Message } from "@/lib/Message";
@@ -107,7 +108,7 @@ watchEffect(() => {
 });
 
 // 图表选项
-const options = computed(() => {
+const options = computed<EChartsOption>(() => {
   const periods = dataList.value.map((item) => item.period); // 时间区间
   const counts = dataList.value.map((item) => item.count); // 上传数量
 

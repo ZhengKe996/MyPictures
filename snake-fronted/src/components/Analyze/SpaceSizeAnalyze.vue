@@ -24,6 +24,7 @@ import { getSpaceSizeAnalyze } from "@/services";
 import type { SizeAnalyzeType, AnalyzeProps } from "@/config";
 import { baseColors } from "./config";
 import BaseAnalyze from "./BaseAnalyze.vue";
+import type { EChartsOption } from "echarts";
 
 const props = withDefaults(defineProps<AnalyzeProps>(), {
   queryAll: false,
@@ -65,7 +66,7 @@ watchEffect(() => {
   fetchData();
 });
 
-const options = computed(() => {
+const options = computed<EChartsOption>(() => {
   const pieData = (dataList.value ?? []).map((item, index) => ({
     name: item.sizeRange,
     value: item.count,
