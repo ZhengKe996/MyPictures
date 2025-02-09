@@ -66,7 +66,7 @@
       <div class="flex justify-end px-2">
         <Button
           @click="handleAdd"
-          :icon="'i-tabler:plus'"
+          :icon="'i-tabler-plus'"
           size="sm"
           class="whitespace-nowrap w-auto inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
         >
@@ -168,7 +168,7 @@
                 <Button
                   type="primary"
                   size="sm"
-                  :icon="'i-tabler:plus'"
+                  :icon="'i-tabler-plus'"
                   class="animate-hover-scale animate-duration-300 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
                   @click="handleAdd"
                 >
