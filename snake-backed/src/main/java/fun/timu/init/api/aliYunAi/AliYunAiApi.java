@@ -39,65 +39,43 @@ public class AliYunAiApi {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "扩图参数为空");
         }
         // 发送请求
-        HttpRequest httpRequest = HttpRequest.post(CREATE_OUT_PAINTING_TASK_URL).header(Header.AUTHORIZATION, "Bearer " + apiKey)
-                // 必须开启异步处理，设置为enable。
-                .header("X-DashScope-Async", "enable").header(Header.CONTENT_TYPE, ContentType.JSON.getValue()).body(JSONUtil.toJsonStr(createOutPaintingTaskRequest));
+        HttpRequest httpRequest = HttpRequest.post(CREATE_OUT_PAINTING_TASK_URL).header("Authorization", "Bearer " + apiKey)
+                // 必须开启异步处理
+                .header("X-DashScope-Async", "enable").header("Content-Type", "application/json").body(JSONUtil.toJsonStr(createOutPaintingTaskRequest));
+        // 处理响应
         try (HttpResponse httpResponse = httpRequest.execute()) {
             if (!httpResponse.isOk()) {
                 log.error("请求异常：{}", httpResponse.body());
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "AI 扩图失败");
             }
-            CreateOutPaintingTaskResponse response = JSONUtil.toBean(httpResponse.body(), CreateOutPaintingTaskResponse.class);
-            String errorCode = response.getCode();
-            if (StrUtil.isNotBlank(errorCode)) {
-                String errorMessage = response.getMessage();
-                log.error("AI 扩图失败，errorCode:{}, errorMessage:{}", errorCode, errorMessage);
-                throw new BusinessException(ErrorCode.OPERATION_ERROR, "AI 扩图接口响应异常");
+            CreateOutPaintingTaskResponse createOutPaintingTaskResponse = JSONUtil.toBean(httpResponse.body(), CreateOutPaintingTaskResponse.class);
+            if (createOutPaintingTaskResponse.getCode() != null) {
+                String errorMessage = createOutPaintingTaskResponse.getMessage();
+                log.error("请求异常：{}", errorMessage);
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "AI 扩图失败，" + errorMessage);
             }
-            return response;
+            return createOutPaintingTaskResponse;
         }
     }
 
     /**
-     * 查询创建的任务
+     * 查询创建的任务结果
      *
-     * @param taskId 任务ID，用于查询特定的任务信息
-     * @return 返回GetOutPaintingTaskResponse对象，包含任务详细信息
-     * @throws BusinessException 当任务ID为空、格式不正确，或获取任务失败时抛出
+     * @param taskId
+     * @return
      */
     public GetOutPaintingTaskResponse getOutPaintingTask(String taskId) {
-        // 检查任务ID是否为空
         if (StrUtil.isBlank(taskId)) {
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "任务 id 不能为空");
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "任务 ID 不能为空");
         }
-
-        // 验证 taskId 格式
-        if (!isValidTaskId(taskId)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "任务 id 格式不正确");
-        }
-
-        try {
-            // 构造请求URL
-            String url = String.format(GET_OUT_PAINTING_TASK_URL, taskId);
-            // 发起HTTP GET请求获取任务信息
-            try (HttpResponse httpResponse = HttpRequest.get(url).header(Header.AUTHORIZATION, "Bearer " + apiKey).execute()) {
-                // 检查HTTP响应状态码
-                if (!httpResponse.isOk()) {
-                    log.error("获取任务失败，HTTP 状态码: {}", httpResponse.getStatus());
-                    throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取任务失败");
-                }
-                // 将响应体转换为GetOutPaintingTaskResponse对象并返回
-                return JSONUtil.toBean(httpResponse.body(), GetOutPaintingTaskResponse.class);
+        // 处理响应
+        String url = String.format(GET_OUT_PAINTING_TASK_URL, taskId);
+        try (HttpResponse httpResponse = HttpRequest.get(url).header("Authorization", "Bearer " + apiKey).execute()) {
+            if (!httpResponse.isOk()) {
+                log.error("请求异常：{}", httpResponse.body());
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取任务结果失败");
             }
-        } catch (HttpException e) {
-            // 处理网络请求异常
-            log.error("网络请求异常: {}", e.getMessage(), e);
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "网络请求失败");
+            return JSONUtil.toBean(httpResponse.body(), GetOutPaintingTaskResponse.class);
         }
-    }
-
-    private boolean isValidTaskId(String taskId) {
-        // 实现 taskId 的格式验证逻辑，例如正则表达式匹配
-        return taskId.matches("[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}");
     }
 }

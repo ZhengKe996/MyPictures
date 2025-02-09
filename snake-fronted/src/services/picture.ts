@@ -228,3 +228,32 @@ export const AdminBatchByPexels = async (form: {
 export const DeletePictureById = async (id: string) => {
   return await Service.deletePictureUsingPost({ id });
 };
+
+/**
+ * 使用AI进行图片的外出绘画任务创建
+ *
+ * 本函数通过调用服务层的createPictureOutPaintingTaskUsingPost方法，异步创建一个外出绘画任务
+ * 主要用于扩展图片的边界或在图片外增加额外的绘画内容，以增强图片的视觉效果或满足特定的编辑需求
+ *
+ * @param id 图片的唯一标识符，用于指定需要进行外出绘画任务的图片
+ * @returns 返回一个Promise，解析为服务层调用的结果
+ */
+export const AdminCreateAIPictureTask = async (id: string) => {
+  return await Service.createPictureOutPaintingTaskUsingPost({
+    pictureId: id,
+    parameters: { xScale: 2, yScale: 2 }, // 扩图参数
+  });
+};
+
+/**
+ * 根据ID获取AI作画任务的结果
+ *
+ * 此函数用于调用后端服务，获取特定ID对应的AI作画任务的详细信息和结果
+ * 主要目的是为了提供给管理员查看AI作画任务的能力
+ *
+ * @param id AI作画任务的唯一标识符，用于指定需要获取结果的任务
+ * @returns 返回一个Promise，解析为AI作画任务的详细信息和结果
+ */
+export const AdminGetAITaskResult = async (id: string) => {
+  return await Service.getPictureOutPaintingTaskUsingGet(id);
+};

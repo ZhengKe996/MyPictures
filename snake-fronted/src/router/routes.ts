@@ -110,6 +110,7 @@ export const routes: RouteRecordRaw[] = [
     props: true,
     meta: {
       layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.USER,
       isHeader: false,
     },
   },
@@ -140,6 +141,7 @@ export const routes: RouteRecordRaw[] = [
     props: true,
     meta: {
       layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.USER,
       isHeader: false,
     },
   },
@@ -151,6 +153,7 @@ export const routes: RouteRecordRaw[] = [
     props: true,
     meta: {
       layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.USER,
       isHeader: false,
     },
   },

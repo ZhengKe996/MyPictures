@@ -32,157 +32,166 @@
             class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100"
           >
             <Button
-              class="px-4 py-2 rounded-lg shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
+              type="secondary"
+              class="px-4 py-2 rounded-lg shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 bg-orange-500 hover:bg-orange-600 text-white border-none"
               @click="onImgFullScreen"
             >
-              查看原图
+              View Full Screen
             </Button>
           </div>
         </div>
 
         <!-- 右侧内容区域 -->
-        <div class="w-1/3 p-6 flex flex-col divide-y divide-gray-100">
-          <!-- 标题和用户信息区域 -->
-          <div class="pb-5">
-            <h1
-              class="text-2xl font-bold text-center text-gray-800 mb-6 gradient-primary bg-clip-text text-transparent"
-            >
-              {{ picture?.name || "未命名图片" }}
-            </h1>
-            <div
-              class="flex my-1 items-center text-sm text-gray-600 space-x-4 whitespace-nowrap overflow-hidden"
-            >
-              <span class="flex items-center">
-                <i class="i-tabler:user size-4 opacity-75 mr-1.5"></i>
-                {{ picture?.user?.userName || "未知用户" }}
-              </span>
-            </div>
-            <div
-              class="flex my-1 items-center text-sm text-gray-600 space-x-4 whitespace-nowrap overflow-hidden"
-            >
-              <span class="flex items-center">
-                <i class="i-tabler:clock size-4 opacity-75 mr-1.5"></i>
-                {{ picture?.editTime || "暂无时间信息" }}
-              </span>
-            </div>
-          </div>
-
-          <!-- 描述信息区域 -->
-          <div class="py-1">
-            <h2 class="text-sm font-medium text-gray-500 mb-3">简介</h2>
-            <div class="relative">
-              <p
-                v-if="picture?.introduction"
-                class="text-gray-600 leading-relaxed text-sm transition-all duration-300 selection:bg-blue-100 selection:text-blue-900"
-                :class="{ 'line-clamp-3 hover:line-clamp-none': !isExpanded }"
+        <div class="w-1/3 flex flex-col h-full overflow-hidden">
+          <div class="flex-1 overflow-y-auto p-6 space-y-4">
+            <!-- 标题和用户信息区域 -->
+            <div class="pb-4 border-b border-gray-100">
+              <h1
+                class="text-2xl font-bold text-center text-gray-800 mb-6 gradient-primary bg-clip-text text-transparent"
               >
-                {{ picture.introduction }}
-              </p>
-              <p v-else class="text-gray-400 italic text-sm">暂无描述信息</p>
+                {{ picture?.name || "Untitled Picture" }}
+              </h1>
               <div
-                v-if="picture?.introduction && hasMoreContent"
-                class="absolute bottom-0 inset-x-0 h-8 bg-gradient-to-t from-white to-transparent transition-opacity duration-300"
-                :class="{ 'opacity-0': isExpanded }"
+                class="flex my-1 items-center text-sm text-gray-600 space-x-4 whitespace-nowrap overflow-hidden"
               >
-                <button
-                  @click="isExpanded = !isExpanded"
-                  class="absolute bottom-0 left-1/2 -translate-x-1/2 text-xs text-blue-600 hover:text-blue-700 bg-white px-2 py-0.5 rounded-full shadow-sm hover:shadow transition-all duration-200"
+                <span class="flex items-center">
+                  <i class="i-tabler:user size-4 opacity-75 mr-1.5"></i>
+                  {{ picture?.user?.userName || "Unknown User" }}
+                </span>
+              </div>
+              <div
+                class="flex my-1 items-center text-sm text-gray-600 space-x-4 whitespace-nowrap overflow-hidden"
+              >
+                <span class="flex items-center">
+                  <i class="i-tabler:clock size-4 opacity-75 mr-1.5"></i>
+                  {{ picture?.editTime || "No Time Info" }}
+                </span>
+              </div>
+            </div>
+
+            <!-- 描述信息区域 -->
+            <div class="py-4 border-b border-gray-100">
+              <h2 class="text-sm font-medium text-gray-500 mb-3">
+                Description
+              </h2>
+              <div class="relative">
+                <p
+                  v-if="picture?.introduction"
+                  class="text-gray-600 leading-relaxed text-sm transition-all duration-300 selection:bg-blue-100 selection:text-blue-900"
+                  :class="{ 'line-clamp-3 hover:line-clamp-none': !isExpanded }"
                 >
-                  {{ isExpanded ? "收起" : "展开" }}
-                </button>
+                  {{ picture.introduction }}
+                </p>
+                <p v-else class="text-gray-400 italic text-sm">
+                  No description available
+                </p>
+                <div
+                  v-if="picture?.introduction && hasMoreContent"
+                  class="absolute bottom-0 inset-x-0 h-8 bg-gradient-to-t from-white to-transparent transition-opacity duration-300"
+                  :class="{ 'opacity-0': isExpanded }"
+                >
+                  <button
+                    @click="isExpanded = !isExpanded"
+                    class="absolute bottom-0 left-1/2 -translate-x-1/2 text-xs text-blue-600 hover:text-blue-700 bg-white px-2 py-0.5 rounded-full shadow-sm hover:shadow transition-all duration-200"
+                  >
+                    {{ isExpanded ? "Collapse" : "Expand" }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 审核信息区域 -->
+            <div
+              v-if="
+                picture?.reviewMessage &&
+                userStore.getUserRole === ACCESSENUM.ADMIN
+              "
+              class="py-4 border-b border-gray-100"
+            >
+              <h2 class="text-sm font-medium text-gray-500 mb-3">
+                Review Info
+              </h2>
+              <div class="relative">
+                <p
+                  class="leading-relaxed text-sm transition-all duration-300 selection:bg-blue-100 selection:text-blue-900 p-3 rounded-lg border"
+                  :class="reviewStatusStyle"
+                >
+                  <i :class="reviewStatusIcon" class="mr-1.5"></i>
+                  {{ picture.reviewMessage }}
+                </p>
+              </div>
+            </div>
+
+            <!-- 分类和标签区域 -->
+            <div class="py-4 border-b border-gray-100">
+              <div class="flex gap-8">
+                <!-- 主色调显示 -->
+                <div class="space-y-2 flex-1">
+                  <h2 class="text-sm font-medium text-gray-500">Main Color</h2>
+                  <div class="flex items-center gap-2">
+                    <div
+                      v-if="picture?.picColor"
+                      class="w-12 h-6 rounded-md shadow-sm border border-gray-200"
+                      :style="{
+                        backgroundColor: convertOxToHex(picture.picColor),
+                      }"
+                      :title="picture.picColor"
+                    ></div>
+                    <span class="text-xs text-gray-600">{{
+                      picture?.picColor || "Not Available"
+                    }}</span>
+                  </div>
+                </div>
+
+                <!-- 分类显示 -->
+                <div class="space-y-2 flex-1">
+                  <h2 class="text-sm font-medium text-gray-500">Category</h2>
+                  <div class="flex items-center gap-2">
+                    <Badges
+                      :text="picture?.category || 'Uncategorized'"
+                      :color="getRandomUnoColor()"
+                      variant="soft"
+                      size="sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- 标签区域 -->
+              <div class="space-y-2 py-4">
+                <h2 class="text-sm font-medium text-gray-500">Tags</h2>
+                <div class="flex flex-wrap gap-2">
+                  <template v-if="picture?.tags?.length">
+                    <Badges
+                      v-for="tag in picture.tags"
+                      :key="tag"
+                      :text="tag"
+                      :color="getRandomUnoColor()"
+                      variant="soft"
+                      size="sm"
+                      clickable
+                      class="transform hover:scale-102 transition-transform duration-200"
+                      @click="handleTagClick(tag)"
+                    />
+                  </template>
+                  <span v-else class="text-sm text-gray-400 italic"
+                    >No tags</span
+                  >
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- 审核信息区域 -->
+          <!-- 操作按钮区域 - 固定在底部 -->
           <div
-            class="py-1"
-            v-if="
-              picture?.reviewMessage &&
-              userStore.getUserRole === ACCESSENUM.ADMIN
-            "
+            class="p-6 border-t border-gray-100 bg-white/80 backdrop-blur-sm"
           >
-            <h2 class="text-sm font-medium text-gray-500 mb-3">审核信息</h2>
-            <div class="relative">
-              <p
-                class="leading-relaxed text-sm transition-all duration-300 selection:bg-blue-100 selection:text-blue-900 p-3 rounded-lg border"
-                :class="reviewStatusStyle"
-              >
-                <i :class="reviewStatusIcon" class="mr-1.5"></i>
-                {{ picture.reviewMessage }}
-              </p>
-            </div>
-          </div>
-
-          <!-- 分类和标签区域 -->
-          <div class="py-5 space-y-4">
-            <!-- 主色调和分类显示区域 -->
-            <div class="flex gap-8">
-              <!-- 主色调显示 -->
-              <div class="space-y-2 flex-1">
-                <h2 class="text-sm font-medium text-gray-500">主色调</h2>
-                <div class="flex items-center gap-2">
-                  <div
-                    v-if="picture?.picColor"
-                    class="w-12 h-6 rounded-md shadow-sm border border-gray-200"
-                    :style="{
-                      backgroundColor: convertOxToHex(picture.picColor),
-                    }"
-                    :title="picture.picColor"
-                  ></div>
-                  <span class="text-xs text-gray-600">{{
-                    picture?.picColor || "未获取"
-                  }}</span>
-                </div>
-              </div>
-
-              <!-- 分类显示 -->
-              <div class="space-y-2 flex-1">
-                <h2 class="text-sm font-medium text-gray-500">分类</h2>
-                <div class="flex items-center gap-2">
-                  <Badges
-                    :text="picture?.category || '未分类'"
-                    :color="getRandomUnoColor()"
-                    variant="soft"
-                    size="sm"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <!-- 标签区域 -->
-            <div class="space-y-2">
-              <h2 class="text-sm font-medium text-gray-500">标签</h2>
-              <div class="flex flex-wrap gap-2">
-                <template v-if="picture?.tags?.length">
-                  <Badges
-                    v-for="tag in picture.tags"
-                    :key="tag"
-                    :text="tag"
-                    :color="getRandomUnoColor()"
-                    variant="soft"
-                    size="sm"
-                    clickable
-                    class="transform hover:scale-102 transition-transform duration-200"
-                    @click="handleTagClick(tag)"
-                  />
-                </template>
-                <span v-else class="text-sm text-gray-400 italic"
-                  >暂无标签</span
-                >
-              </div>
-            </div>
-          </div>
-
-          <!-- 操作按钮区域 -->
-          <div class="pt-5 mt-auto">
             <!-- 下载和分享按钮 -->
-            <div class="flex gap-4">
+            <div class="grid grid-cols-2 gap-4 mb-4">
               <Button
                 type="primary"
                 size="md"
                 icon="i-tabler-download"
-                class="flex-1"
                 :is-active-anim="true"
                 :disabled="!picture?.url"
                 @click="handleDownload"
@@ -192,8 +201,7 @@
               <Button
                 type="secondary"
                 size="md"
-                icon="i-tabler:share"
-                class="flex-1"
+                icon="i-tabler-share"
                 :is-active-anim="true"
                 :disabled="!picture?.url"
                 @click="handleShare"
@@ -201,30 +209,36 @@
                 Share
               </Button>
             </div>
-            <!-- 审核和裁剪按钮（仅管理员可见） -->
-            <div v-if="isAdmin" class="mt-4">
-              <div class="flex gap-4">
-                <Button
-                  type="warning"
-                  size="md"
-                  icon="i-tabler:checklist"
-                  class="flex-1"
-                  :is-active-anim="true"
-                  @click="openReviewDialog"
-                >
-                  Review
-                </Button>
-                <Button
-                  type="primary"
-                  size="md"
-                  icon="i-tabler:cut"
-                  class="flex-1"
-                  :is-active-anim="true"
-                  @click="openCropDialog"
-                >
-                  Crop
-                </Button>
-              </div>
+            <!-- 管理员操作按钮 -->
+            <div v-if="isAdmin" class="grid grid-cols-3 gap-3">
+              <Button
+                type="warning"
+                size="md"
+                icon="i-tabler-checklist"
+                :is-active-anim="true"
+                @click="openReviewDialog"
+              >
+                Review
+              </Button>
+              <Button
+                type="primary"
+                size="md"
+                icon="i-tabler-cut"
+                :is-active-anim="true"
+                @click="openCropDialog"
+              >
+                Crop
+              </Button>
+              <Button
+                type="success"
+                size="md"
+                icon="i-tabler-wand"
+                :is-active-anim="true"
+                :loading="isAiProcessing"
+                @click="handleAiEnhance"
+              >
+                AI
+              </Button>
             </div>
           </div>
         </div>
@@ -271,13 +285,70 @@
         @error="(error) => Message.error(error.message)"
       />
     </Dialog>
+
+    <!-- AI扩图结果对话框 -->
+    <Dialog
+      v-model="showAiResultDialog"
+      title="AI Enhancement Result"
+      :showClose="true"
+      :confirmButtonColor="'blue'"
+      :showConfirm="false"
+    >
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-medium text-gray-700">Original Image</h3>
+            <img
+              :src="picture?.url"
+              alt="Original"
+              class="w-full h-auto rounded-lg border border-gray-200"
+            />
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-sm font-medium text-gray-700">Enhanced Image</h3>
+            <img
+              :src="aiResultUrl"
+              alt="Enhanced"
+              class="w-full h-auto rounded-lg border border-gray-200"
+            />
+          </div>
+        </div>
+        <!-- 添加按钮区域 -->
+        <div class="flex justify-end gap-4 mt-4">
+          <Button
+            type="secondary"
+            size="md"
+            icon="i-tabler:download"
+            :is-active-anim="true"
+            @click="handleAiResultDownload"
+          >
+            Download Result
+          </Button>
+          <Button
+            type="primary"
+            size="md"
+            icon="i-tabler:check"
+            :is-active-anim="true"
+            :loading="isApplyingResult"
+            @click="handleApplyAiResult"
+          >
+            Apply Result
+          </Button>
+        </div>
+      </div>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, onUnmounted } from "vue";
 import { type PictureType, DefaultPictureTexts } from "@/config";
-import { GetPictureInfoById } from "@/services";
+import {
+  GetPictureInfoById,
+  AdminCreateAIPictureTask,
+  AdminGetAITaskResult,
+  UploadImageFileByUrl,
+} from "@/services";
 import { Message } from "@/lib/Message";
 import Button from "@/lib/Button/Button.vue"; // 更新导入路径
 import Badges from "@/lib/Badges/Badges.vue";
@@ -372,33 +443,26 @@ import { ACCESSENUM } from "@/access";
  * 如果图片或用户信息不完整，或者下载过程中出现错误，将显示相应的警告或错误消息
  */
 const handleDownload = async () => {
-  // 检查是否有图片URL可用
   if (!picture.value || !picture.value.url) {
-    Message.warning("暂无可下载的图片");
+    Message.warning("No image available for download");
     return;
   }
 
-  // 从picture对象中解构出所需信息
   const { url, name, user, picFormat } = picture.value;
 
-  // 验证必要的字段
   if (!url || !name || !user || !user.userName || !picFormat) {
-    Message.warning("图片信息不完整，无法下载");
+    Message.warning("Incomplete image information");
     return;
   }
 
   try {
-    // 打印下载开始的调试信息
     console.log("Downloading...");
-    // 使用saveAs函数下载图片，并根据图片名称和用户名重命名文件
-    const fileName = `${name}-作者:${user.userName}.${picFormat}`; // 确保有扩展名
+    const fileName = `${name}-by:${user.userName}.${picFormat}`;
     await saveAs(url, fileName);
-    Message.success("下载成功");
+    Message.success("Download successful");
   } catch (error) {
-    // 打印下载失败的错误信息
-    console.error("下载失败:", error);
-    // 显示下载失败的错误消息
-    Message.error("下载失败，请稍后再试");
+    console.error("Download failed:", error);
+    Message.error("Download failed, please try again later");
   }
 };
 
@@ -410,10 +474,9 @@ const handleDownload = async () => {
  */
 const handleShare = () => {
   if (!picture.value?.url) {
-    Message.warning("暂无可分享的图片");
+    Message.warning("No image available to share");
     return;
   }
-  // 处理分享逻辑
   console.log("Sharing...");
 };
 
@@ -564,10 +627,6 @@ const handleCropComplete = async (file: File) => {
   if (!picture.value?.id) return;
 
   try {
-    // TODO: 实现网络请求
-    // 需要实现：
-    // 1. 上传裁剪后的图片文件
-    // 2. 更新图片信息
     const { code, message, data } = await UploadImageFile(file, {
       id: picture.value.id,
     });
@@ -602,4 +661,155 @@ onMounted(() => {
     }
   });
 });
+
+// AI扩图相关状态
+const isAiProcessing = ref(false);
+const showAiResultDialog = ref(false);
+const aiResultUrl = ref("");
+let pollingTimer: number | null = null;
+
+/**
+ * 处理AI扩图
+ */
+const handleAiEnhance = async () => {
+  if (!picture.value?.id) {
+    Message.warning("Incomplete image information");
+    return;
+  }
+  if (
+    (picture.value?.picHeight ?? 0) > 4096 ||
+    (picture.value?.picWidth ?? 0) > 4096 ||
+    (picture.value?.picWidth ?? 0) < 512 ||
+    (picture.value?.picHeight ?? 0) < 512 ||
+    (picture.value?.picSize ?? 0) > 10 * 1024 * 1024
+  ) {
+    Message.warning("图片尺寸或大小超过限制");
+    return;
+  }
+
+  try {
+    isAiProcessing.value = true;
+    // 创建AI扩图任务
+    const { code, message, data } = await AdminCreateAIPictureTask(
+      picture.value.id
+    );
+    if (code === 0 && data) {
+      Message.success("创建AI扩图任务成功, 请等待处理完成");
+      const taskId = data.output.taskId;
+      // 开始轮询任务结果
+      pollingTimer = window.setInterval(async () => {
+        const { code: resultCode, data: taskResult } =
+          await AdminGetAITaskResult(taskId);
+        if (resultCode === 0 && taskResult) {
+          if (
+            taskResult.output?.taskStatus === "SUCCEEDED" &&
+            taskResult.output?.outputImageUrl
+          ) {
+            // 任务完成，显示结果
+            clearInterval(pollingTimer!);
+            isAiProcessing.value = false;
+            aiResultUrl.value = taskResult.output.outputImageUrl;
+            showAiResultDialog.value = true;
+          } else if (taskResult.output?.taskStatus === "FAILED") {
+            // 任务失败
+            clearInterval(pollingTimer!);
+            isAiProcessing.value = false;
+            Message.error(
+              "AI扩图失败: " + taskResult.output.message || "未知错误"
+            );
+          }
+        }
+      }, 3000); // 每2秒轮询一次
+    } else throw new Error(message);
+  } catch (error) {
+    isAiProcessing.value = false;
+    Message.error(
+      "Failed to create AI task: " +
+        (error instanceof Error ? error.message : "Unknown error")
+    );
+  }
+};
+
+// 组件卸载时清理轮询定时器
+onUnmounted(() => {
+  if (pollingTimer) {
+    clearInterval(pollingTimer);
+  }
+});
+
+// AI结果应用状态
+const isApplyingResult = ref(false);
+
+/**
+ * 处理AI结果图片下载
+ */
+const handleAiResultDownload = async () => {
+  if (!aiResultUrl.value || !picture.value?.name) {
+    Message.warning("No AI result available for download");
+    return;
+  }
+
+  try {
+    const fileName = `${picture.value.name}-AI-Enhanced.webp`;
+    await saveAs(aiResultUrl.value, fileName);
+    Message.success("Download successful");
+  } catch (error) {
+    console.error("Download failed:", error);
+    Message.error("Download failed, please try again later");
+  }
+};
+
+/**
+ * 处理应用AI结果
+ */
+const handleApplyAiResult = async () => {
+  if (!aiResultUrl.value || !picture.value?.id) {
+    Message.warning("No AI result available to apply");
+    return;
+  }
+
+  try {
+    isApplyingResult.value = true;
+    const { message, code } = await UploadImageFileByUrl(aiResultUrl.value, {
+      id: picture.value.id,
+      picName: picture.value.name,
+      spaceId: picture.value.spaceId,
+    });
+    if (code !== 0) throw new Error(message);
+    // 成功后重新加载图片信息
+    await LoadInfo();
+    showAiResultDialog.value = false;
+    Message.success("AI result applied successfully");
+  } catch (error) {
+    Message.error("Failed to apply AI result");
+    console.error(error);
+  } finally {
+    isApplyingResult.value = false;
+  }
+};
 </script>
+
+<style scoped>
+/* 添加自定义滚动条样式 */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(203, 213, 225, 0.5) transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(203, 213, 225, 0.5);
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(203, 213, 225, 0.8);
+}
+</style>

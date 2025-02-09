@@ -22,17 +22,17 @@ export const PictureManagerColumns: CustomColumn[] = [
 ];
 
 export enum DefaultPictureTexts {
-  UNNAMED_PICTURE = "未命名图片",
-  NO_DESCRIPTION = "暂无描述",
-  UNCLASSIFIED = "未分类",
-  NO_TAGS = "暂无标签",
-  UNKNOWN_USER = "未知用户",
-  NO_CREATE_TIME = "暂无创建时间",
-  NO_UPDATE_TIME = "暂无更新时间",
-  NO_TIME = "暂无时间信息",
-  NO_REVIEW = "未审核",
-  REVIEW_PASS = "审核通过",
-  REVIEW_REJECT = "审核未通过",
+  UNNAMED_PICTURE = "Untitled Picture",
+  NO_DESCRIPTION = "No description",
+  UNCLASSIFIED = "Uncategorized",
+  NO_TAGS = "No tags",
+  UNKNOWN_USER = "Unknown User",
+  NO_CREATE_TIME = "No create time",
+  NO_UPDATE_TIME = "No update time",
+  NO_TIME = "No time information",
+  NO_REVIEW = "Pending Review",
+  REVIEW_PASS = "Approved",
+  REVIEW_REJECT = "Rejected",
 }
 
 // 定义图片审核状态的枚举，以便统一审核状态码
@@ -45,9 +45,9 @@ export enum PIC_REVIEW_STATUS_ENUM {
 // 创建一个映射，将审核状态码映射为人类可读的标签
 // 使用as const确保映射的值在编译时不会改变
 export const PIC_REVIEW_STATUS_MAP = {
-  [PIC_REVIEW_STATUS_ENUM.REVIEWING]: "待审核",
-  [PIC_REVIEW_STATUS_ENUM.PASS]: "通过",
-  [PIC_REVIEW_STATUS_ENUM.REJECT]: "拒绝",
+  [PIC_REVIEW_STATUS_ENUM.REVIEWING]: "Pending",
+  [PIC_REVIEW_STATUS_ENUM.PASS]: "Approved",
+  [PIC_REVIEW_STATUS_ENUM.REJECT]: "Rejected",
 } as const;
 
 // 生成审核状态的选项数组，用于界面展示或其他需要选项列表的场合
