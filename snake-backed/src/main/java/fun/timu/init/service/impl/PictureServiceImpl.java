@@ -1,5 +1,6 @@
 package fun.timu.init.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
@@ -8,6 +9,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
+import fun.timu.init.api.aliYunAi.AliYunAiApi;
+import fun.timu.init.api.aliYunAi.model.CreateOutPaintingTaskRequest;
+import fun.timu.init.api.aliYunAi.model.CreateOutPaintingTaskResponse;
+import fun.timu.init.api.aliYunAi.model.GetOutPaintingTaskResponse;
 import fun.timu.init.common.ErrorCode;
 import fun.timu.init.exception.BusinessException;
 import fun.timu.init.exception.ThrowUtils;
@@ -31,7 +36,6 @@ import fun.timu.init.service.UserService;
 import fun.timu.init.utils.ColorSimilarUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.jsoup.Jsoup;
@@ -59,9 +63,10 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     private final CosManager cosManager;
     private final PexelsManager pexelsManager;
     private final TransactionTemplate transactionTemplate;
+    private final AliYunAiApi aliYunAiApi;
     private String defaulCategory = "素材";
 
-    public PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService, SpaceService spaceService, PictureMapper pictureMapper, CosManager cosManager, PexelsManager pexelsManager, TransactionTemplate transactionTemplate) {
+    public PictureServiceImpl(FilePictureUpload filePictureUpload, UrlPictureUpload urlPictureUpload, UserService userService, SpaceService spaceService, PictureMapper pictureMapper, CosManager cosManager, PexelsManager pexelsManager, TransactionTemplate transactionTemplate, AliYunAiApi aliYunAiApi) {
         this.filePictureUpload = filePictureUpload;
         this.urlPictureUpload = urlPictureUpload;
         this.userService = userService;
@@ -70,6 +75,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         this.cosManager = cosManager;
         this.pexelsManager = pexelsManager;
         this.transactionTemplate = transactionTemplate;
+        this.aliYunAiApi = aliYunAiApi;
     }
 
     /**
@@ -915,4 +921,61 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             }
         });
     }
+
+    /**
+     * 创建图片外画任务
+     *
+     * @param createPictureOutPaintingTaskRequest 创建图片外画任务的请求对象，包含图片ID等信息
+     * @param loginUser                           登录用户信息，用于权限校验
+     * @return 创建外画任务的响应对象，包含任务执行结果等信息
+     * @throws BusinessException 当图片不存在或用户没有相应权限时抛出
+     */
+    @Override
+    public CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser) {
+        // 获取图片信息
+        Long pictureId = createPictureOutPaintingTaskRequest.getPictureId();
+        Picture picture = Optional.ofNullable(this.getById(pictureId)).orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_ERROR));
+
+        // 权限校验
+        checkPictureAuth(loginUser, picture);
+
+        // 构造请求参数
+        CreateOutPaintingTaskRequest taskRequest = new CreateOutPaintingTaskRequest();
+        CreateOutPaintingTaskRequest.Input input = new CreateOutPaintingTaskRequest.Input();
+        input.setImageUrl(picture.getUrl());
+        taskRequest.setInput(input);
+        BeanUtil.copyProperties(createPictureOutPaintingTaskRequest, taskRequest);
+
+        // 创建任务
+        return aliYunAiApi.createOutPaintingTask(taskRequest);
+    }
+
+
+    /**
+     * 获取外部绘画任务详情
+     *
+     * @param taskId 任务ID，用于查询特定的绘画任务
+     * @return 返回外部绘画任务的详细信息
+     * @throws BusinessException 当参数无效或获取任务失败时抛出业务异常
+     */
+    @Override
+    public GetOutPaintingTaskResponse getOutPaintingTask(String taskId) {
+        // 输入验证
+        if (taskId == null || taskId.trim().isEmpty()) {
+            log.warn("Invalid taskId: {}", taskId);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "Invalid taskId");
+        }
+
+        try {
+            // 调用外部API并返回结果
+            return aliYunAiApi.getOutPaintingTask(taskId);
+        } catch (Exception e) {
+            // 记录异常日志
+            log.error("Error occurred while getting out painting task with taskId: {}", taskId, e);
+            // 返回包含错误信息的响应
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "Failed to get out painting");
+        }
+    }
+
+
 }

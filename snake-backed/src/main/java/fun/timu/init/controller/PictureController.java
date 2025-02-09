@@ -1,11 +1,14 @@
 package fun.timu.init.controller;
 
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import fun.timu.init.annotation.AuthCheck;
+import fun.timu.init.api.aliYunAi.model.CreateOutPaintingTaskResponse;
+import fun.timu.init.api.aliYunAi.model.GetOutPaintingTaskResponse;
 import fun.timu.init.common.BaseResponse;
 import fun.timu.init.common.DeleteRequest;
 import fun.timu.init.common.ErrorCode;
@@ -841,6 +844,40 @@ public class PictureController {
 
         // 返回成功响应，表示编辑操作成功
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 创建 AI 扩图任务
+     */
+    @PostMapping("/out_painting/create_task")
+    public BaseResponse<CreateOutPaintingTaskResponse> createPictureOutPaintingTask(@RequestBody CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, HttpServletRequest request) {
+        if (createPictureOutPaintingTaskRequest == null || createPictureOutPaintingTaskRequest.getPictureId() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        CreateOutPaintingTaskResponse response = pictureService.createPictureOutPaintingTask(createPictureOutPaintingTaskRequest, loginUser);
+        return ResultUtils.success(response);
+    }
+
+    /**
+     * 查询 AI 扩图任务
+     * <p>
+     * 该接口用于获取AI扩图任务的详细信息通过任务ID来查询
+     * 主要作用是提供一个途径来检查任务的状态或详情，以便用户可以跟踪任务的进度或结果
+     *
+     * @param taskId 任务ID，用于标识特定的AI扩图任务，不能为空或空字符串
+     * @return 返回包含AI扩图任务信息的响应对象如果任务ID无效或不存在，将抛出异常
+     */
+    @GetMapping("/out_painting/get_task")
+    public BaseResponse<GetOutPaintingTaskResponse> getPictureOutPaintingTask(String taskId) {
+        // 验证任务ID是否为空或空白，如果是，则抛出参数错误异常
+        ThrowUtils.throwIf(StrUtil.isBlank(taskId), ErrorCode.PARAMS_ERROR);
+
+        // 调用服务层方法获取AI扩图任务的详细信息
+        GetOutPaintingTaskResponse task = pictureService.getOutPaintingTask(taskId);
+
+        // 返回成功响应，包含找到的AI扩图任务信息
+        return ResultUtils.success(task);
     }
 
 }

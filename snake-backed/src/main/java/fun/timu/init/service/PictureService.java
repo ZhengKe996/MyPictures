@@ -3,6 +3,8 @@ package fun.timu.init.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import fun.timu.init.api.aliYunAi.model.CreateOutPaintingTaskResponse;
+import fun.timu.init.api.aliYunAi.model.GetOutPaintingTaskResponse;
 import fun.timu.init.model.dto.picture.*;
 import fun.timu.init.model.entity.Picture;
 import fun.timu.init.model.entity.User;
@@ -154,4 +156,21 @@ public interface PictureService extends IService<Picture> {
      * @param loginUser
      */
     public void batchEditPictureMetadata(PictureBatchEditRequest request, User loginUser);
+
+    /**
+     * 创建图片AI扩图任务
+     *
+     * @param createPictureOutPaintingTaskRequest
+     * @param loginUser
+     * @return
+     */
+    public CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser);
+
+    /**
+     * 获取图片AI扩图任务信息
+     *
+     * @param taskId
+     * @return
+     */
+    public GetOutPaintingTaskResponse getOutPaintingTask(String taskId);
 }
