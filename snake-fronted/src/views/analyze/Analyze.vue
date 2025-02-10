@@ -135,6 +135,7 @@
 
           <!-- 空间使用排行分析 -->
           <div
+            v-if="isAdmin"
             class="bg-white rounded-xl shadow-sm p-6 hover:shadow-lg transition-all duration-300 animate-fade-in-up animate-delay-600"
           >
             <SpaceRankAnalyze
@@ -142,6 +143,19 @@
               :queryAll="queryAll"
               :queryPublic="queryPublic"
             />
+          </div>
+          <!-- 权限提示 -->
+          <div
+            v-else
+            class="bg-white/50 rounded-xl border-2 border-dashed border-gray-200 p-6 flex flex-col items-center justify-center space-y-3 animate-fade-in-up animate-delay-600"
+          >
+            <div class="p-3 rounded-full bg-gray-50">
+              <i class="i-tabler:lock text-2xl text-gray-400"></i>
+            </div>
+            <div class="text-center">
+              <h3 class="text-base font-medium text-gray-600">空间使用排行</h3>
+              <p class="text-sm text-gray-400 mt-1">需要管理员权限查看此数据</p>
+            </div>
           </div>
         </div>
       </div>
@@ -152,6 +166,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from "vue";
 import { useRoute, RouterLink } from "vue-router";
+import { useUserStore } from "@/store/user";
 import {
   SpaceCategoryAnalyze,
   SpaceTagAnalyze,
@@ -160,26 +175,48 @@ import {
   SpaceSizeAnalyze,
   SpaceUsageAnalyze,
 } from "@/components/Analyze";
+import { ACCESSENUM } from "@/access";
 
 const route = useRoute();
 const hasError = ref(false);
 
-// 验证参数是否有效
-const isValid = computed(() => {
-  return (
-    (!!route.query?.spaceId && route.query.spaceId !== "") ||
-    !!route.query?.queryAll ||
-    !!route.query?.queryPublic
-  );
+const userStore = useUserStore();
+
+// 添加管理员权限检查
+const isAdmin = computed(() => {
+  return userStore.getUserRole === ACCESSENUM.ADMIN;
 });
 
-// 空间 id
+// 修改验证参数逻辑，增加管理员特权
+const isValid = computed(() => {
+  // 如果是管理员
+  if (isAdmin.value) {
+    // 允许查询全部或公共空间
+    if (route.query?.queryAll || route.query?.queryPublic) {
+      return true;
+    }
+    // 或者有具体的空间ID
+    if (route.query?.spaceId) {
+      return true;
+    }
+    // 默认查询全部
+    return true;
+  }
+
+  // 非管理员必须提供有效的空间ID
+  return !!route.query?.spaceId && route.query.spaceId !== "";
+});
+
+// 空间 id，为管理员添加默认值
 const spaceId = computed(() => {
   return route.query?.spaceId as string;
 });
 
-// 是否查询所有空间
+// 是否查询所有空间，为管理员添加默认值
 const queryAll = computed(() => {
+  if (isAdmin.value && !route.query?.spaceId && !route.query?.queryPublic) {
+    return true; // 管理员默认查看所有空间
+  }
   return !!route.query?.queryAll;
 });
 
