@@ -5,7 +5,6 @@ export const getSpaceUsageAnalyze = async (form: {
   queryPublic?: boolean;
   spaceId?: string;
 }) => {
-  console.log("getSpaceUsageAnalyze", form);
   return await Service.getSpaceUsageAnalyzeUsingPost(form);
 };
 

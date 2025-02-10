@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import zhCN from "ant-design-vue/es/locale/zh_CN";
-const locale = zhCN;
-
 import BasicLayout from "@/layouts/BasicLayout.vue";
 import { LayoutMenu } from "@/config";
 import { useRoute } from "vue-router";
@@ -14,13 +11,11 @@ onMounted(() => userStore.setLoginInfo());
 </script>
 
 <template>
-  <a-config-provider :locale="locale">
-    <template v-if="route.meta?.layout === LayoutMenu.BasicLayout">
-      <BasicLayout />
-    </template>
-    <template v-else>
-      <RouterView />
-    </template>
-  </a-config-provider>
+  <template v-if="route.meta?.layout === LayoutMenu.BasicLayout">
+    <BasicLayout />
+  </template>
+  <template v-else>
+    <RouterView />
+  </template>
 </template>
 <style scoped></style>
