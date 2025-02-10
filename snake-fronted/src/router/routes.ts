@@ -145,11 +145,21 @@ export const routes: RouteRecordRaw[] = [
       isHeader: false,
     },
   },
-
   {
     path: "/update/space/:id",
     name: "UPDATE Space",
     component: () => import("@/views/space/AddORUpdateSpace.vue"),
+    props: true,
+    meta: {
+      layout: LayoutMenu.BasicLayout,
+      access: ACCESSENUM.USER,
+      isHeader: false,
+    },
+  },
+  {
+    path: "/analyze",
+    name: "Analyze ",
+    component: () => import("@/views/analyze"),
     props: true,
     meta: {
       layout: LayoutMenu.BasicLayout,

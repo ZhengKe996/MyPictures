@@ -156,7 +156,7 @@
               <div
                 class="rounded-full bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end p-4 animate-hover-scale animate-duration-300"
               >
-                <i class="i-tabler:users-off size-8 text-white"></i>
+                <i class="i-tabler-users-off size-8 text-white"></i>
               </div>
               <div class="text-center">
                 <h3 class="text-base font-semibold text-gray-900 mb-1">

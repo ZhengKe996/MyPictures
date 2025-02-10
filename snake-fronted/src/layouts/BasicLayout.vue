@@ -50,7 +50,7 @@
 import { ref } from "vue";
 import GlobalFooter from "@/components/GlobalFooter/GlobalFooter.vue";
 import GlobalHeader from "@/components/GlobalHeader/GlobalHeader.vue";
-import SideNav from "@/components/SideNav/SideNav.vue";
+import SideNav from "@/components/GlobalSideNav/SideNav.vue";
 
 const activeComponent = ref<any>(null);
 

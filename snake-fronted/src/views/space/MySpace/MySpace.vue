@@ -250,7 +250,7 @@
                   <!-- 创建图片按钮 -->
                   <Button
                     type="primary"
-                    icon="i-tabler:photo-plus"
+                    icon="i-tabler-photo-plus"
                     @click="handleCreatePhoto"
                     class="gradient-primary text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105"
                   >
@@ -291,7 +291,7 @@
                     <template #reference>
                       <Button
                         type="primary"
-                        icon="i-tabler:calendar"
+                        icon="i-tabler-calendar"
                         :isActiveAnim="true"
                         class="min-w-[180px] flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105 group"
                       >

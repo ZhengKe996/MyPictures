@@ -34,8 +34,8 @@
                   :to="item.route"
                   :class="[
                     isActiveRoute(item.route)
-                      ? 'bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg py-1.5 px-3'
-                      : 'text-base/6 font-semibold text-gray-900 dark:text-gray-100 hover:text-custom-gradient-end relative group',
+                      ? 'bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg py-2 px-4 text-[15px] hover:scale-105'
+                      : 'text-[14px] font-semibold text-gray-900 dark:text-gray-100 hover:text-custom-gradient-end relative group',
                     'flex items-center gap-x-3 transition-all duration-300 ease-in-out',
                   ]"
                 >
@@ -43,9 +43,9 @@
                     :class="[
                       item.icon,
                       isActiveRoute(item.route)
-                        ? 'text-white'
-                        : 'text-gray-400 dark:text-gray-500 group-hover:text-custom-gradient-end',
-                      'size-6 transition-colors duration-300 ease-in-out',
+                        ? 'text-white size-[20px]'
+                        : 'text-gray-400 dark:text-gray-500 group-hover:text-custom-gradient-end size-[18px]',
+                      'transition-all duration-300 ease-in-out',
                     ]"
                   ></div>
                   {{ item.name }}
@@ -100,6 +100,12 @@ const navigation = [
     icon: "i-tabler-user-scan",
     requiresAuth: true,
   },
+  {
+    name: "Analyze",
+    route: "/analyze",
+    icon: "i-tabler-analyze",
+    requiresAuth: true,
+  },
 ];
 
 const filteredNavigation = computed(() =>
@@ -110,7 +116,20 @@ const filteredNavigation = computed(() =>
   )
 );
 
-const isActiveRoute = (path: string): boolean => route.path === path;
+const isActiveRoute = (path: string): boolean => {
+  // 如果当前路径是 /analyze 或 /my-space，直接返回路径匹配结果
+  if (route.path === "/analyze" || route.path === "/my-space") {
+    return route.path === path;
+  }
+
+  // 对于其他路径，如果是 Public 导航项（路径为 "/"），则返回 true
+  if (path === "/") {
+    return true;
+  }
+
+  // 其他情况返回 false
+  return false;
+};
 </script>
 
 <style scoped>
@@ -141,5 +160,11 @@ const isActiveRoute = (path: string): boolean => route.path === path;
 .active-nav-item {
   background-size: 200% auto;
   animation: subtleGradient 3s ease infinite;
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
+
+.active-nav-item:hover {
+  transform: scale(1.05);
 }
 </style>
