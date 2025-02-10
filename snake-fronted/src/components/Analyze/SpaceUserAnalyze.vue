@@ -7,7 +7,7 @@
     :error-message="errorMessage"
   >
     <template #header-actions>
-      <a-segmented
+      <Segment
         v-model:value="timeDimension"
         :options="timeDimensionOptions"
         class="bg-gray-50/80"
@@ -41,6 +41,7 @@ import type { UserAnalyzeType, AnalyzeProps } from "@/config";
 import { baseColors } from "./config";
 import SearchInput from "@/lib/SearchInput";
 import BaseAnalyze from "./BaseAnalyze.vue";
+import Segment from "@/lib/Segment/Segment.vue";
 import { useAnalyzeData } from "./hooks/useAnalyzeData";
 import {
   getBaseChartConfig,
