@@ -15,6 +15,7 @@
         :option="options"
         :style="{ height: '100%', width: '100%' }"
         :animation="true"
+        autoresize
       />
     </template>
   </BaseAnalyze>
@@ -62,8 +63,11 @@ const options = computed(() => {
     ...getBaseChartConfig(),
     tooltip: {
       ...getBaseChartConfig().tooltip,
+      trigger: "axis",
+      axisPointer: {
+        type: "shadow",
+      },
       formatter: (params: any[] | any) => {
-        // 处理参数可能是数组的情况
         const param = Array.isArray(params) ? params[0] : params;
         if (!param) return "";
 
@@ -76,26 +80,54 @@ const options = computed(() => {
           : "";
       },
     },
+    grid: {
+      top: "15%",
+      left: "3%",
+      right: "5%",
+      bottom: "12%",
+      containLabel: true,
+    },
     xAxis: {
       ...getBaseChartConfig().xAxis,
       data: spaceNames,
       axisLabel: {
         interval: 0,
-        rotate: 45,
-        formatter: (value: string) =>
-          value.length > 10 ? value.substring(0, 10) + "..." : value,
+        rotate: spaceNames.length > 6 ? 45 : 0,
+        fontSize: "12",
+        width: 100,
+        overflow: "truncate",
+        formatter: (value: string) => {
+          const maxLength = spaceNames.length > 6 ? 8 : 12;
+          return value.length > maxLength
+            ? value.substring(0, maxLength) + "..."
+            : value;
+        },
       },
     },
     yAxis: {
       ...getBaseChartConfig().yAxis,
       name: "空间使用量 (MB)",
+      nameTextStyle: {
+        fontSize: "12",
+        padding: [0, 0, 0, -30],
+      },
+      axisLabel: {
+        fontSize: "12",
+        formatter: (value: number) => {
+          return value >= 1024
+            ? `${(value / 1024).toFixed(1)}GB`
+            : `${value.toFixed(1)}MB`;
+        },
+      },
     },
     series: [
       {
         name: "空间使用量",
         type: "bar",
         data: usageData,
+        barWidth: "20%",
         barMaxWidth: 40,
+        barMinWidth: 15,
         itemStyle: {
           borderRadius: [4, 4, 0, 0],
         },
@@ -104,14 +136,26 @@ const options = computed(() => {
           position: "top",
           fontSize: 12,
           color: "#6B7280",
-          formatter: "{c} MB",
+          formatter: (params: any) => {
+            const value = params.value;
+            return value >= 1024
+              ? `${(value / 1024).toFixed(1)}GB`
+              : `${value.toFixed(1)}MB`;
+          },
+          rotate: 0,
+          distance: 5,
         },
         emphasis: {
           focus: "series",
           scale: true,
           scaleSize: 5,
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: "rgba(0, 0, 0, 0.2)",
+          },
         },
-        ...getBaseAnimationConfig(),
+        ...getBaseAnimationConfig(true),
       },
     ],
   };

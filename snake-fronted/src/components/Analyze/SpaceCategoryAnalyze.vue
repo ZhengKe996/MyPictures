@@ -11,6 +11,7 @@
         :option="options"
         :style="{ height: '100%', width: '100%' }"
         :animation="true"
+        autoresize
       />
     </template>
   </BaseAnalyze>
@@ -67,23 +68,72 @@ const options = computed(() => {
     legend: {
       ...getBaseChartConfig().legend,
       data: ["图片数量", "图片总大小"],
+      textStyle: {
+        fontSize: "12",
+      },
+      itemWidth: 15,
+      itemHeight: 15,
+      itemGap: 15,
+    },
+    tooltip: {
+      ...getBaseChartConfig().tooltip,
+      trigger: "axis",
+      axisPointer: {
+        type: "shadow",
+      },
+    },
+    grid: {
+      top: "15%",
+      left: "3%",
+      right: "5%",
+      bottom: "12%",
+      containLabel: true,
     },
     xAxis: {
       ...getBaseChartConfig().xAxis,
       data: categories,
+      axisLabel: {
+        interval: 0,
+        rotate: categories.length > 6 ? 45 : 0,
+        fontSize: "12",
+        width: 100,
+        overflow: "truncate",
+      },
     },
     yAxis: [
       {
         ...getBaseChartConfig().yAxis,
         type: "value",
         name: "图片数量",
+        nameTextStyle: {
+          fontSize: "12",
+          padding: [0, 0, 0, -30],
+        },
+        axisLabel: {
+          fontSize: "12",
+          formatter: (value: number) => {
+            return value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value;
+          },
+        },
         axisLine: { show: true, lineStyle: { color: baseColors[0].start } },
       },
       {
         ...getBaseChartConfig().yAxis,
         type: "value",
         name: "图片总大小 (MB)",
+        nameTextStyle: {
+          fontSize: "12",
+          padding: [0, -30, 0, 0],
+        },
         position: "right",
+        axisLabel: {
+          fontSize: "12",
+          formatter: (value: number) => {
+            return value >= 1024
+              ? `${(value / 1024).toFixed(1)}GB`
+              : `${value.toFixed(1)}MB`;
+          },
+        },
         axisLine: { show: true, lineStyle: { color: baseColors[1].start } },
         splitLine: { show: false },
       },
@@ -93,6 +143,8 @@ const options = computed(() => {
         name: "图片数量",
         type: "bar",
         data: countData,
+        barWidth: "20%",
+        barMaxWidth: 40,
         itemStyle: {
           color: createGradient({
             start: baseColors[0].start,
@@ -107,6 +159,7 @@ const options = computed(() => {
               end: baseColors[0].start,
             }),
           },
+          focus: "series",
         },
         ...getBaseAnimationConfig(),
       },
@@ -114,6 +167,8 @@ const options = computed(() => {
         name: "图片总大小",
         type: "bar",
         data: sizeData,
+        barWidth: "20%",
+        barMaxWidth: 40,
         yAxisIndex: 1,
         itemStyle: {
           color: createGradient({
@@ -129,6 +184,7 @@ const options = computed(() => {
               end: baseColors[1].start,
             }),
           },
+          focus: "series",
         },
         ...getBaseAnimationConfig(),
       },

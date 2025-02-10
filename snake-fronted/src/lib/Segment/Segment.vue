@@ -1,6 +1,6 @@
 <template>
   <div
-    class="inline-flex rounded-lg p-1 transition-all"
+    class="segment-container inline-flex rounded-lg p-1 transition-all"
     :class="[
       disabled ? 'bg-gray-100 opacity-50' : 'bg-gray-100',
       block ? 'w-full' : '',
@@ -9,15 +9,15 @@
     :aria-disabled="disabled"
   >
     <button
-      v-for="(item, index) in options"
+      v-for="(item, _) in options"
       :key="item.value"
       :class="[
-        'relative flex items-center justify-center rounded-md transition-all duration-200',
+        'segment-button relative flex items-center justify-center rounded-md transition-all duration-300 ease-out',
         SEGMENT_CONFIGS.sizeClasses[size],
         block ? 'flex-1' : '',
         value === item.value
-          ? 'bg-white text-gray-900 shadow'
-          : 'text-gray-500 hover:text-gray-900',
+          ? 'is-active bg-white text-gray-900 shadow'
+          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50',
         disabled ? 'cursor-not-allowed' : 'cursor-pointer',
       ]"
       role="tab"
@@ -38,8 +38,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-
 interface SegmentOption {
   label: string;
   value: string | number;
@@ -67,7 +65,7 @@ const SEGMENT_CONFIGS = {
   },
 };
 
-const props = withDefaults(defineProps<SegmentProps>(), {
+withDefaults(defineProps<SegmentProps>(), {
   size: "md",
   disabled: false,
   block: false,
@@ -84,4 +82,49 @@ const handleSelect = (optionValue: string | number) => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.segment-container {
+  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.segment-button {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.segment-button:not(.is-active):hover {
+  transform: translateY(-1px);
+}
+
+.segment-button:not(.is-active):active {
+  transform: translateY(0);
+}
+
+.segment-button.is-active {
+  animation: selectAnimation 0.3s var(--transition-timing);
+}
+
+@keyframes selectAnimation {
+  0% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 优化焦点状态 */
+.segment-button:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: -2px;
+}
+
+/* 添加按压效果的阴影变化 */
+.segment-button.is-active {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+</style>
