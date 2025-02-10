@@ -55,7 +55,7 @@
                 class="flex my-1 items-center text-sm text-gray-600 space-x-4 whitespace-nowrap overflow-hidden"
               >
                 <span class="flex items-center">
-                  <i class="i-tabler:user size-4 opacity-75 mr-1.5"></i>
+                  <i class="i-tabler-user size-4 opacity-75 mr-1.5"></i>
                   {{ picture?.user?.userName || "Unknown User" }}
                 </span>
               </div>
@@ -63,7 +63,7 @@
                 class="flex my-1 items-center text-sm text-gray-600 space-x-4 whitespace-nowrap overflow-hidden"
               >
                 <span class="flex items-center">
-                  <i class="i-tabler:clock size-4 opacity-75 mr-1.5"></i>
+                  <i class="i-tabler-clock size-4 opacity-75 mr-1.5"></i>
                   {{ picture?.editTime || "No Time Info" }}
                 </span>
               </div>
@@ -318,7 +318,7 @@
           <Button
             type="secondary"
             size="md"
-            icon="i-tabler:download"
+            icon="i-tabler-download"
             :is-active-anim="true"
             @click="handleAiResultDownload"
           >
@@ -327,7 +327,7 @@
           <Button
             type="primary"
             size="md"
-            icon="i-tabler:check"
+            icon="i-tabler-check"
             :is-active-anim="true"
             :loading="isApplyingResult"
             @click="handleApplyAiResult"
@@ -532,13 +532,13 @@ const reviewStatusStyle = computed(() => {
 const reviewStatusIcon = computed(() => {
   switch (picture.value?.reviewStatus) {
     case 0:
-      return "i-tabler:clock";
+      return "i-tabler-clock";
     case 1:
-      return "i-tabler:check";
+      return "i-tabler-check";
     case 2:
-      return "i-tabler:x";
+      return "i-tabler-x";
     default:
-      return "i-tabler:question-mark";
+      return "i-tabler-question-mark";
   }
 });
 

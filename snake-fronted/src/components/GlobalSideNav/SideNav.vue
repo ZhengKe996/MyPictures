@@ -64,7 +64,7 @@
               class="group flex gap-x-3 rounded-md p-2 text-base/6 font-semibold text-gray-900 dark:text-gray-100 hover:text-custom-gradient-end transition-all duration-300 relative"
             >
               <i
-                class="i-tabler:settings size-6 shrink-0 text-gray-400 dark:text-gray-500 transition-colors duration-300 group-hover:text-custom-gradient-end"
+                class="i-tabler-settings size-6 shrink-0 text-gray-400 dark:text-gray-500 transition-colors duration-300 group-hover:text-custom-gradient-end"
               ></i>
               Settings
               <span

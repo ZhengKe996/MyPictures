@@ -15,7 +15,7 @@
     <!-- Loading 状态 -->
     <i
       v-if="loading"
-      class="i-tabler:loader animate-spin"
+      class="i-tabler-loader animate-spin"
       :class="[iconSizeStyles]"
     ></i>
 

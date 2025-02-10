@@ -74,7 +74,7 @@
                 v-else
                 class="inline-flex size-14 rounded-md bg-gray-100 items-center justify-center text-gray-400"
               >
-                <i class="i-tabler:photo-off size-6"></i>
+                <i class="i-tabler-photo-off size-6"></i>
               </div>
             </td>
 
@@ -242,7 +242,7 @@
               <div
                 class="rounded-full gradient-primary p-4 animate-hover-scale animate-duration-300"
               >
-                <i class="i-tabler:photo-off size-8 text-white"></i>
+                <i class="i-tabler-photo-off size-8 text-white"></i>
               </div>
               <div class="text-center">
                 <h3 class="text-base font-semibold text-gray-900 mb-1">

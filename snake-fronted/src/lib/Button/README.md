@@ -39,7 +39,7 @@ const handleClick = (event: MouseEvent) => {
 
 ```vue
 <template>
-  <Button icon="i-tabler:check" iconColor="white" @click="handleClick">
+  <Button icon="i-tabler-check" iconColor="white" @click="handleClick">
     提交
   </Button>
 </template>

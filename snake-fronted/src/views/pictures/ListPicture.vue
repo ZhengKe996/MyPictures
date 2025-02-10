@@ -99,7 +99,7 @@
             <div
               class="rounded-full gradient-primary p-4 animate-hover-scale animate-duration-300"
             >
-              <i class="i-tabler:photo-off size-8 text-white"></i>
+              <i class="i-tabler-photo-off size-8 text-white"></i>
             </div>
             <div class="text-center">
               <h3 class="text-base font-semibold text-gray-900 mb-1">

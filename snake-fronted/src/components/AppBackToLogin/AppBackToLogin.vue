@@ -8,7 +8,7 @@
       ><div
         class="relative z-10 flex items-center gap-2 min-h-[20px] transition duration-200"
       >
-        <i class="i-tabler:chevron-left size-5"></i>
+        <i class="i-tabler-chevron-left size-5"></i>
         {{ currentPath.text }}
       </div>
     </RouterLink>

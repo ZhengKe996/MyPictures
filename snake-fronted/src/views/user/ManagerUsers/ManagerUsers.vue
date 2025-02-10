@@ -131,7 +131,7 @@
                 @click=""
               >
                 Edit
-                <i class="i-tabler:edit size-5" />
+                <i class="i-tabler-edit size-5" />
               </button>
             </td>
             <td
@@ -143,7 +143,7 @@
                 @click="item.id && handleDelete(item.id)"
               >
                 Delete
-                <i class="i-tabler:layout-grid-remove" size-5 />
+                <i class="i-tabler-layout-grid-remove" size-5 />
               </button>
             </td>
           </tr>

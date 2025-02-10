@@ -108,7 +108,7 @@
                         >
                           <template #center>
                             <i
-                              class="i-tabler:photo text-blue-600 text-[10px]"
+                              class="i-tabler-photo text-blue-600 text-[10px]"
                             ></i>
                           </template>
                         </RoundProgress>
@@ -138,7 +138,7 @@
                         >
                           <template #center>
                             <i
-                              class="i-tabler:database text-emerald-600 text-[10px]"
+                              class="i-tabler-database text-emerald-600 text-[10px]"
                             ></i>
                           </template>
                         </RoundProgress>
@@ -240,11 +240,11 @@
                           v-if="spaceStats.sizeUsagePercent > 80"
                           class="text-amber-500"
                         >
-                          <i class="i-tabler:alert-triangle mr-1"></i>
+                          <i class="i-tabler-alert-triangle mr-1"></i>
                           空间使用率较高，建议及时清理
                         </p>
                         <p v-else class="text-emerald-500">
-                          <i class="i-tabler:check mr-1"></i>
+                          <i class="i-tabler-check mr-1"></i>
                           空间使用正常
                         </p>
                       </div>
@@ -384,7 +384,7 @@
                   <div
                     class="rounded-full gradient-primary p-4 animate-hover-scale animate-duration-300"
                   >
-                    <i class="i-tabler:photo-off size-8 text-white"></i>
+                    <i class="i-tabler-photo-off size-8 text-white"></i>
                   </div>
                   <div class="text-center">
                     <h3 class="text-base font-semibold text-gray-900 mb-1">
@@ -417,7 +417,7 @@
             class="animate-bounce-alt animate-duration-3000 animate-infinite animate-ease-in-out"
           >
             <div
-              class="i-tabler:database-off text-8xl text-gray-400/80 mb-4 transform transition duration-300 hover:text-custom-gradient-end"
+              class="i-tabler-database-off text-8xl text-gray-400/80 mb-4 transform transition duration-300 hover:text-custom-gradient-end"
             ></div>
           </div>
           <div class="space-y-3">

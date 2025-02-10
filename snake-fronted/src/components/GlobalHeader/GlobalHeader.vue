@@ -147,14 +147,14 @@ onMounted(() => (selectKey.value = router.currentRoute.value.path));
 const menuItems = [
   {
     label: "My Space",
-    icon: "i-tabler:user",
+    icon: "i-tabler-user",
     action: handleMySpace,
     iconColor: "text-blue-400 group-hover:text-blue-500",
     textColor: "text-gray-600 group-hover:text-gray-800",
   },
   {
     label: "Log out",
-    icon: "i-tabler:logout",
+    icon: "i-tabler-logout",
     action: handleLogout,
     iconColor: "text-gray-400 group-hover:text-red-500",
     textColor: "text-gray-600 group-hover:text-red-600",

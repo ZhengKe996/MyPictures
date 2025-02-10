@@ -88,7 +88,7 @@
           :class="styles[type].closeButtonClass"
           @click.stop="handleClose"
         >
-          <i class="i-tabler:x h-4 w-4" />
+          <i class="i-tabler-x h-4 w-4" />
         </button>
       </div>
     </TransitionGroup>
@@ -119,9 +119,9 @@ const isVisible = ref(false);
 const timer = ref<NodeJS.Timeout>();
 
 const icons = {
-  success: "i-tabler:circle-check",
-  warning: "i-tabler:alert-octagon",
-  error: "i-tabler:circle-dashed-x",
+  success: "i-tabler-circle-check",
+  warning: "i-tabler-alert-octagon",
+  error: "i-tabler-circle-dashed-x",
 } as const;
 
 const styles = {

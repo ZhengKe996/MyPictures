@@ -20,7 +20,7 @@
               ]"
             >
               <i
-                :class="[`i-tabler:${icon}`, `text-${iconColor}-500 size-5`]"
+                :class="[`i-tabler-${icon}`, `text-${iconColor}-500 size-5`]"
               />
             </div>
           </div>
@@ -62,7 +62,7 @@
         :key="errorMessage"
         class="p-4 rounded-lg border bg-error-50 text-error-700 border-error-200 flex items-center gap-3 animated animated-faster animated-fade-in"
       >
-        <i class="i-tabler:alert-circle size-5 text-error-400" />
+        <i class="i-tabler-alert-circle size-5 text-error-400" />
         <span class="font-medium">{{ errorMessage }}</span>
       </div>
     </TransitionGroup>

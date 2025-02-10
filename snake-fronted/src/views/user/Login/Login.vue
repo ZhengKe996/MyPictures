@@ -46,9 +46,9 @@
                 >
                   <i
                     v-if="showPasswordMode"
-                    class="i-tabler:eye-off w-4 h-4"
+                    class="i-tabler-eye-off w-4 h-4"
                   ></i>
-                  <i v-else class="i-tabler:eye w-4 h-4"></i>
+                  <i v-else class="i-tabler-eye w-4 h-4"></i>
                 </div>
               </button>
 

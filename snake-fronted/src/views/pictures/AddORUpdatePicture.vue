@@ -143,7 +143,7 @@
           :disabled="isSubmitting || !isFormValid"
         >
           <span v-if="isSubmitting" class="inline-flex items-center">
-            <i class="i-tabler:loader-2 animate-spin mr-2"></i>
+            <i class="i-tabler-loader-2 animate-spin mr-2"></i>
             {{ isUpdateMode ? "Updating..." : "Creating..." }}
           </span>
           <span v-else>{{ isUpdateMode ? "Update" : "Create" }}</span>

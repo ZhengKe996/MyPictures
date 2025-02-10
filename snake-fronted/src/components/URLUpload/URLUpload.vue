@@ -63,8 +63,8 @@
           }"
           class="p-3 rounded-lg border flex items-center gap-2 animated animated-faster animated-fade-in"
         >
-          <i v-if="uploadStatus === 'success'" class="i-tabler:check size-5" />
-          <i v-if="uploadStatus === 'error'" class="i-tabler:x size-5" />
+          <i v-if="uploadStatus === 'success'" class="i-tabler-check size-5" />
+          <i v-if="uploadStatus === 'error'" class="i-tabler-x size-5" />
           {{ statusMessage }}
         </div>
       </TransitionGroup>
@@ -86,7 +86,7 @@
           @click="removeImage"
           class="absolute top-2 right-2 bg-error-200 text-white w-8 h-8 rounded-full shadow-md hover:bg-error-100 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-error-200 focus:ring-offset-2 flex items-center justify-center transform hover:scale-110 active:scale-95 opacity-0 group-hover:opacity-100"
         >
-          <i class="i-tabler:x size-5" />
+          <i class="i-tabler-x size-5" />
         </button>
       </div>
     </Transition>

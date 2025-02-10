@@ -28,7 +28,7 @@
           <div
             class="rounded-full gradient-primary p-4 animate-hover-scale animate-duration-300"
           >
-            <i class="i-tabler:upload size-8 text-white"></i>
+            <i class="i-tabler-upload size-8 text-white"></i>
           </div>
           <div class="text-center space-y-2">
             <p class="text-base font-semibold text-gray-900">
@@ -60,7 +60,7 @@
           class="absolute top-6 right-6 gradient-primary text-white p-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-custom-gradient-end"
           aria-label="Remove Image"
         >
-          <i class="i-tabler:x size-5"></i>
+          <i class="i-tabler-x size-5"></i>
         </button>
       </div>
     </div>

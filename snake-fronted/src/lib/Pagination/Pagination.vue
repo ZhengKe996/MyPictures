@@ -13,7 +13,7 @@
         ]"
         @click="handlePageChange(current - 1)"
       >
-        <i class="i-tabler:arrow-move-left size-5 mr-3" />
+        <i class="i-tabler-arrow-move-left size-5 mr-3" />
         Previous
       </button>
     </div>
@@ -62,7 +62,7 @@
         @click="handlePageChange(current + 1)"
       >
         Next
-        <i class="i-tabler:arrow-move-right size-5 ml-3" />
+        <i class="i-tabler-arrow-move-right size-5 ml-3" />
       </button>
     </div>
   </nav>

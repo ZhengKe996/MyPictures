@@ -150,7 +150,7 @@
             class="bg-white/50 rounded-xl border-2 border-dashed border-gray-200 p-6 flex flex-col items-center justify-center space-y-3 animate-fade-in-up animate-delay-600"
           >
             <div class="p-3 rounded-full bg-gray-50">
-              <i class="i-tabler:lock text-2xl text-gray-400"></i>
+              <i class="i-tabler-lock text-2xl text-gray-400"></i>
             </div>
             <div class="text-center">
               <h3 class="text-base font-medium text-gray-600">空间使用排行</h3>
