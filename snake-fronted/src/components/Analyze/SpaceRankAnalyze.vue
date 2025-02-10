@@ -23,122 +23,72 @@
 <script setup lang="ts">
 import VChart from "vue-echarts";
 import "echarts";
-import { computed, ref, watchEffect } from "vue";
+import { computed } from "vue";
 import { getSpaceRankAnalyze } from "@/services";
 import type { SpaceType } from "@/config";
 import { baseColors } from "./config";
 import BaseAnalyze from "./BaseAnalyze.vue";
-import type { EChartsOption } from "echarts";
+import { useAnalyzeData } from "./hooks/useAnalyzeData";
+import {
+  getBaseChartConfig,
+  createGradient,
+  getBaseAnimationConfig,
+} from "./utils/chartUtils";
 
-// 图表数据
-const dataList = ref<SpaceType[]>([]);
-// 加载状态
-const loading = ref(true);
-const errorMessage = ref("");
-
-// 获取数据
-const fetchData = async () => {
-  loading.value = true;
-  errorMessage.value = "";
-
-  try {
-    const {
-      data: responseData,
-      code,
-      message,
-    } = await getSpaceRankAnalyze({
-      topN: 10,
-    });
-
-    if (code === 0 && responseData) {
-      dataList.value = responseData;
-    } else {
-      errorMessage.value = "获取数据失败，" + message;
-    }
-  } catch (error) {
-    errorMessage.value = "请求发生错误，请稍后重试";
-  } finally {
-    loading.value = false;
-  }
-};
-
-/**
- * 监听变量，参数改变时触发数据的重新加载
- */
-watchEffect(() => {
-  fetchData();
+// 使用抽取的数据加载hook
+const { data, loading, errorMessage, fetchData } = useAnalyzeData<SpaceType[]>({
+  fetchFn: getSpaceRankAnalyze,
 });
 
+// 初始化加载数据
+fetchData({ topN: 10 });
+
 // 图表选项
-const options = computed<EChartsOption>(() => {
-  const spaceNames = dataList.value.map((item) => item.spaceName);
-  const usageData = dataList.value.map((item, index) => ({
+const options = computed(() => {
+  if (!data.value?.length) return getBaseChartConfig();
+
+  const spaceNames = data.value.map((item) => item.spaceName);
+  const usageData = data.value.map((item, index) => ({
     value: parseFloat(((item.totalSize ?? 0) / (1024 * 1024)).toFixed(2)),
     itemStyle: {
-      color: {
-        type: "linear" as const,
-        x: 0,
-        y: 0,
-        x2: 0,
-        y2: 1,
-        colorStops: [
-          {
-            offset: 0,
-            color: index < 3 ? baseColors[index].start : baseColors[3].start,
-          },
-          {
-            offset: 1,
-            color: index < 3 ? baseColors[index].end : baseColors[3].end,
-          },
-        ],
-      },
+      color: createGradient({
+        start: index < 3 ? baseColors[index].start : baseColors[3].start,
+        end: index < 3 ? baseColors[index].end : baseColors[3].end,
+      }),
     },
   }));
 
   return {
+    ...getBaseChartConfig(),
     tooltip: {
-      trigger: "axis",
-      backgroundColor: "rgba(255, 255, 255, 0.9)",
-      borderWidth: 1,
-      borderColor: "#E5E7EB",
-      textStyle: { color: "#374151" },
-      padding: [8, 12],
-      formatter: (params: any) => {
-        const dataIndex = params[0].dataIndex;
-        const value = params[0].value;
-        return `${spaceNames[dataIndex]}<br/>使用量: ${value} MB<br/>排名: ${
-          dataIndex + 1
-        }`;
+      ...getBaseChartConfig().tooltip,
+      formatter: (params: any[] | any) => {
+        // 处理参数可能是数组的情况
+        const param = Array.isArray(params) ? params[0] : params;
+        if (!param) return "";
+
+        const index = param.dataIndex;
+        const value = param.value;
+        const name = spaceNames[index];
+
+        return name
+          ? `${name}<br/>使用量: ${value} MB<br/>排名: ${index + 1}`
+          : "";
       },
     },
-    grid: {
-      top: "5%",
-      left: "3%",
-      right: "4%",
-      bottom: "15%",
-      containLabel: true,
-    },
     xAxis: {
-      type: "category",
+      ...getBaseChartConfig().xAxis,
       data: spaceNames,
-      axisLine: { lineStyle: { color: "#E5E7EB" } },
-      axisTick: { show: false },
       axisLabel: {
-        color: "#6B7280",
         interval: 0,
         rotate: 45,
-        formatter: (value: string) => {
-          return value.length > 10 ? value.substring(0, 10) + "..." : value;
-        },
+        formatter: (value: string) =>
+          value.length > 10 ? value.substring(0, 10) + "..." : value,
       },
     },
     yAxis: {
-      type: "value",
+      ...getBaseChartConfig().yAxis,
       name: "空间使用量 (MB)",
-      nameTextStyle: { color: "#6B7280" },
-      axisLine: { show: true, lineStyle: { color: baseColors[0].start } },
-      axisLabel: { color: "#6B7280" },
-      splitLine: { lineStyle: { color: "#F3F4F6", type: "dashed" } },
     },
     series: [
       {
@@ -149,11 +99,6 @@ const options = computed<EChartsOption>(() => {
         itemStyle: {
           borderRadius: [4, 4, 0, 0],
         },
-        emphasis: {
-          focus: "series",
-          scale: true,
-          scaleSize: 5,
-        },
         label: {
           show: true,
           position: "top",
@@ -161,9 +106,12 @@ const options = computed<EChartsOption>(() => {
           color: "#6B7280",
           formatter: "{c} MB",
         },
-        animation: true,
-        animationDelay: (idx: number) => idx * 100,
-        animationDelayUpdate: (idx: number) => idx * 100,
+        emphasis: {
+          focus: "series",
+          scale: true,
+          scaleSize: 5,
+        },
+        ...getBaseAnimationConfig(),
       },
     ],
   };

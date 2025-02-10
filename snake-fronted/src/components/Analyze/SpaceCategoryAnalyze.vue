@@ -19,114 +19,72 @@
 <script setup lang="ts">
 import VChart from "vue-echarts";
 import "echarts";
-import { computed, ref, watchEffect } from "vue";
+import { computed, watchEffect } from "vue";
 import { getSpaceCategoryAnalyze } from "@/services";
 import type { CategoryAnalyzeType, AnalyzeProps } from "@/config";
 import { baseColors } from "./config";
 import BaseAnalyze from "./BaseAnalyze.vue";
-import type { EChartsOption } from "echarts";
+import { useAnalyzeData } from "./hooks/useAnalyzeData";
+import {
+  getBaseChartConfig,
+  createGradient,
+  getBaseAnimationConfig,
+} from "./utils/chartUtils";
 
 const props = withDefaults(defineProps<AnalyzeProps>(), {
   queryAll: false,
   queryPublic: false,
 });
 
-// 图表数据
-const dataList = ref<CategoryAnalyzeType[]>();
-// 加载状态
-const loading = ref(true);
-const errorMessage = ref("");
+// 使用抽取的数据加载hook
+const { data, loading, errorMessage, fetchData } = useAnalyzeData<
+  CategoryAnalyzeType[]
+>({
+  fetchFn: getSpaceCategoryAnalyze,
+});
 
-// 获取数据
-const fetchData = async () => {
-  loading.value = true;
-  errorMessage.value = "";
-
-  try {
-    const {
-      data: responseData,
-      code,
-      message,
-    } = await getSpaceCategoryAnalyze({
-      queryAll: props.queryAll,
-      queryPublic: props.queryPublic,
-      spaceId: props.spaceId,
-    });
-
-    if (code === 0 && responseData) {
-      dataList.value = responseData;
-    } else {
-      errorMessage.value = "获取数据失败，" + message;
-    }
-  } catch (error) {
-    errorMessage.value = "请求发生错误，请稍后重试";
-  } finally {
-    loading.value = false;
-  }
-};
-
-/**
- * 监听变量，参数改变时触发数据的重新加载
- */
+// 监听参数变化，重新加载数据
 watchEffect(() => {
-  fetchData();
+  fetchData({
+    queryAll: props.queryAll,
+    queryPublic: props.queryPublic,
+    spaceId: props.spaceId,
+  });
 });
 
 // 图表选项
-const options = computed<EChartsOption>(() => {
-  const categories = (dataList.value ?? []).map((item) => item.category);
-  const countData = (dataList.value ?? []).map((item) => item.count);
-  const sizeData = (dataList.value ?? []).map((item) =>
-    ((item.totalSize ?? 0) / (1024 * 1024)).toFixed(2)
+const options = computed(() => {
+  if (!data.value?.length) return getBaseChartConfig();
+
+  const categories = data.value.map((item) => item.category);
+  const countData = data.value.map((item) => item.count);
+  const sizeData = data.value.map((item) =>
+    parseFloat(((item.totalSize ?? 0) / (1024 * 1024)).toFixed(2))
   );
 
   return {
-    tooltip: {
-      trigger: "axis",
-      backgroundColor: "rgba(255, 255, 255, 0.9)",
-      borderWidth: 1,
-      borderColor: "#E5E7EB",
-      textStyle: { color: "#374151" },
-      padding: [8, 12],
-    },
+    ...getBaseChartConfig(),
     legend: {
+      ...getBaseChartConfig().legend,
       data: ["图片数量", "图片总大小"],
-      bottom: "0",
-      icon: "circle",
-      itemWidth: 8,
-      itemHeight: 8,
-      textStyle: { color: "#6B7280" },
-    },
-    grid: {
-      top: "5%",
-      left: "3%",
-      right: "4%",
-      bottom: "15%",
-      containLabel: true,
     },
     xAxis: {
-      type: "category",
+      ...getBaseChartConfig().xAxis,
       data: categories,
-      axisLine: { lineStyle: { color: "#E5E7EB" } },
-      axisTick: { show: false },
-      axisLabel: { color: "#6B7280" },
     },
     yAxis: [
       {
+        ...getBaseChartConfig().yAxis,
         type: "value",
         name: "图片数量",
-        nameTextStyle: { color: "#6B7280" },
         axisLine: { show: true, lineStyle: { color: baseColors[0].start } },
-        axisLabel: { color: "#6B7280" },
-        splitLine: { lineStyle: { color: "#F3F4F6", type: "dashed" } },
       },
       {
+        ...getBaseChartConfig().yAxis,
         type: "value",
         name: "图片总大小 (MB)",
-        nameTextStyle: { color: "#6B7280" },
         position: "right",
         axisLine: { show: true, lineStyle: { color: baseColors[1].start } },
-        axisLabel: { color: "#6B7280" },
         splitLine: { show: false },
       },
     ],
@@ -136,34 +94,21 @@ const options = computed<EChartsOption>(() => {
         type: "bar",
         data: countData,
         itemStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: baseColors[0].start },
-              { offset: 1, color: baseColors[0].end },
-            ],
-          },
+          color: createGradient({
+            start: baseColors[0].start,
+            end: baseColors[0].end,
+          }),
           borderRadius: [4, 4, 0, 0],
         },
         emphasis: {
           itemStyle: {
-            color: {
-              type: "linear",
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                { offset: 0, color: baseColors[0].end },
-                { offset: 1, color: baseColors[0].start },
-              ],
-            },
+            color: createGradient({
+              start: baseColors[0].end,
+              end: baseColors[0].start,
+            }),
           },
         },
+        ...getBaseAnimationConfig(),
       },
       {
         name: "图片总大小",
@@ -171,34 +116,21 @@ const options = computed<EChartsOption>(() => {
         data: sizeData,
         yAxisIndex: 1,
         itemStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: baseColors[1].start },
-              { offset: 1, color: baseColors[1].end },
-            ],
-          },
+          color: createGradient({
+            start: baseColors[1].start,
+            end: baseColors[1].end,
+          }),
           borderRadius: [4, 4, 0, 0],
         },
         emphasis: {
           itemStyle: {
-            color: {
-              type: "linear",
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                { offset: 0, color: baseColors[1].end },
-                { offset: 1, color: baseColors[1].start },
-              ],
-            },
+            color: createGradient({
+              start: baseColors[1].end,
+              end: baseColors[1].start,
+            }),
           },
         },
+        ...getBaseAnimationConfig(),
       },
     ],
   };
@@ -207,33 +139,4 @@ const options = computed<EChartsOption>(() => {
 
 <style scoped>
 @import "./styles/analyze.css";
-
-.message-enter-active,
-.message-leave-active {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.message-enter-from,
-.message-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-:deep(.echarts) {
-  border-radius: 0.75rem;
-}
-
-/* 更新卡片阴影自定义类 */
-:root {
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-}
-
-.shadow-xs {
-  box-shadow: var(--shadow-xs);
-}
-
-.hover\:shadow-sm:hover {
-  box-shadow: var(--shadow-sm);
-}
 </style>
