@@ -340,9 +340,10 @@ export const useListManagement = (spaceIdRef: Ref<string>) => {
 /**
  * 导出一个用于获取过滤选项的钩子函数
  * 该钩子用于获取标签和分类选项，以便在应用中使用
+ * @param spaceId - 空间ID
  * @returns 返回包含分类选项、自定义颜色和加载函数的对象
  */
-export const useFilterOptions = () => {
+export const useFilterOptions = (spaceId: Ref<string>) => {
   // 定义一个可变的分类选项数组
   const categoryOptions = ref<SelectOption[]>([]);
   // 定义一个可变的自定义颜色数组
@@ -353,8 +354,10 @@ export const useFilterOptions = () => {
    * 该函数通过调用GetTagCategory API来获取标签和分类的数据，并据此更新分类选项和自定义颜色
    */
   const loadFilterOptions = async () => {
-    // 调用GetTagCategory API并解构返回的响应数据
-    const { code, data, message } = await GetTagCategory();
+    if (!spaceId.value) return;
+
+    // 调用GetTagCategory API并解构返回的响应数据，传入spaceId
+    const { code, data, message } = await GetTagCategory(spaceId.value);
     // 如果响应代码为0且数据存在，则处理数据以更新分类选项和自定义颜色
     if (code === 0 && data) {
       // 更新分类选项，将接收到的类别列表转换为具有id和name属性的对象数组，并在列表前添加"所有类别"选项

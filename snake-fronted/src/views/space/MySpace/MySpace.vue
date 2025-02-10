@@ -502,7 +502,6 @@ import {
   useSearchAndFilter,
   type PictureType,
 } from "./hooks";
-import dayjs from "dayjs";
 
 const router = useRouter();
 
@@ -532,7 +531,8 @@ const {
 const { loading, isFinished, total, PictureListInfo, PageInfo, LoadList } =
   useListManagement(spaceId);
 
-const { categoryOptions, customColors, loadFilterOptions } = useFilterOptions();
+const { categoryOptions, customColors, loadFilterOptions } =
+  useFilterOptions(spaceId);
 
 const {
   startDate,

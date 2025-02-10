@@ -796,9 +796,11 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
      * @return 包含所有独特图片颜色的列表
      */
     @Override
-    public List<String> getColorList() {
+    public List<String> getColorList(PictureColorRequest pictureColorRequest) {
         // 使用 MyBatis-Plus 的 Wrapper 来构建查询条件
         QueryWrapper<Picture> wrapper = new QueryWrapper<>();
+        Long spaceId = pictureColorRequest.getSpaceId();
+        wrapper.eq(ObjUtil.isNotEmpty(spaceId), "spaceId", spaceId);
         // 选择 picColor 字段并去重
         wrapper.select("DISTINCT picColor");
         // 执行查询并返回结果

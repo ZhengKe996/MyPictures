@@ -350,13 +350,19 @@ export class PictureControllerService {
   }
   /**
    * listPictureTagCategory
+   * @param spaceId
    * @returns BaseResponse_PictureTagCategory_ OK
    * @throws ApiError
    */
-  public static listPictureTagCategoryUsingGet(): CancelablePromise<BaseResponse_PictureTagCategory_> {
+  public static listPictureTagCategoryUsingGet(
+    spaceId?: string
+  ): CancelablePromise<BaseResponse_PictureTagCategory_> {
     return __request(OpenAPI, {
       method: "GET",
       url: "/api/picture/tag_category_color",
+      query: {
+        spaceId: spaceId,
+      },
       errors: {
         401: `Unauthorized`,
         403: `Forbidden`,

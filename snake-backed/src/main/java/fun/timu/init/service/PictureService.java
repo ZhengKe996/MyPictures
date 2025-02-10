@@ -139,7 +139,7 @@ public interface PictureService extends IService<Picture> {
      *
      * @return
      */
-    public List<String> getColorList();
+    public List<String> getColorList(PictureColorRequest pictureColorRequest);
 
     /**
      * 批量编辑图片

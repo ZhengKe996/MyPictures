@@ -50,8 +50,8 @@ export const UploadImageFile = async (
  *
  * @returns {Promise<any>} 返回一个Promise对象，解析后包含标签分类信息
  */
-export const GetTagCategory = async () => {
-  return await Service.listPictureTagCategoryUsingGet();
+export const GetTagCategory = async (spaceId?: string) => {
+  return await Service.listPictureTagCategoryUsingGet(spaceId);
 };
 
 /**
