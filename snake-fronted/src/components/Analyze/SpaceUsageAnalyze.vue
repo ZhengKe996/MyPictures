@@ -139,44 +139,5 @@ watchEffect(() => {
 </script>
 
 <style scoped>
-.message-enter-active,
-.message-leave-active {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.message-enter-from,
-.message-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-/* 删除 ant-progress 相关样式 */
-
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* 更新卡片阴影自定义类 */
-:root {
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-}
-
-.shadow-xs {
-  box-shadow: var(--shadow-xs);
-}
-
-.hover\:shadow-sm:hover {
-  box-shadow: var(--shadow-sm);
-}
+@import "./styles/analyze.css";
 </style>

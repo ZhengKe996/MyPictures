@@ -80,6 +80,8 @@ defineProps<{
 </script>
 
 <style scoped>
+@import "./styles/analyze.css";
+
 .message-enter-active,
 .message-leave-active {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);

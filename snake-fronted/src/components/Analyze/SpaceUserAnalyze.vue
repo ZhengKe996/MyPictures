@@ -185,16 +185,7 @@ const options = computed<EChartsOption>(() => {
 </script>
 
 <style scoped>
-.message-enter-active,
-.message-leave-active {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.message-enter-from,
-.message-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
+@import "./styles/analyze.css";
 
 :deep(.ant-progress-text) {
   font-size: 1.5rem !important;
