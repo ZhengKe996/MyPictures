@@ -85,7 +85,11 @@
                 <!-- 重新设计的空间使用统计和创建按钮区域 -->
                 <div class="flex items-center gap-3">
                   <!-- 空间使用统计 - 添加悬浮效果 -->
-                  <div v-if="spaceStats" class="relative group">
+                  <div
+                    v-if="spaceStats"
+                    class="relative group cursor-pointer"
+                    @click="handleNavigateToAnalyze"
+                  >
                     <!-- 紧凑视图 -->
                     <div
                       class="flex items-center space-x-4 px-3 py-1.5 bg-white rounded-lg shadow-sm transition-all duration-300 hover:bg-gray-50"
@@ -244,6 +248,13 @@
                           空间使用正常
                         </p>
                       </div>
+                    </div>
+
+                    <!-- 添加提示文本 -->
+                    <div
+                      class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap"
+                    >
+                      点击查看详细分析
                     </div>
                   </div>
 
@@ -468,6 +479,7 @@
 
 <script setup lang="ts">
 import { onMounted, watch } from "vue";
+import { useRouter } from "vue-router";
 import SearchInput from "@/lib/SearchInput";
 import SelectMenus from "@/lib/SelectMenus";
 import Popover from "@/lib/Popover";
@@ -491,6 +503,8 @@ import {
   type PictureType,
 } from "./hooks";
 import dayjs from "dayjs";
+
+const router = useRouter();
 
 const {
   isExit,
@@ -565,4 +579,14 @@ onMounted(async () => {
   await CheckSpace(); // CheckSpace 现在会同时处理空间统计信息
   await loadFilterOptions();
 });
+
+// 添加跳转到分析页面的处理函数
+const handleNavigateToAnalyze = () => {
+  router.push({
+    path: "/analyze",
+    query: {
+      spaceId: spaceId.value,
+    },
+  });
+};
 </script>
