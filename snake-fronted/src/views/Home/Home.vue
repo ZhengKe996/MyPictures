@@ -76,7 +76,7 @@
               <div
                 class="mt-14 flex justify-end gap-8 sm:-mt-44 sm:justify-start sm:pl-20 lg:mt-0 lg:pl-0"
               >
-                <template v-for="(column, index) in gridImages" :key="index">
+                <template v-for="(column, _) in gridImages" :key="index">
                   <div :class="column.containerClass">
                     <div
                       v-for="(image, imageIndex) in column.images"

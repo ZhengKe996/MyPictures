@@ -118,6 +118,7 @@ const props = withDefaults(defineProps<Props>(), {
 const isVisible = ref(false);
 const timer = ref<NodeJS.Timeout>();
 
+// @ts-ignore
 const icons = {
   success: "i-tabler-circle-check",
   warning: "i-tabler-alert-octagon",

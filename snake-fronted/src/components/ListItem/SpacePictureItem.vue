@@ -102,9 +102,8 @@ import { useFullscreen } from "@vueuse/core";
 import { type PictureType } from "@/config";
 import Button from "@/lib/Button";
 import { randomRGB } from "@/utils/color";
-import { useRouter } from "vue-router";
 import { convertOxToHex } from "@/utils/colorConverter";
-const router = useRouter();
+
 const { picture, width } = defineProps<{
   picture: PictureType;
   width?: number;

@@ -92,14 +92,14 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { useUserStore } from "@/store/user";
 import { ACCESSENUM, CheckACCESS } from "@/access";
 import { routes } from "@/router/routes";
 import { LayoutMenu } from "@/config";
 
 const route = useRoute();
-const router = useRouter();
+
 const userStore = useUserStore();
 
 const LoginUserInfo = computed(() => userStore.getLoginInfo);

@@ -120,12 +120,6 @@ const strokeDashoffset = computed(() => {
   );
 });
 
-const textSizeClass = computed(() => {
-  if (props.size <= 150) return "text-3xl";
-  if (props.size <= 200) return "text-4xl";
-  return "text-5xl";
-});
-
 // 动画
 onMounted(() => {
   const easeOutQuart = (x: number): number => 1 - Math.pow(1 - x, 4);

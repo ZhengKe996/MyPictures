@@ -84,13 +84,6 @@ const props = withDefaults(defineProps<Props>(), {
   animation: true,
 });
 
-// 动画类
-const animationClass = computed(() => {
-  return props.animation
-    ? "opacity-0 transform translate-y-4 waterfall-item"
-    : "";
-});
-
 // 容器总高度
 const containerHeight = ref<number>(0);
 

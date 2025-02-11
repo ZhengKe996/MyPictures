@@ -12,6 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-boot.version>2.7.6</spring-boot.version>
+        <packaging>jar</packaging>
     </properties>
     <dependencies>
         <dependency>
@@ -151,7 +152,7 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>fun.timu.init.Application</mainClass>
-                    <skip>true</skip>
+<!--                    <skip>true</skip>-->
                 </configuration>
                 <executions>
                     <execution>

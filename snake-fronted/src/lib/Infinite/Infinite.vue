@@ -66,7 +66,7 @@ const error = ref(false);
 const checkPosition = () => {
   if (!container.value || loading.value || props.isFinished) return;
 
-  const { scrollHeight, clientHeight, scrollTop } = document.documentElement;
+  const { clientHeight } = document.documentElement;
   const containerBottom = container.value.getBoundingClientRect().bottom;
 
   // 检查是否接近底部

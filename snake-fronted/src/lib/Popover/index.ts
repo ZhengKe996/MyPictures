@@ -52,7 +52,7 @@ export function usePopover(
   const containerRef = ref<HTMLElement | null>(null);
   const triggerRef = ref<HTMLElement | null>(null);
   const popoverRef = ref<HTMLElement | null>(null);
-  const [isVisible, toggleVisible] = useToggle(false);
+  const [isVisible, _] = useToggle(false);
 
   // VueUse composables
   const triggerBounds = useElementBounding(triggerRef);
@@ -85,7 +85,7 @@ export function usePopover(
   // Event handlers setup
   onClickOutside(
     containerRef,
-    (event) => {
+    () => {
       if (props.trigger === "click" && !props.persistent) {
         hide();
       }
@@ -155,7 +155,7 @@ export function usePopover(
     if (!triggerBounds.width.value || !popoverBounds.width.value) return style;
 
     const { width: triggerWidth, height: triggerHeight } = triggerBounds;
-    const { width: popoverWidth, height: popoverHeight } = popoverBounds;
+    const { width: popoverWidth } = popoverBounds;
     const offset = props.offset ?? 8;
 
     // 计算位置样式

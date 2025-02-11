@@ -159,7 +159,7 @@ const { focused } = useFocus(triggerRef, { initialValue: false });
 const visibility = useDocumentVisibility();
 
 // 监听点击外部
-onClickOutside(containerRef, (event) => {
+onClickOutside(containerRef, () => {
   if (isOpen.value) {
     close();
   }

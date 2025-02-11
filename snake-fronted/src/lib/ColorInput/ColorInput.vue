@@ -113,7 +113,6 @@ import { onClickOutside, useEventListener } from "@vueuse/core";
 import {
   DEFAULT_COLORS,
   isValidHexColor,
-  validateAndFormatColors,
   type ColorInputProps,
   type ColorInputEmits,
 } from "./index";
