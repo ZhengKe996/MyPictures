@@ -27,7 +27,7 @@ export const otherRoutes: RouteRecordRaw[] = [
       access: ACCESSENUM.USER,
       isHeader: false,
       isNav: true,
-      icon: "i-tabler-user-scan",
+      icon: "i-tabler-user",
     },
   },
   {
@@ -52,7 +52,7 @@ export const otherRoutes: RouteRecordRaw[] = [
       access: ACCESSENUM.USER,
       isHeader: false,
       isNav: true,
-      icon: "i-tabler-analyze",
+      icon: "i-tabler-activity",
     },
   },
 ];
