@@ -158,8 +158,8 @@ export const useFileHandling = () => {
    * @param spaceId 图片所在的空间ID
    * 导航到图片更新页面
    */
-  const handleEdit = async (picture: PictureType, spaceId: string) =>
-    router.push(`/update/picture/${picture.id}?spaceId=${spaceId}`);
+  const handleEdit = async (picture: PictureType) =>
+    router.push(`/update/picture/${picture.id}?spaceId=${picture.spaceId}`);
 
   /**
    * 处理删除操作的准备阶段

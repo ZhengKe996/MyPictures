@@ -7,6 +7,7 @@
       :style="{
         backgroundColor: randomRGB(),
       }"
+      @click="onToPinsClick"
     >
       <!-- 图片 -->
       <img
@@ -60,7 +61,7 @@
     </div>
 
     <!-- 内容信息 -->
-    <div class="p-3 cursor-pointer group/info" @click="onToPinsClick">
+    <div class="p-3 cursor-pointer group/info">
       <p
         class="text-sm font-bold text-zinc-900 dark:text-zinc-300 transition-colors duration-300 line-clamp-1 group-hover/info:text-blue-500"
       >
