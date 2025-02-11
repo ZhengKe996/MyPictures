@@ -27,7 +27,7 @@ export const addRoutes: RouteRecordRaw[] = [
   },
   {
     path: "/add/bing",
-    name: "ADD By Bing",
+    name: "Batch By Bing",
     component: () => import("@/views/pictures/BatchByBatch.vue"),
     meta: {
       layout: LayoutMenu.BasicLayout,
@@ -38,7 +38,7 @@ export const addRoutes: RouteRecordRaw[] = [
   },
   {
     path: "/add/pexels",
-    name: "ADD By Pexels",
+    name: "Batch By Pexels",
     component: () => import("@/views/pictures/BatchByBatch.vue"),
     meta: {
       layout: LayoutMenu.BasicLayout,

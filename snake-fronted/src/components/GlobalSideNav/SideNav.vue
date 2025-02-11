@@ -60,14 +60,26 @@
 
           <li class="mt-auto group">
             <router-link
-              to="/settings"
-              class="group flex gap-x-3 rounded-md p-2 text-base/6 font-semibold text-gray-900 dark:text-gray-100 hover:text-custom-gradient-end transition-all duration-300 relative"
+              to="/account/settings"
+              :class="[
+                route.path === '/account/settings'
+                  ? 'text-custom-gradient-end'
+                  : 'text-gray-900 dark:text-gray-100',
+                'group flex items-center gap-x-3 rounded-md p-2 font-bold hover:text-custom-gradient-end transition-all duration-300 relative',
+              ]"
             >
               <i
-                class="i-tabler-settings size-6 shrink-0 text-gray-400 dark:text-gray-500 transition-colors duration-300 group-hover:text-custom-gradient-end"
+                :class="[
+                  'i-tabler-settings size-6 shrink-0',
+                  route.path === '/account/settings'
+                    ? 'text-custom-gradient-end'
+                    : 'text-gray-400 dark:text-gray-500',
+                  'transition-colors duration-300 group-hover:text-custom-gradient-end',
+                ]"
               ></i>
-              Settings
+              <span class="flex-1 text-[15px]">Settings</span>
               <span
+                v-if="route.path !== '/account/settings'"
                 class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end transition-all duration-300 group-hover:w-full"
               ></span>
             </router-link>
@@ -117,7 +129,12 @@ const filteredNavigation = computed(() => [
 ]);
 
 const isActiveRoute = (path: string): boolean => {
-  // 如果当前路径没有匹配到任何导航项，则激活 Public
+  // 如果是设置页面，只激活设置按钮
+  if (route.path === "/account/settings") {
+    return path === "/account/settings";
+  }
+
+  // 如果当前路径没有匹配到任何导航项且不是设置页面，则激活 Public
   if (
     path === "/" &&
     !filteredNavigation.value.some((item) => item.route === route.path)
