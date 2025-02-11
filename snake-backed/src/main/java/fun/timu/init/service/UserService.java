@@ -6,6 +6,7 @@ import fun.timu.init.model.dto.user.UserQueryRequest;
 import fun.timu.init.model.entity.User;
 import fun.timu.init.model.vo.LoginUserVO;
 import fun.timu.init.model.vo.UserVO;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -109,4 +110,12 @@ public interface UserService extends IService<User> {
      */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
+    /**
+     * 上传用户头像
+     *
+     * @param multipartFile
+     * @param loginUser
+     * @return
+     */
+    String uploadUserAvatar(MultipartFile multipartFile, User loginUser);
 }

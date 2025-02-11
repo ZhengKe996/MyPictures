@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -248,6 +249,28 @@ public class UserController {
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 处理用户头像上传请求
+     * 该方法接收一个包含文件的multipart/form-data请求，将用户头像更新并返回新的头像URL
+     *
+     * @param multipartFile 用户上传的头像文件，不能为空
+     * @param request       HTTP请求对象，用于获取当前登录用户的信息
+     * @return 返回一个包含头像URL的BaseResponse对象，表示头像上传成功
+     * @throws BusinessException 如果上传的文件为空，则抛出参数错误异常
+     */
+    @PostMapping("/upload/avatar")
+    public BaseResponse<String> uploadUserAvatar(@RequestPart("file") MultipartFile multipartFile, HttpServletRequest request) {
+        // 检查上传的文件是否为空，如果为空则抛出异常
+        if (multipartFile == null) throw new BusinessException(ErrorCode.PARAMS_ERROR);
+
+        // 获取当前登录的用户信息
+        User loginUser = userService.getLoginUser(request);
+        // 调用服务方法上传用户头像，并获取新的头像URL
+        String avatarUrl = userService.uploadUserAvatar(multipartFile, loginUser);
+        // 返回成功响应，包含头像URL
+        return ResultUtils.success(avatarUrl);
     }
 }
 

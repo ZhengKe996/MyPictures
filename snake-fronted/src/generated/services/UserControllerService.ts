@@ -6,6 +6,7 @@ import type { BaseResponse_boolean_ } from "../models/BaseResponse_boolean_";
 import type { BaseResponse_LoginUserVO_ } from "../models/BaseResponse_LoginUserVO_";
 import type { BaseResponse_long_ } from "../models/BaseResponse_long_";
 import type { BaseResponse_Page_UserVO_ } from "../models/BaseResponse_Page_UserVO_";
+import type { BaseResponse_string_ } from "../models/BaseResponse_string_";
 import type { BaseResponse_User_ } from "../models/BaseResponse_User_";
 import type { BaseResponse_UserVO_ } from "../models/BaseResponse_UserVO_";
 import type { DeleteRequest } from "../models/DeleteRequest";
@@ -238,6 +239,29 @@ export class UserControllerService {
       method: "POST",
       url: "/api/user/update/my",
       body: userUpdateMyRequest,
+      errors: {
+        401: `Unauthorized`,
+        403: `Forbidden`,
+        404: `Not Found`,
+      },
+    });
+  }
+  /**
+   * uploadUserAvatar
+   * @param file file
+   * @returns BaseResponse_string_ OK
+   * @returns any Created
+   * @throws ApiError
+   */
+  public static uploadUserAvatarUsingPost(
+    file: Blob
+  ): CancelablePromise<BaseResponse_string_ | any> {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/user/upload/avatar",
+      formData: {
+        file: file,
+      },
       errors: {
         401: `Unauthorized`,
         403: `Forbidden`,

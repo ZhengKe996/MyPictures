@@ -7,21 +7,26 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import fun.timu.init.common.ErrorCode;
-import fun.timu.init.constant.CommonConstant;
 import fun.timu.init.exception.BusinessException;
+import fun.timu.init.exception.ThrowUtils;
+import fun.timu.init.manager.CosManager;
+import fun.timu.init.manager.upload.FilePictureUpload;
+import fun.timu.init.manager.upload.PictureUploadTemplate;
+import fun.timu.init.manager.upload.UrlPictureUpload;
 import fun.timu.init.mapper.UserMapper;
+import fun.timu.init.model.dto.file.UploadPictureResult;
 import fun.timu.init.model.dto.user.UserQueryRequest;
 import fun.timu.init.model.entity.User;
 import fun.timu.init.model.enums.UserRoleEnum;
 import fun.timu.init.model.vo.LoginUserVO;
 import fun.timu.init.model.vo.UserVO;
 import fun.timu.init.service.UserService;
-import fun.timu.init.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -44,6 +49,13 @@ import static fun.timu.init.constant.UserConstant.USER_LOGIN_STATE;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     public static final String SALT = "Init";// TODO 盐值，混淆密码
     private Lock lock = new ReentrantLock(); // 锁
+    private final FilePictureUpload filePictureUpload;
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+    public UserServiceImpl(FilePictureUpload filePictureUpload) {
+        this.filePictureUpload = filePictureUpload;
+    }
+
 
     /**
      * 用户注册函数
@@ -372,6 +384,64 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
         return queryWrapper;
     }
+
+    /**
+     * 用户头像上传方法
+     * <p>
+     * 该方法负责处理用户头像的上传逻辑。它首先检查用户是否已登录，然后按照指定的上传模板
+     * 将头像文件上传至服务器，并返回上传后的头像URL。
+     *
+     * @param multipartFile 前端上传的图片文件，作为头像使用
+     * @param loginUser     当前登录的用户信息，用于验证用户身份
+     * @return 返回上传后的头像URL，用于前端展示或后续处理
+     */
+    @Override
+    public String uploadUserAvatar(MultipartFile multipartFile, User loginUser) {
+
+        // 检查用户是否已登录，未登录则抛出无权限错误
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR, "用户未登录");
+
+        // 检查文件是否为空或无效
+        if (multipartFile == null || multipartFile.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "上传的文件为空");
+        }
+
+        // 验证文件类型和大小
+        String contentType = multipartFile.getContentType();
+        long fileSize = multipartFile.getSize();
+        if (!contentType.startsWith("image/")) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "仅支持上传图片文件");
+        }
+        if (fileSize > MAX_FILE_SIZE) { // 定义一个合理的最大文件大小限制
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "文件大小超出限制");
+        }
+
+        // 定义头像的上传路径前缀，用于指定文件的存储位置
+        String uploadPathPrefix = "avatar";
+        // 获取文件上传模板实例，用于执行图片上传逻辑
+        PictureUploadTemplate pictureUploadTemplate = filePictureUpload;
+
+        try {
+            // 调用上传模板的方法，执行图片上传，并获取上传结果对象
+            UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(multipartFile, uploadPathPrefix);
+
+            // 检查上传结果，如果上传失败则抛出业务异常
+            if (uploadPictureResult == null) {
+                log.error("上传头像失败，用户ID: {}", loginUser.getId());
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传头像失败，请稍后再试");
+            }
+
+            // 从上传结果中获取头像的URL
+            String avatarUrl = uploadPictureResult.getUrl();
+
+            // 返回头像URL
+            return avatarUrl;
+        } catch (Exception e) {
+            log.error("上传头像时发生异常，用户ID: {}, 异常信息: {}", loginUser.getId(), e.getMessage(), e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传头像时发生异常，请稍后再试");
+        }
+    }
+
 
     /**
      * 对用户密码进行加密处理
