@@ -5,6 +5,7 @@ import { userRoutes } from "./modules/userRoutes";
 import { managerRoutes } from "./modules/managerRoutes";
 import { addRoutes } from "./modules/addRoutes";
 import { updateRoutes } from "./modules/updateRoutes";
+import { accountRoutes } from "./modules/accountRoutes";
 import { otherRoutes } from "./modules/otherRoutes";
 
 export const routes: RouteRecordRaw[] = [
@@ -12,6 +13,7 @@ export const routes: RouteRecordRaw[] = [
   ...managerRoutes,
   ...addRoutes,
   ...updateRoutes,
+  ...accountRoutes,
   ...otherRoutes,
   {
     path: "/:pathMatch(.*)*",
