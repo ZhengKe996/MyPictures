@@ -361,7 +361,7 @@ const handleSubmit = async () => {
     Message.error("Failed to update profile");
   }
   await userStore.setLoginInfo();
-  router.push("/account/home");
+  router.push("/account/about");
 };
 
 /**

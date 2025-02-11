@@ -125,6 +125,7 @@ const filteredNavigation = computed(() => [
       name: route.name,
       route: route.path,
       icon: route.meta?.icon || "i-tabler-photo",
+      // icon: route.meta?.icon || "i-tabler-activity",
     })),
 ]);
 

@@ -58,7 +58,8 @@
               size="sm"
               showRole
               linkable
-              class="transition-all duration-300 hover:ring-2 hover:ring-offset-2 hover:ring-custom-gradient-start/30 rounded-full"
+              class="transition-all duration-300 hover:ring-2 hover:ring-offset-2 hover:ring-custom-gradient-start/30 rounded-full cursor-pointer"
+              @click="handleAccountClick"
             />
           </div>
         </template>
@@ -125,6 +126,10 @@ const handleMySpace = () => {
   router.push("/my-space");
 };
 
+const handleAccountClick = () => {
+  router.push("/account/about");
+};
+
 const filteredRoutes = computed(() =>
   routes.filter((route) => {
     const NeedACCESS: ACCESSENUM =
@@ -145,6 +150,13 @@ router.afterEach((to) => (selectKey.value = to.path));
 onMounted(() => (selectKey.value = router.currentRoute.value.path));
 
 const menuItems = [
+  {
+    label: "Account About",
+    icon: "i-tabler-list-details",
+    action: () => router.push("/account/about"),
+    iconColor: "text-gray-400 group-hover:text-blue-500",
+    textColor: "text-gray-600 group-hover:text-gray-800",
+  },
   {
     label: "My Space",
     icon: "i-tabler-user",

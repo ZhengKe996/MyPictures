@@ -4,9 +4,9 @@ import { LayoutMenu } from "@/config";
 
 export const accountRoutes: RouteRecordRaw[] = [
   {
-    path: "/account/home",
-    name: "Home",
-    component: () => import("@/views/account/Home"),
+    path: "/account/about",
+    name: "About",
+    component: () => import("@/views/account/About"),
     meta: {
       layout: LayoutMenu.BasicLayout,
       access: ACCESSENUM.USER,
