@@ -36,19 +36,19 @@
                     isActiveRoute(item.route)
                       ? 'bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white font-bold rounded-lg py-2 px-4 text-[15px] hover:scale-105'
                       : 'text-[14px] font-semibold text-gray-900 dark:text-gray-100 hover:text-custom-gradient-end relative group',
-                    'flex items-center gap-x-3 transition-all duration-300 ease-in-out',
+                    'flex items-center gap-x-3 transition-all duration-300 ease-in-out w-full',
                   ]"
                 >
                   <div
                     :class="[
                       item.icon,
                       isActiveRoute(item.route)
-                        ? 'text-white size-[20px]'
-                        : 'text-gray-400 dark:text-gray-500 group-hover:text-custom-gradient-end size-[18px]',
+                        ? 'text-white size-[20px] shrink-0'
+                        : 'text-gray-400 dark:text-gray-500 group-hover:text-custom-gradient-end size-[18px] shrink-0',
                       'transition-all duration-300 ease-in-out',
                     ]"
                   ></div>
-                  {{ item.name }}
+                  <span class="truncate">{{ item.name }}</span>
                   <span
                     v-if="!isActiveRoute(item.route)"
                     class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end transition-all duration-300 group-hover:w-full"
@@ -163,5 +163,12 @@ const isActiveRoute = (path: string): boolean => {
 
 .active-nav-item:hover {
   transform: scale(1.05);
+}
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 </style>
