@@ -25,7 +25,7 @@
           </div>
           <div>
             <RouterLink
-              to="/mamager/space"
+              to="/manager/space"
               class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end rounded-lg hover:opacity-90 transition-opacity"
             >
               <i class="i-tabler-arrow-left mr-2"></i>

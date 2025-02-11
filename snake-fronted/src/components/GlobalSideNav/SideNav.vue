@@ -82,53 +82,50 @@
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
-import { ACCESSENUM } from "@/access";
+import { ACCESSENUM, CheckACCESS } from "@/access";
+import { routes } from "@/router/routes";
+import { LayoutMenu } from "@/config";
 
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
 
-const navigation = [
+const LoginUserInfo = computed(() => userStore.getLoginInfo);
+
+const filteredNavigation = computed(() => [
   {
     name: "Public",
     route: "/",
     icon: "i-tabler-photo",
   },
-  {
-    name: "My Space",
-    route: "/my-space",
-    icon: "i-tabler-user-scan",
-    requiresAuth: true,
-  },
-  {
-    name: "Analyze",
-    route: "/analyze",
-    icon: "i-tabler-analyze",
-    requiresAuth: true,
-  },
-];
-
-const filteredNavigation = computed(() =>
-  navigation.filter(
-    (item) =>
-      !item.requiresAuth ||
-      (item.requiresAuth && userStore.getUserRole !== ACCESSENUM.NOLOGIN)
-  )
-);
+  ...routes
+    .filter((route) => {
+      const NeedACCESS: ACCESSENUM =
+        (route.meta?.access as ACCESSENUM) ?? ACCESSENUM.NOLOGIN;
+      return (
+        !route.redirect &&
+        route.meta?.layout === LayoutMenu.BasicLayout &&
+        route.meta?.isNav === true &&
+        CheckACCESS(LoginUserInfo.value.userRole, NeedACCESS)
+      );
+    })
+    .map((route) => ({
+      name: route.name,
+      route: route.path,
+      icon: route.meta?.icon || "i-tabler-photo",
+    })),
+]);
 
 const isActiveRoute = (path: string): boolean => {
-  // 如果当前路径是 /analyze 或 /my-space，直接返回路径匹配结果
-  if (route.path === "/analyze" || route.path === "/my-space") {
-    return route.path === path;
-  }
-
-  // 对于其他路径，如果是 Public 导航项（路径为 "/"），则返回 true
-  if (path === "/") {
+  // 如果当前路径没有匹配到任何导航项，则激活 Public
+  if (
+    path === "/" &&
+    !filteredNavigation.value.some((item) => item.route === route.path)
+  ) {
     return true;
   }
-
-  // 其他情况返回 false
-  return false;
+  // 精确匹配当前路径
+  return route.path === path;
 };
 </script>
 

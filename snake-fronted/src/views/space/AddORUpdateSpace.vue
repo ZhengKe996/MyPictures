@@ -34,27 +34,55 @@
                 v-for="level in spaceLevels"
                 :key="level.level"
                 @click="spaceLevel = level.level"
-                class="p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md group"
-                :class="
+                class="p-4 border-2 rounded-lg cursor-pointer transition-all duration-300 hover:shadow-md group relative overflow-hidden"
+                :class="[
                   spaceLevel === level.level
-                    ? 'border-custom-gradient-end gradient-primary/10'
-                    : 'border-gray-200 hover:border-custom-gradient-start'
-                "
+                    ? 'border-custom-gradient-end bg-gradient-to-br from-custom-gradient-start/10 to-custom-gradient-end/10 shadow-lg scale-[1.02]'
+                    : 'border-gray-200 hover:border-custom-gradient-start hover:bg-gray-50',
+                ]"
               >
-                <div class="flex justify-between items-center mb-2">
-                  <h3 class="font-semibold text-gray-800">{{ level.name }}</h3>
+                <div class="flex justify-between items-center mb-3">
+                  <h3
+                    class="font-semibold transition-colors duration-300"
+                    :class="[
+                      spaceLevel === level.level
+                        ? 'text-custom-gradient-end'
+                        : 'text-gray-800',
+                    ]"
+                  >
+                    {{ level.name }}
+                  </h3>
                   <span
-                    class="text-sm text-gray-500 group-hover:text-custom-gradient-end transition-colors"
+                    class="text-sm transition-colors duration-300"
+                    :class="[
+                      spaceLevel === level.level
+                        ? 'text-custom-gradient-end'
+                        : 'text-gray-500 group-hover:text-custom-gradient-start',
+                    ]"
                   >
                     Level {{ level.level }}
                   </span>
                 </div>
-                <div class="space-y-2 text-sm text-gray-600">
-                  <p class="flex items-center">
+                <div class="space-y-2 text-sm">
+                  <p
+                    class="flex items-center transition-colors duration-300"
+                    :class="[
+                      spaceLevel === level.level
+                        ? 'text-custom-gradient-end'
+                        : 'text-gray-600',
+                    ]"
+                  >
                     <span class="mr-2">📸</span>
                     Max Images: {{ level.maxImages }}
                   </p>
-                  <p class="flex items-center">
+                  <p
+                    class="flex items-center transition-colors duration-300"
+                    :class="[
+                      spaceLevel === level.level
+                        ? 'text-custom-gradient-end'
+                        : 'text-gray-600',
+                    ]"
+                  >
                     <span class="mr-2">💾</span>
                     Max Storage: {{ formatStorage(level.maxStorage) }}
                   </p>
@@ -194,7 +222,7 @@ const handleSubmit = async () => {
     // 根据返回的code和data，显示相应的成功或错误消息
     if (code === 0 && data) Message.success("Space created successfully");
     else Message.error(message || "Failed to create space");
-    router.push("/mamager/space");
+    router.push("/manager/space");
   }
 };
 
