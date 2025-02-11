@@ -8,6 +8,14 @@ export const otherRoutes: RouteRecordRaw[] = [
     redirect: "/list/pictures",
   },
   {
+    path: "/home",
+    name: "Home",
+    component: () => import("@/views/Home"),
+    meta: {
+      layout: LayoutMenu.UserLayout,
+    },
+  },
+  {
     path: "/list/pictures",
     name: "List Pictures",
     component: () => import("@/views/pictures/ListPicture.vue"),

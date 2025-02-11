@@ -1,5 +1,6 @@
 export const DefaultUserAvatar = "/src/assets/defaultAvatar.png";
 export const DefaultImage = "/src/assets/defaultImage.png";
+export const GitHubUserName = "Zhengke0110";
 export enum LayoutMenu {
   BasicLayout = "BasicLayout",
   UserLayout = "UserLayout",
