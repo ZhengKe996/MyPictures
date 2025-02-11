@@ -99,6 +99,64 @@
           </div>
         </div>
       </div>
+      <!-- categories -->
+      <div class="bg-gray-50">
+        <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+          <div class="sm:flex sm:items-baseline sm:justify-between">
+            <h2 class="text-2xl font-bold tracking-tight text-gray-900">
+              Image by Category
+            </h2>
+          </div>
+
+          <div
+            class="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:grid-rows-2 sm:gap-x-6 lg:gap-8"
+          >
+            <div
+              v-for="category in categories"
+              :key="category.id"
+              :class="[
+                'group relative overflow-hidden rounded-lg',
+                category.featured
+                  ? 'aspect-[2/1] sm:row-span-2 sm:aspect-square'
+                  : 'aspect-[2/1] sm:aspect-auto',
+              ]"
+            >
+              <img
+                :src="category.imageSrc"
+                :alt="category.imageAlt"
+                class="absolute size-full object-cover group-hover:opacity-75"
+              />
+              <div
+                aria-hidden="true"
+                class="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-50"
+              />
+              <div class="absolute inset-0 flex items-end p-6">
+                <div>
+                  <h3 class="font-semibold text-white">
+                    <a :href="category.href">
+                      <span class="absolute inset-0" />
+                      {{ category.title }}
+                    </a>
+                  </h3>
+                  <p aria-hidden="true" class="mt-1 text-sm text-white">
+                    {{ category.description }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 sm:hidden">
+            <a
+              href="#"
+              class="block text-sm font-semibold text-indigo-600 hover:text-indigo-500"
+            >
+              Browse all categories
+              <span aria-hidden="true"> &rarr;</span>
+            </a>
+          </div>
+        </div>
+      </div>
 
       <!-- 推荐区域 -->
       <div class="bg-white">
@@ -416,6 +474,16 @@ interface FeaturedContent {
   };
 }
 
+interface Category {
+  id: number;
+  title: string;
+  description: string;
+  href: string;
+  imageSrc: string;
+  imageAlt: string;
+  featured?: boolean;
+}
+
 const heroContent = ref<HeroContent>({
   title: "Intelligent Cloud Gallery",
   description:
@@ -494,6 +562,37 @@ const featuredContent = ref<FeaturedContent>({
   },
 });
 
+const categories = ref<Category[]>([
+  {
+    id: 1,
+    title: "New Arrivals",
+    description: "",
+    href: "#",
+    imageSrc:
+      "https://images.pexels.com/photos/773294/pexels-photo-773294.jpeg",
+    imageAlt: "",
+    featured: true,
+  },
+  {
+    id: 2,
+    title: "",
+    description: "",
+    href: "#",
+    imageSrc:
+      "https://images.pexels.com/photos/9522666/pexels-photo-9522666.jpeg",
+    imageAlt: "",
+  },
+  {
+    id: 3,
+    title: "Workspace",
+    description: "Shop now",
+    href: "#",
+    imageSrc:
+      "https://images.pexels.com/photos/7161189/pexels-photo-7161189.jpeg",
+    imageAlt: "",
+  },
+]);
+
 // 添加repositories相关的响应式变量
 const repositories = ref<GithubRepo[]>([]);
 
@@ -516,30 +615,49 @@ const formatDate = (dateString: string) => {
 
 const LoadPictureList = async () => {
   const { data, code, message } = await GetPictureList({
-    pageSize: 5,
+    pageSize: 10,
     current: 1,
   });
   if (code === 0 && data) {
-    // 从API返回的records中提取图片URL
     const apiImages = data.records.map((record: PictureType) => ({
-      src: record.url, // 假设API返回的数据中url字段存储图片地址
-      alt: record.name, // 可以根据需要设置alt文字
+      src: record.url,
+      alt: record.name,
     }));
 
-    // 将API获取的图片分配到三列中
-    if (apiImages.length > 0) {
-      // 第一列放1张图
+    if (apiImages.length >= 5) {
+      // 前5张图片用于gridImages
       gridImages.value[0].images = [apiImages[0]];
+      gridImages.value[1].images = [apiImages[1], apiImages[2]];
+      gridImages.value[2].images = [apiImages[3], apiImages[4]];
 
-      // 第二列放2张图
-      if (apiImages.length >= 3) {
-        gridImages.value[1].images = [apiImages[1], apiImages[2]];
-      }
-
-      // 第三列放2张图
-      if (apiImages.length >= 5) {
-        gridImages.value[2].images = [apiImages[3], apiImages[4]];
-      }
+      // 后5张图片用于categories
+      categories.value = [
+        {
+          id: 1,
+          title: "Featured Gallery",
+          description: "View gallery",
+          href: "#",
+          imageSrc: apiImages[5].src,
+          imageAlt: apiImages[5].alt,
+          featured: true,
+        },
+        {
+          id: 2,
+          title: "Popular Photos",
+          description: "Browse collection",
+          href: "#",
+          imageSrc: apiImages[6].src,
+          imageAlt: apiImages[6].alt,
+        },
+        {
+          id: 3,
+          title: "New Uploads",
+          description: "Latest additions",
+          href: "#",
+          imageSrc: apiImages[7].src,
+          imageAlt: apiImages[7].alt,
+        },
+      ];
     }
   } else throw new Error(message);
 };
