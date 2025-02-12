@@ -72,7 +72,7 @@
                       : item.thumbnailUrl ?? item.url
                   "
                   :alt="item.name || DefaultPictureTexts.UNNAMED_PICTURE"
-                  @click="toggleFullscreen(item.id)"
+                  @click="showFullScreenImage(item)"
                   @error="
                     (e) => (item.id ? handleImageError(e, item.id) : null)
                   "
@@ -326,6 +326,25 @@
         </div>
       </div>
     </Dialog>
+
+    <!-- 全屏查看模态框 -->
+    <ModalBox
+      v-model="showFullscreenModal"
+      :fullscreen="true"
+      :closeOnClickOverlay="true"
+      contentClass="flex items-center justify-center w-screen h-screen p-4"
+    >
+      <div class="w-screen h-screen p-4 flex items-center justify-center">
+        <img
+          v-if="currentFullscreenImage?.url"
+          :src="currentFullscreenImage.url"
+          :alt="currentFullscreenImage.name"
+          class="max-w-[95vw] max-h-[95vh] w-auto h-auto object-contain select-none"
+          @click.stop
+          @contextmenu.prevent
+        />
+      </div>
+    </ModalBox>
   </div>
 </template>
 
@@ -342,17 +361,15 @@ import { ref, onMounted, computed, watch, onUnmounted } from "vue";
 import { useThrottleFn } from "@vueuse/core";
 import { GetPictureList, DeletePictureById } from "@/services";
 import { Message } from "@/lib/Message";
-import { useFullscreen } from "@vueuse/core";
 import dayjs from "dayjs";
 import Button from "@/lib/Button";
 import GenericTooltip from "@/lib/Tooltip";
 import router from "@/router";
 import { DefaultPictureTexts } from "@/config";
 import Dialog from "@/lib/Dialog/Dialog.vue";
+import ModalBox from "@/lib/ModalBox/ModalBox.vue";
 
 const total = ref<number>(0); // 题目总数
-
-const imageRefs = ref<HTMLImageElement[]>([]);
 
 // 在 script setup 中添加新的状态
 const imageLoadingStates = ref<{ [key: string]: boolean }>({});
@@ -385,50 +402,6 @@ onMounted(async () => {
 
   LoadList();
 });
-
-/**
- * 切换指定图片的全屏模式。
- *
- * @param id 图片的唯一标识符，用于定位要切换全屏的特定图片。如果为 undefined，则函数不执行任何操作。
- */
-const toggleFullscreen = async (id: string | undefined) => {
-  if (!id) return;
-
-  const item = ListInfo.value.find((picture) => picture.id === id);
-  if (!item?.url) return;
-
-  // 预加载原图
-  try {
-    await new Promise((resolve, reject) => {
-      const img = new Image();
-      img.src = item.url!;
-      img.onload = resolve;
-      img.onerror = reject;
-    });
-
-    const imageElement = imageRefs.value.find(
-      (ref) => ref?.getAttribute("src") === (item.thumbnailUrl ?? item.url)
-    );
-
-    if (imageElement) {
-      imageElement.src = item.url;
-      const { toggle } = useFullscreen(imageElement);
-      toggle();
-
-      imageElement.addEventListener(
-        "fullscreenchange",
-        () => {
-          if (!document.fullscreenElement && item.thumbnailUrl) {
-            imageElement.src = item.thumbnailUrl;
-          }
-        },
-        { once: true }
-      ); // 使用 once 选项避免内存泄漏
-    }
-  } catch (error) {
-    Message.error("Failed to load full size image");
-  }
-};
 
 interface PictureInfoInterface {
   current: number;
@@ -714,11 +687,20 @@ const handleImageLoadStart = (itemId: string) => {
 
 // 清理函数
 onUnmounted(() => {
-  imageRefs.value = [];
   failedImages.value.clear();
   imageLoadingStates.value = {};
   cachedPlaceholderImage.value = null;
 });
+
+// 添加新的全屏状态管理
+const showFullscreenModal = ref(false);
+const currentFullscreenImage = ref<PictureType | null>(null);
+
+// 新的全屏显示处理函数
+const showFullScreenImage = (item: PictureType) => {
+  currentFullscreenImage.value = item;
+  showFullscreenModal.value = true;
+};
 </script>
 
 <style scoped>

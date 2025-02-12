@@ -11,13 +11,7 @@
               v-if="picture?.url"
               :src="picture.url"
               :alt="picture?.name"
-              ref="imgTarget"
-              :class="[
-                'w-full h-full transition-all duration-500 selection:bg-blue-100 selection:text-blue-900',
-                isFullscreen
-                  ? 'object-contain bg-black/80 p-4'
-                  : 'object-cover group-hover:scale-105',
-              ]"
+              class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 selection:bg-blue-100 selection:text-blue-900"
             />
             <div
               v-else
@@ -28,13 +22,12 @@
           </div>
           <!-- 图片悬浮操作区 -->
           <div
-            v-show="!isFullscreen"
             class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100"
           >
             <Button
               type="secondary"
               class="px-4 py-2 rounded-lg shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 bg-orange-500 hover:bg-orange-600 text-white border-none"
-              @click="onImgFullScreen"
+              @click="showFullscreenModal = true"
             >
               View Full Screen
             </Button>
@@ -337,6 +330,25 @@
         </div>
       </div>
     </Dialog>
+
+    <!-- 全屏查看模态框 -->
+    <ModalBox
+      v-model="showFullscreenModal"
+      :fullscreen="true"
+      :closeOnClickOverlay="true"
+      contentClass="flex items-center justify-center w-screen h-screen p-4"
+    >
+      <div class="w-screen h-screen p-4 flex items-center justify-center">
+        <img
+          v-if="picture?.url"
+          :src="picture.url"
+          :alt="picture?.name"
+          class="max-w-[95vw] max-h-[95vh] w-auto h-auto object-contain select-none"
+          @click.stop
+          @contextmenu.prevent
+        />
+      </div>
+    </ModalBox>
   </div>
 </template>
 
@@ -354,10 +366,10 @@ import Button from "@/lib/Button/Button.vue"; // 更新导入路径
 import Badges from "@/lib/Badges/Badges.vue";
 import { getRandomUnoColor } from "@/utils/color";
 import dayjs from "dayjs";
-import { useFullscreen } from "@vueuse/core";
 import Dialog from "@/lib/Dialog/Dialog.vue";
 import { convertOxToHex } from "@/utils/colorConverter";
 import ImageCropper from "@/components/ImageCropper/ImageCropper.vue";
+import ModalBox from "@/lib/ModalBox/ModalBox.vue";
 
 import { AdminReviewPicture } from "@/services";
 
@@ -649,18 +661,8 @@ onMounted(() => {
   if (id) LoadInfo();
 });
 
-// 全屏
-const imgTarget = ref<HTMLImageElement>();
-const { isFullscreen, enter: onImgFullScreen, exit } = useFullscreen(imgTarget);
-
-// 监听 ESC 键退出全屏
-onMounted(() => {
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && isFullscreen.value) {
-      exit();
-    }
-  });
-});
+// 全屏模态框状态
+const showFullscreenModal = ref(false);
 
 // AI扩图相关状态
 const isAiProcessing = ref(false);

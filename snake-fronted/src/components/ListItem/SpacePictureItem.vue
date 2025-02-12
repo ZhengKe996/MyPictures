@@ -13,7 +13,7 @@
       <img
         ref="imgTarget"
         class="w-full rounded-lg bg-transparent transition-all duration-500 ease-out will-change-transform group-hover/card:scale-[1.03] group-hover/card:brightness-90"
-        :src="currentImageUrl"
+        :src="picture.url"
         :style="{
           height: calculateImageHeight() + 'px',
         }"
@@ -53,7 +53,7 @@
           <Button
             :icon="'i-tabler-aspect-ratio'"
             class="absolute bottom-2 right-2 transform translate-y-2 opacity-0 group-hover/card:translate-y-0 group-hover/card:opacity-100 transition-all duration-300 delay-200 bg-zinc-100/70 hover:bg-zinc-200/70 hover:scale-110 active:scale-95 animate-hover"
-            @click.stop="onImgFullScreen"
+            @click.stop="showFullScreenModal = true"
             size="lg"
           ></Button>
         </div>
@@ -94,22 +94,43 @@
       </div>
     </div>
   </div>
+
+  <!-- 添加全屏查看模态框 -->
+  <ModalBox
+    v-model="showFullScreenModal"
+    :fullscreen="true"
+    :closeOnClickOverlay="true"
+    contentClass="flex items-center justify-center w-screen h-screen p-4"
+  >
+    <div class="w-screen h-screen p-4 flex items-center justify-center">
+      <img
+        v-if="picture?.url"
+        :src="picture.url"
+        :alt="picture.name"
+        class="max-w-[95vw] max-h-[95vh] w-auto h-auto object-contain select-none"
+        @click.stop
+        @contextmenu.prevent
+      />
+    </div>
+  </ModalBox>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import { useFullscreen } from "@vueuse/core";
+import { ref } from "vue";
 import { type PictureType } from "@/config";
 import Button from "@/lib/Button";
 import { randomRGB } from "@/utils/color";
 import { convertOxToHex } from "@/utils/colorConverter";
+import ModalBox from "@/lib/ModalBox/ModalBox.vue";
 
 const { picture, width } = defineProps<{
   picture: PictureType;
   width?: number;
 }>();
 const emits = defineEmits(["edit", "delete", "download", "preview"]);
-const imgTarget = ref<HTMLImageElement>();
+
+// 添加新的全屏状态管理
+const showFullScreenModal = ref(false);
 
 // 新增方法：计算图片高度
 const calculateImageHeight = (): number => {
@@ -132,31 +153,6 @@ const onToPinsClick = (event: Event) => {
 const onDownload = (event: Event) => {
   event.stopPropagation();
   emits("download", picture);
-};
-
-// 追踪全屏状态
-const isFullscreen = ref(false);
-
-// 计算当前应该显示的图片URL
-const currentImageUrl = computed(() => {
-  return isFullscreen.value ? picture.url : picture.thumbnailUrl ?? picture.url;
-});
-
-// 全屏控制
-const { toggle: toggleFullscreen, isFullscreen: fullscreenState } =
-  useFullscreen(imgTarget);
-
-// 使用 watch 监听全屏状态变化
-watch(fullscreenState, (newVal) => {
-  isFullscreen.value = newVal;
-});
-
-/**
- * 生成全屏方法
- */
-const onImgFullScreen = async (event: Event) => {
-  event.stopPropagation();
-  await toggleFullscreen();
 };
 
 /**
