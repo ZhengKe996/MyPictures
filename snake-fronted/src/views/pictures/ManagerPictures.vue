@@ -61,20 +61,35 @@
             <td
               class="whitespace-nowrap p-4 text-sm text-gray-500 border-r border-gray-100/50 text-center"
             >
-              <img
-                v-if="item.url || item.thumbnailUrl"
-                ref="imageRefs"
-                class="inline-block size-14 rounded-md object-cover cursor-pointer hover:opacity-90 transition-opacity shadow-sm hover:shadow-md"
-                :src="item.thumbnailUrl ?? item.url"
-                :alt="item.name || DefaultPictureTexts.UNNAMED_PICTURE"
-                @click="toggleFullscreen(item.id)"
-                @error="handleImageError"
-              />
-              <div
-                v-else
-                class="inline-flex size-14 rounded-md bg-gray-100 items-center justify-center text-gray-400"
-              >
-                <i class="i-tabler-photo-off size-6"></i>
+              <div class="relative inline-block">
+                <img
+                  v-if="item.url || item.thumbnailUrl"
+                  ref="imageRefs"
+                  class="inline-block size-14 rounded-md object-cover cursor-pointer hover:opacity-90 transition-opacity shadow-sm hover:shadow-md"
+                  :src="
+                    item.id && failedImages.has(item.id)
+                      ? cachedPlaceholderImage || defaultPlaceholderImage
+                      : item.thumbnailUrl ?? item.url
+                  "
+                  :alt="item.name || DefaultPictureTexts.UNNAMED_PICTURE"
+                  @click="toggleFullscreen(item.id)"
+                  @error="
+                    (e) => (item.id ? handleImageError(e, item.id) : null)
+                  "
+                  @load="() => (item.id ? handleImageLoad(item.id) : null)"
+                  @loadstart="
+                    () => (item.id ? handleImageLoadStart(item.id) : '')
+                  "
+                />
+                <!-- 添加加载状态指示 -->
+                <div
+                  v-if="item.id && imageLoadingStates[item.id]"
+                  class="absolute inset-0 flex items-center justify-center bg-gray-100/50 rounded-md"
+                >
+                  <div
+                    class="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"
+                  ></div>
+                </div>
               </div>
             </td>
 
@@ -318,8 +333,12 @@
 import SearchInput from "@/lib/SearchInput";
 import TableList from "@/components/TableList";
 import Pagination from "@/lib/Pagination";
-import { PictureManagerColumns, type PictureType } from "@/config";
-import { ref, onMounted, computed, watch } from "vue";
+import {
+  DefaultImage,
+  PictureManagerColumns,
+  type PictureType,
+} from "@/config";
+import { ref, onMounted, computed, watch, onUnmounted } from "vue";
 import { useThrottleFn } from "@vueuse/core";
 import { GetPictureList, DeletePictureById } from "@/services";
 import { Message } from "@/lib/Message";
@@ -335,43 +354,81 @@ const total = ref<number>(0); // 题目总数
 
 const imageRefs = ref<HTMLImageElement[]>([]);
 
+// 在 script setup 中添加新的状态
+const imageLoadingStates = ref<{ [key: string]: boolean }>({});
+const failedImages = ref<Set<string>>(new Set());
+
+// 在 script setup 的顶部添加预加载默认图片的逻辑
+const defaultPlaceholderImage = DefaultImage;
+const cachedPlaceholderImage = ref<string | null>(null);
+
+// 修改预加载默认图片的逻辑
+onMounted(async () => {
+  try {
+    // 使用完整的URL路径
+    const fullUrl = new URL(defaultPlaceholderImage, window.location.origin)
+      .href;
+    const response = await fetch(fullUrl);
+    if (!response.ok) throw new Error("Failed to load image");
+
+    const blob = await response.blob();
+    const reader = new FileReader();
+    reader.onload = () => {
+      cachedPlaceholderImage.value = reader.result as string;
+    };
+    reader.readAsDataURL(blob);
+  } catch (error) {
+    console.error("Failed to load placeholder image:", error);
+    // 发生错误时直接使用原始路径
+    cachedPlaceholderImage.value = defaultPlaceholderImage;
+  }
+
+  LoadList();
+});
+
 /**
  * 切换指定图片的全屏模式。
  *
  * @param id 图片的唯一标识符，用于定位要切换全屏的特定图片。如果为 undefined，则函数不执行任何操作。
  */
-const toggleFullscreen = (id: string | undefined) => {
-  // 如果未提供 ID，则不执行任何操作
-  if (id === undefined) return;
+const toggleFullscreen = async (id: string | undefined) => {
+  if (!id) return;
 
-  // 根据 ID 查找实际的图片元素
   const item = ListInfo.value.find((picture) => picture.id === id);
-  // 如果找不到图片元素，则不执行任何操作
-  if (!item) return;
+  if (!item?.url) return;
 
-  // 查找特定图片的 DOM 元素
-  const imageElement = imageRefs.value.find(
-    (ref) => ref?.getAttribute("src") === (item.thumbnailUrl ?? item.url)
-  );
-  // 如果找不到图片的 DOM 元素，则不执行任何操作
-  if (!imageElement) return;
-
-  // 在进入全屏前将源设置为原始图片 URL
-  if (item.url) {
-    imageElement.src = item.url;
-    // 为该特定图片创建一个新的全屏实例
-    const { toggle } = useFullscreen(imageElement);
-    toggle();
-    // 在退出全屏后重置为缩略图
-    imageElement.addEventListener("fullscreenchange", () => {
-      if (!document.fullscreenElement && item.thumbnailUrl) {
-        imageElement.src = item.thumbnailUrl;
-      }
+  // 预加载原图
+  try {
+    await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = item.url!;
+      img.onload = resolve;
+      img.onerror = reject;
     });
+
+    const imageElement = imageRefs.value.find(
+      (ref) => ref?.getAttribute("src") === (item.thumbnailUrl ?? item.url)
+    );
+
+    if (imageElement) {
+      imageElement.src = item.url;
+      const { toggle } = useFullscreen(imageElement);
+      toggle();
+
+      imageElement.addEventListener(
+        "fullscreenchange",
+        () => {
+          if (!document.fullscreenElement && item.thumbnailUrl) {
+            imageElement.src = item.thumbnailUrl;
+          }
+        },
+        { once: true }
+      ); // 使用 once 选项避免内存泄漏
+    }
+  } catch (error) {
+    Message.error("Failed to load full size image");
   }
 };
-
-onMounted(() => LoadList());
 
 interface PictureInfoInterface {
   current: number;
@@ -561,9 +618,9 @@ const handleRequestError = (message: string) => {
 
   if (cachedData) {
     ListInfo.value = cachedData;
-    Message.warning("使用缓存数据，请检查网络");
+    Message.warning("Using cached data, please check your network");
   } else {
-    Message.error(`获取失败, 原因: ${message}`);
+    Message.error(`Request failed, reason: ${message}`);
   }
 };
 
@@ -572,9 +629,9 @@ const handleNetworkError = () => {
 
   if (cachedData) {
     ListInfo.value = cachedData;
-    Message.warning("网络错误，使用缓存数据");
+    Message.warning("Network error, using cached data");
   } else {
-    Message.error("网络请求发生错误");
+    Message.error("Network request failed");
   }
 };
 
@@ -604,13 +661,13 @@ const confirmDelete = async () => {
   try {
     const { code } = await DeletePictureById(currentItem.value.id.toString());
     if (code === 0) {
-      Message.success("删除成功");
+      Message.success("Successfully deleted");
       await LoadList();
     } else {
-      Message.error("删除失败");
+      Message.error("Failed to delete");
     }
   } catch (error) {
-    Message.error("删除操作发生错误");
+    Message.error("Delete operation failed");
   } finally {
     currentItem.value = null;
     showDeleteDialog.value = false;
@@ -621,17 +678,47 @@ const confirmDelete = async () => {
 const handleCancelDelete = () => {
   showDeleteDialog.value = false;
   currentItem.value = null;
-  Message.warning("已取消删除操作");
+  Message.warning("Delete operation cancelled");
 };
 
 // 在 script setup 中添加图片错误处理函数
-const defaultPlaceholderImage = "/path/to/placeholder.png";
-
-const handleImageError = (event: Event) => {
+const handleImageError = (event: Event, itemId: string) => {
   const imgElement = event.target as HTMLImageElement;
-  imgElement.src = defaultPlaceholderImage;
+  const currentSrc = imgElement.src;
+
+  // 检查是否已经使用了缓存的占位图片或者已经标记为失败
+  if (
+    currentSrc === (cachedPlaceholderImage.value || defaultPlaceholderImage) ||
+    failedImages.value.has(itemId)
+  ) {
+    return;
+  }
+
+  // 记录失败的图片
+  failedImages.value.add(itemId);
+  // 优先使用缓存的 base64 图片
+  imgElement.src = cachedPlaceholderImage.value || defaultPlaceholderImage;
   imgElement.classList.add("opacity-50");
+  imageLoadingStates.value[itemId] = false;
 };
+
+// 添加图片加载处理函数
+const handleImageLoad = (itemId: string) => {
+  imageLoadingStates.value[itemId] = false;
+};
+
+// 修改图片加载开始处理函数
+const handleImageLoadStart = (itemId: string) => {
+  imageLoadingStates.value[itemId] = true;
+};
+
+// 清理函数
+onUnmounted(() => {
+  imageRefs.value = [];
+  failedImages.value.clear();
+  imageLoadingStates.value = {};
+  cachedPlaceholderImage.value = null;
+});
 </script>
 
 <style scoped>
