@@ -35,3 +35,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignore all files and directories under src/main/resources/static
+src/main/resources/static/**

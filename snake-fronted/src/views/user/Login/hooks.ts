@@ -21,7 +21,7 @@ export function useLogin() {
       Message.success(
         "Login successful, redirecting to home page in 3 seconds"
       );
-      setTimeout(() => router.push("/"), 3000);
+      setTimeout(() => router.push("/list/pictures"), 3000);
     } else {
       Message.error(`Login failed, ${message}`);
     }

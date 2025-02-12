@@ -5,7 +5,7 @@ import { LayoutMenu } from "@/config";
 export const otherRoutes: RouteRecordRaw[] = [
   {
     path: "/",
-    redirect: "/list/pictures",
+    redirect: "/home",
   },
   {
     path: "/home",

@@ -16,6 +16,11 @@ spring:
   servlet:
     multipart:
       max-file-size: 10MB
+  mvc:
+    static-path-pattern: /**
+  web:
+    resources:
+      static-locations: classpath:/static/
 server:
   address: 0.0.0.0
   port: 8080

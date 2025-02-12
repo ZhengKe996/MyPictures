@@ -60,15 +60,15 @@
                   {{ heroContent.description }}
                 </p>
                 <div class="mt-10 flex items-center gap-x-6">
-                  <a
+                  <router-link
                     v-for="button in heroContent.buttons"
                     :key="button.text"
-                    :href="button.href"
+                    :to="button.route"
                     :class="button.class"
                   >
                     {{ button.text }}
                     <span v-if="button.arrow" aria-hidden="true">→</span>
-                  </a>
+                  </router-link>
                 </div>
               </div>
 
@@ -115,11 +115,12 @@
               v-for="category in categories"
               :key="category.id"
               :class="[
-                'group relative overflow-hidden rounded-lg',
+                'group relative overflow-hidden rounded-lg cursor-pointer',
                 category.featured
                   ? 'aspect-[2/1] sm:row-span-2 sm:aspect-square'
                   : 'aspect-[2/1] sm:aspect-auto',
               ]"
+              @click="handleCategoryClick(category.route)"
             >
               <img
                 :src="category.imageSrc"
@@ -133,10 +134,8 @@
               <div class="absolute inset-0 flex items-end p-6">
                 <div>
                   <h3 class="font-semibold text-white">
-                    <a :href="category.href">
-                      <span class="absolute inset-0" />
-                      {{ category.title }}
-                    </a>
+                    <span class="absolute inset-0" />
+                    {{ category.title }}
                   </h3>
                   <p aria-hidden="true" class="mt-1 text-sm text-white">
                     {{ category.description }}
@@ -147,13 +146,13 @@
           </div>
 
           <div class="mt-6 sm:hidden">
-            <a
-              href="#"
+            <router-link
+              to="/list/categories"
               class="block text-sm font-semibold text-indigo-600 hover:text-indigo-500"
             >
               Browse all categories
               <span aria-hidden="true"> &rarr;</span>
-            </a>
+            </router-link>
           </div>
         </div>
       </div>
@@ -436,10 +435,13 @@ import { nextTick, onMounted, ref, computed } from "vue";
 import { GetPictureList, GetGithubUser, GetUserRepos } from "@/services";
 import { GitHubUserName, type PictureType } from "@/config";
 import type { GithubRepo } from "@/services/github";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 interface Button {
   text: string;
-  href: string;
+  route: string; // 替换 href 为 route
   class: string;
   arrow?: boolean;
 }
@@ -478,7 +480,7 @@ interface Category {
   id: number;
   title: string;
   description: string;
-  href: string;
+  route: string; // 替换 href 为 route
   imageSrc: string;
   imageAlt: string;
   featured?: boolean;
@@ -491,13 +493,13 @@ const heroContent = ref<HeroContent>({
   buttons: [
     {
       text: "Get started",
-      href: "/",
+      route: "/list/pictures",
       class:
         "rounded-md bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity duration-200",
     },
     {
       text: "Login",
-      href: "/user/login",
+      route: "/user/login",
       class:
         "text-sm font-semibold text-gray-900 hover:text-custom-gradient-end transition-colors duration-200",
       arrow: true,
@@ -511,7 +513,7 @@ const gridImages = ref<ImageColumn[]>([
       "ml-auto w-44 flex-none space-y-8 pt-32 sm:ml-0 sm:pt-80 lg:order-last lg:pt-36 xl:order-none xl:pt-80",
     images: [
       {
-        src: "https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&h=528&q=80",
+        src: "https://images.pexels.com/photos/9718332/pexels-photo-9718332.jpeg",
         alt: "Gallery image 1",
       },
     ],
@@ -521,11 +523,11 @@ const gridImages = ref<ImageColumn[]>([
       "mr-auto w-44 flex-none space-y-8 sm:mr-0 sm:pt-52 lg:pt-36",
     images: [
       {
-        src: "https://images.unsplash.com/photo-1485217988980-11786ced9454?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&h=528&q=80",
+        src: "https://images.pexels.com/photos/9437675/pexels-photo-9437675.jpeg",
         alt: "Gallery image 2",
       },
       {
-        src: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&crop=focalpoint&fp-x=.4&w=396&h=528&q=80",
+        src: "https://images.pexels.com/photos/5702929/pexels-photo-5702929.jpeg",
         alt: "Gallery image 3",
       },
     ],
@@ -534,11 +536,11 @@ const gridImages = ref<ImageColumn[]>([
     containerClass: "w-44 flex-none space-y-8 pt-32 sm:pt-0",
     images: [
       {
-        src: "https://images.unsplash.com/photo-1670272504528-790c24957dda?ixlib=rb-4.0.3&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&crop=left&w=400&h=528&q=80",
+        src: "https://images.pexels.com/photos/10220774/pexels-photo-10220774.jpeg",
         alt: "Gallery image 4",
       },
       {
-        src: "https://images.unsplash.com/photo-1670272505284-8faba1c31f7d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&h=528&q=80",
+        src: "https://images.pexels.com/photos/9292154/pexels-photo-9292154.jpeg",
         alt: "Gallery image 5",
       },
     ],
@@ -567,7 +569,7 @@ const categories = ref<Category[]>([
     id: 1,
     title: "New Arrivals",
     description: "",
-    href: "#",
+    route: "/list/pictures?category=new",
     imageSrc:
       "https://images.pexels.com/photos/773294/pexels-photo-773294.jpeg",
     imageAlt: "",
@@ -577,7 +579,7 @@ const categories = ref<Category[]>([
     id: 2,
     title: "",
     description: "",
-    href: "#",
+    route: "#",
     imageSrc:
       "https://images.pexels.com/photos/9522666/pexels-photo-9522666.jpeg",
     imageAlt: "",
@@ -586,7 +588,7 @@ const categories = ref<Category[]>([
     id: 3,
     title: "Workspace",
     description: "Shop now",
-    href: "#",
+    route: "#",
     imageSrc:
       "https://images.pexels.com/photos/7161189/pexels-photo-7161189.jpeg",
     imageAlt: "",
@@ -624,7 +626,7 @@ const LoadPictureList = async () => {
       alt: record.name,
     }));
 
-    if (apiImages.length >= 5) {
+    if (apiImages.length >= 10) {
       // 前5张图片用于gridImages
       gridImages.value[0].images = [apiImages[0]];
       gridImages.value[1].images = [apiImages[1], apiImages[2]];
@@ -636,7 +638,7 @@ const LoadPictureList = async () => {
           id: 1,
           title: "Featured Gallery",
           description: "View gallery",
-          href: "#",
+          route: "#",
           imageSrc: apiImages[5].src,
           imageAlt: apiImages[5].alt,
           featured: true,
@@ -645,7 +647,7 @@ const LoadPictureList = async () => {
           id: 2,
           title: "Popular Photos",
           description: "Browse collection",
-          href: "#",
+          route: "#",
           imageSrc: apiImages[6].src,
           imageAlt: apiImages[6].alt,
         },
@@ -653,7 +655,7 @@ const LoadPictureList = async () => {
           id: 3,
           title: "New Uploads",
           description: "Latest additions",
-          href: "#",
+          route: "#",
           imageSrc: apiImages[7].src,
           imageAlt: apiImages[7].alt,
         },
@@ -721,6 +723,10 @@ const getLanguageColor = (language: string) => {
     default: "bg-gray-400",
   };
   return colors[language] || colors.default;
+};
+
+const handleCategoryClick = (route: string) => {
+  router.push(route);
 };
 
 onMounted(() => nextTick(() => LoadPictureList()));
