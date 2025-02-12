@@ -24,8 +24,8 @@ public class SessionConfig {
         return new DefaultCookieSerializerCustomizer() {
             @Override
             public void customize(DefaultCookieSerializer cookieSerializer) {
-                cookieSerializer.setSameSite("None"); // 设置cookie的SameSite属性为None，否则跨域set-cookie会被chrome浏览器阻拦
-                cookieSerializer.setUseSecureCookie(true); // sameSite为None时，useSecureCookie必须为true
+//                cookieSerializer.setSameSite("None"); // 设置cookie的SameSite属性为None，否则跨域set-cookie会被chrome浏览器阻拦
+//                cookieSerializer.setUseSecureCookie(true); // sameSite为None时，useSecureCookie必须为true
             }
         };
     }

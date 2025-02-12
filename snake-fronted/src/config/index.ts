@@ -1,6 +1,6 @@
 import defaultImageUrl from "@/assets/defaultImage.png";
-
-export const DefaultUserAvatar = "/src/assets/defaultAvatar.png";
+import defaultUserImageUrl from "@/assets//defaultAvatar.png";
+export const DefaultUserAvatar = defaultUserImageUrl;
 export const DefaultImage = defaultImageUrl;
 export const GitHubUserName = "Zhengke0110";
 export enum LayoutMenu {

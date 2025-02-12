@@ -152,7 +152,7 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>fun.timu.init.Application</mainClass>
-<!--                    <skip>true</skip>-->
+                    <!--                    <skip>true</skip>-->
                 </configuration>
                 <executions>
                     <execution>
