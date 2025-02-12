@@ -304,7 +304,7 @@
                         type="primary"
                         icon="i-tabler-calendar"
                         :isActiveAnim="true"
-                        class="min-w-[180px] flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105 group"
+                        class="min-w-[180px] flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105 group"
                       >
                         {{ dateLabel }}
                       </Button>
@@ -330,7 +330,7 @@
                   <!-- Gradient Reset Button -->
                   <button
                     type="button"
-                    class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105 group"
+                    class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium bg-gradient-to-r from-custom-gradient-start to-custom-gradient-end text-white hover:shadow-lg transition-all duration-300 ease-out hover:scale-105 group"
                     @click="handleReset"
                     title="Reset all filters"
                   >
