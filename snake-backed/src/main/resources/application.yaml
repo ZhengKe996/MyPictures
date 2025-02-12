@@ -32,12 +32,6 @@ server:
   port: 8080
   servlet:
     context-path: /
-    session:
-      cookie:
-        secure: true
-        same-site: none
-        http-only: true
-        max-age: 2592000
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
