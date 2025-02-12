@@ -222,7 +222,7 @@ const handleSubmit = async () => {
     // 根据返回的code和data，显示相应的成功或错误消息
     if (code === 0 && data) Message.success("Space created successfully");
     else Message.error(message || "Failed to create space");
-    router.push("/manager/space");
+    router.push("/my-space");
   }
 };
 
