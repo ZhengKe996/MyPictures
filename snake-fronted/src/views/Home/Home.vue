@@ -76,7 +76,8 @@
               <div
                 class="mt-14 flex justify-end gap-8 sm:-mt-44 sm:justify-start sm:pl-20 lg:mt-0 lg:pl-0"
               >
-                <template v-for="(column, _) in gridImages" :key="index">
+                <!-- @ts-ignore -->
+                <div v-for="(column, index) in gridImages" :key="index">
                   <div :class="column.containerClass">
                     <div
                       v-for="(image, imageIndex) in column.images"
@@ -93,7 +94,7 @@
                       />
                     </div>
                   </div>
-                </template>
+                </div>
               </div>
             </div>
           </div>
@@ -332,7 +333,7 @@
                           v-for="repo in topRepositories"
                           :key="repo.id"
                           class="group relative isolate overflow-hidden rounded-lg backdrop-blur-md transition-all duration-300"
-                          @click="openInNewTab(repo.html_url)"
+                          @click="openInNewTab(repo.html_url ?? '')"
                         >
                           <!-- 背景渐变效果 -->
                           <div
@@ -412,7 +413,7 @@
                               <span
                                 class="text-sm text-gray-200 bg-white/10 rounded-full px-3 py-1 backdrop-blur-lg"
                               >
-                                Updated {{ formatDate(repo.updated_at) }}
+                                Updated {{ formatDate(repo.updated_at ?? "") }}
                               </span>
                             </div>
                           </div>
@@ -431,7 +432,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { GetPictureList, GetGithubUser, GetUserRepos } from "@/services";
 import { GitHubUserName, type PictureType } from "@/config";
 import type { GithubRepo } from "@/services/github";
@@ -602,7 +603,7 @@ const repositories = ref<GithubRepo[]>([]);
 const topRepositories = computed(() => {
   return repositories.value
     .filter((repo) => !repo.fork) // 过滤掉fork的仓库
-    .sort((a, b) => b.stargazers_count - a.stargazers_count) // 按星标数排序
+    .sort((a, b) => (b.stargazers_count ?? 0) - (a.stargazers_count ?? 0)) // 按星标数排序
     .slice(0, 3); // 只取前3个
 });
 
@@ -615,87 +616,102 @@ const formatDate = (dateString: string) => {
   );
 };
 
+// 修改加载函数，添加错误处理
 const LoadPictureList = async () => {
-  const { data, code, message } = await GetPictureList({
-    pageSize: 10,
-    current: 1,
-  });
-  if (code === 0 && data) {
-    const apiImages = data.records.map((record: PictureType) => ({
-      src: record.url,
-      alt: record.name,
-    }));
+  try {
+    const { data, code, message } = await GetPictureList({
+      pageSize: 10,
+      current: 1,
+    });
+    if (code === 0 && data) {
+      const apiImages = data.records.map((record: PictureType) => ({
+        src: record.url,
+        alt: record.name,
+      }));
 
-    if (apiImages.length >= 10) {
-      // 前5张图片用于gridImages
-      gridImages.value[0].images = [apiImages[0]];
-      gridImages.value[1].images = [apiImages[1], apiImages[2]];
-      gridImages.value[2].images = [apiImages[3], apiImages[4]];
+      if (apiImages.length >= 10) {
+        // 前5张图片用于gridImages
+        gridImages.value[0].images = [apiImages[0]];
+        gridImages.value[1].images = [apiImages[1], apiImages[2]];
+        gridImages.value[2].images = [apiImages[3], apiImages[4]];
 
-      // 后5张图片用于categories
-      categories.value = [
-        {
-          id: 1,
-          title: "Featured Gallery",
-          description: "View gallery",
-          route: "#",
-          imageSrc: apiImages[5].src,
-          imageAlt: apiImages[5].alt,
-          featured: true,
-        },
-        {
-          id: 2,
-          title: "Popular Photos",
-          description: "Browse collection",
-          route: "#",
-          imageSrc: apiImages[6].src,
-          imageAlt: apiImages[6].alt,
-        },
-        {
-          id: 3,
-          title: "New Uploads",
-          description: "Latest additions",
-          route: "#",
-          imageSrc: apiImages[7].src,
-          imageAlt: apiImages[7].alt,
-        },
-      ];
+        // 后5张图片用于categories
+        categories.value = [
+          {
+            id: 1,
+            title: "Featured Gallery",
+            description: "View gallery",
+            route: "#",
+            imageSrc: apiImages[5].src,
+            imageAlt: apiImages[5].alt,
+            featured: true,
+          },
+          {
+            id: 2,
+            title: "Popular Photos",
+            description: "Browse collection",
+            route: "#",
+            imageSrc: apiImages[6].src,
+            imageAlt: apiImages[6].alt,
+          },
+          {
+            id: 3,
+            title: "New Uploads",
+            description: "Latest additions",
+            route: "#",
+            imageSrc: apiImages[7].src,
+            imageAlt: apiImages[7].alt,
+          },
+        ];
+      }
+    } else {
+      console.warn(message);
     }
-  } else throw new Error(message);
+  } catch (error) {
+    console.error("Failed to load pictures:", error);
+  }
 };
 
+// 修复 LoadGithubUserInfo 函数中的类型错误和语法错误
 const LoadGithubUserInfo = async () => {
+  const { data } = await GetGithubUser(GitHubUserName);
+  if (!data) return;
+
   const {
-    login,
     avatar_url,
+    login,
     name,
     location,
     public_repos,
     followers,
     following,
-  } = await GetGithubUser(GitHubUserName);
+  } = data;
 
   featuredContent.value = {
     image: {
-      src: avatar_url,
-      alt: login,
+      src: avatar_url ?? "",
+      alt: login ?? "",
     },
     author: {
-      name: name || login,
-      login,
+      name: name || login || "",
+      login: login ?? "", // 修复此处的语法错误
       location: location || "Location not specified",
     },
     stats: {
-      repos: public_repos,
-      followers,
-      following,
+      repos: public_repos ?? 0, // 提供默认值
+      followers: followers ?? 0, // 提供默认值
+      following: following ?? 0, // 提供默认值
     },
   };
 };
+
+// 修复 LoadGithubRepos 函数中的类型处理
 const LoadGithubRepos = async () => {
   try {
-    const repos = await GetUserRepos(GitHubUserName);
-    repositories.value = repos;
+    const { data } = await GetUserRepos(GitHubUserName);
+    if (data) {
+      repositories.value = data;
+    }
   } catch (error) {
     console.error("Failed to load repositories:", error);
   }
@@ -729,9 +745,18 @@ const handleCategoryClick = (route: string) => {
   router.push(route);
 };
 
-onMounted(() => nextTick(() => LoadPictureList()));
-onMounted(() => nextTick(() => LoadGithubUserInfo()));
-onMounted(() => nextTick(() => LoadGithubRepos()));
+// 修改 mounted 钩子的实现
+onMounted(async () => {
+  try {
+    await Promise.all([
+      LoadPictureList(),
+      LoadGithubUserInfo(),
+      LoadGithubRepos(),
+    ]);
+  } catch (error) {
+    console.error("Error during component initialization:", error);
+  }
+});
 </script>
 
 <style scoped>

@@ -10,7 +10,9 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 export type { BaseResponse_boolean_ } from './models/BaseResponse_boolean_';
 export type { BaseResponse_CreateOutPaintingTaskResponse_ } from './models/BaseResponse_CreateOutPaintingTaskResponse_';
 export type { BaseResponse_GetOutPaintingTaskResponse_ } from './models/BaseResponse_GetOutPaintingTaskResponse_';
+export type { BaseResponse_GithubUserVO_ } from './models/BaseResponse_GithubUserVO_';
 export type { BaseResponse_int_ } from './models/BaseResponse_int_';
+export type { BaseResponse_List_GithubRepoVO_ } from './models/BaseResponse_List_GithubRepoVO_';
 export type { BaseResponse_List_PictureVO_ } from './models/BaseResponse_List_PictureVO_';
 export type { BaseResponse_List_Space_ } from './models/BaseResponse_List_Space_';
 export type { BaseResponse_List_SpaceCategoryAnalyzeResponse_ } from './models/BaseResponse_List_SpaceCategoryAnalyzeResponse_';
@@ -38,6 +40,8 @@ export type { CreateOutPaintingTaskResponse } from './models/CreateOutPaintingTa
 export type { CreatePictureOutPaintingTaskRequest } from './models/CreatePictureOutPaintingTaskRequest';
 export type { DeleteRequest } from './models/DeleteRequest';
 export type { GetOutPaintingTaskResponse } from './models/GetOutPaintingTaskResponse';
+export type { GithubRepoVO } from './models/GithubRepoVO';
+export type { GithubUserVO } from './models/GithubUserVO';
 export type { LoginUserVO } from './models/LoginUserVO';
 export type { Output } from './models/Output';
 export type { Output_1 } from './models/Output_1';
@@ -88,6 +92,7 @@ export type { UserUpdateRequest } from './models/UserUpdateRequest';
 export type { UserVO } from './models/UserVO';
 
 export { FileControllerService } from './services/FileControllerService';
+export { GithubControllerService } from './services/GithubControllerService';
 export { PictureControllerService } from './services/PictureControllerService';
 export { SpaceAnalyzeControllerService } from './services/SpaceAnalyzeControllerService';
 export { SpaceControllerService } from './services/SpaceControllerService';

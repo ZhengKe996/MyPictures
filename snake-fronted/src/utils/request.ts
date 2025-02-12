@@ -3,6 +3,7 @@ import axios from "axios";
 const Service = axios.create({
   baseURL: import.meta.env.VITE_BASE_API,
   timeout: 5000,
+  withCredentials: true,
 });
 
 /**
