@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@RequestMapping("/analyze")
+@RequestMapping("/api/analyze")
 public class SpaceAnalyzeController {
 
     private final SpaceAnalyzeService spaceAnalyzeService;

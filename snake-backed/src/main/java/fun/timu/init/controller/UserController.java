@@ -30,7 +30,7 @@ import static fun.timu.init.service.impl.UserServiceImpl.SALT;
 
 @Slf4j
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
 
     private final UserService userService;

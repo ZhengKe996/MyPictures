@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/space")
+@RequestMapping("/api/space")
 public class SpaceController {
     private static final Logger logger = LoggerFactory.getLogger(SpaceController.class);
     private final SpaceService spaceService;

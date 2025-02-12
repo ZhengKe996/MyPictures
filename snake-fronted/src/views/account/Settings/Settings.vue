@@ -137,43 +137,6 @@
                   </div>
                 </div>
               </div>
-
-              <!-- 隐私设置 -->
-              <div class="mt-10 border-t border-gray-200 pt-8">
-                <h3
-                  class="text-lg font-medium text-gray-900 gradient-primary bg-clip-text text-transparent mb-4"
-                >
-                  Privacy Settings
-                </h3>
-                <div class="space-y-4">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <h4 class="text-sm font-medium text-gray-900">
-                        Public Profile
-                      </h4>
-                      <p class="text-sm text-gray-500">
-                        Make your profile visible to others
-                      </p>
-                    </div>
-                    <Switch
-                      v-model="formData.isPublic"
-                      class="relative inline-flex size-[38px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-custom-gradient-end focus:ring-offset-2"
-                      :class="[
-                        formData.isPublic
-                          ? 'bg-custom-gradient-end'
-                          : 'bg-gray-200',
-                      ]"
-                    >
-                      <span
-                        class="pointer-events-none relative inline-block size-[34px] transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                        :class="[
-                          formData.isPublic ? 'translate-x-4' : 'translate-x-0',
-                        ]"
-                      />
-                    </Switch>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <!-- 提交按钮 -->
@@ -222,7 +185,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { Switch } from "@headlessui/vue";
 import Dialog from "@/lib/Dialog";
 import ImageCropper from "@/components/ImageCropper";
 import { GetLoginInfoUser, UploadAvatar, EditProfile } from "@/services";

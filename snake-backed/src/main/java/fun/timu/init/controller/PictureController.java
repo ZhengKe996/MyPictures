@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @RestController
-@RequestMapping("/picture")
+@RequestMapping("/api/picture")
 public class PictureController {
     private static final Logger logger = LoggerFactory.getLogger(PictureController.class);
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
